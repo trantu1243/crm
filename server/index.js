@@ -1,0 +1,48 @@
+const mongoose = require('mongoose');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
+const http = require('http');
+const { Server } = require("socket.io");
+require('dotenv').config();
+
+const routes = require('./routes/index');
+const { importExcelToMongo } = require('./dump');
+const { resetPass } = require('./utils/resetPass');
+
+mongoose.connect(process.env.MONGODB_URL).then(() => {
+    console.log("Connect to mongodb successfully");
+    importExcelToMongo();
+    // resetPass();
+
+});
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:3001', 
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+    }
+});
+
+app.use(cors({
+	origin: 'http://localhost:3001', 
+	methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+	allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
+
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(mongoSanitize());
+app.use('/v1', routes);
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+

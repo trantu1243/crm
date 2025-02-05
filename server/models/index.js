@@ -1,0 +1,11 @@
+module.exports.BankAccount = require('./bankAccount.model');
+module.exports.BankApi = require('./bankApi.model');
+module.exports.Bill = require('./bill.model');
+module.exports.BoxTransaction = require('./boxTransaction.model');
+module.exports.Customer = require('./customer.model');
+module.exports.FeeTransaction = require('./feeTransaction.model');
+module.exports.LogActivity = require('./logActivity.model');
+module.exports.Permission = require('./permission.model');
+module.exports.Role = require('./role.model');
+module.exports.Staff = require('./staff.model');
+module.exports.Transaction = require('./transaction.model');

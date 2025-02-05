@@ -1,0 +1,32 @@
+// User Pages
+
+.app-logo {
+  height: 26px;
+  width: 201px;
+  background: url('../../assets/utils/images/logo-inverse.png');
+}
+
+.app-logo-inverse {
+  height: 26px;
+  width: 201px;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMkAAAAaCAYAAAAdbHiEAAAACXBIWXMAAAsSAAALEgHS3X78AAACjElEQVR4nO2c303DMBDGPyre6QYUiXe6AWUCygRkBJiAMAHwzANlA0YIG5QNwgZlAqOT8hCCnVzqcxLX95MqVa1zds7+6j93KYwxS2NMYeQgW6heK0G7O2NMXrMtbb9o2J4bYz4C2o/tlQv6Ig/YhzSeSwFbNN4yauMMwDOAS0yfEwAPAFYDtZT8ch2BX5S/FABOBXxC4+0NwGIWiUDqDCWS9UD1KHLMq8EtSTaLsIOWA9Uj7WwlUmIUyXwCbVAS4thxq/cAtnu6Yccow7VP+4KLFvtk48pxLc04T5bPXeU57X4HsGGU29f+lNlU630btn76AnDnKF/W3rf1YQbg1vK5q/w5gNce5ZvY7sMpkm2LQyTg2rcNrG3j+77t9LmvMrBfpkzZGNx1bP3E7Zu2cq79Z6g+t/6QxbjcUpRBUZEoSgcqEkXpwLUnsdG1rttVG5/U1uy0oV10lCG/fAzUHkUYrkjWzKAjRajPWjZ4h8bCcfrShHx3o0KJE+5yq0/0OUvFeeqXNOgzk3AZKm1kCvQZ+BJB0KVnuswmoVm+Ts4sZ102c0Sy1hQNKwtb4Ckwd8zlnYsiUZE8+FzMEQltyB8d32VCGZcxMm/xyypQ4qgmXY4ARyRFR0Q0VZFsW1Jr8gAi0Rl9JDROEg86i4yEiiQeVCQj0SeYqIyLPiKwP0fMKwvbMtklkox5lNsVaXYR2n4oVszjxJSOwQ8el0h8jhk5hLYfissIH3dWPNE9iaJ0EEIkh5Lg+C1sL/YnE5OFRPIiePM/Ho+3TsF+Hel6hmq3IsxxlepQChwxllVKeD3tgX49P4WabLPfhm/deVWXb2LirhLIIWcA24Kq+/5HQh3yf58+9O3z/20Gyl8vH0MV5+sxuQAAAABJRU5ErkJggg==);
+}
+
+.app-login-box {
+  .app-logo {
+    margin-bottom: $layout-spacer-lg;
+  }
+
+  h4 {
+    margin-bottom: $layout-spacer-x;
+    font-weight: normal;
+
+    div {
+      opacity: .6;
+    }
+
+    span {
+      font-size: $font-size-lg;
+    }
+  }
+}
