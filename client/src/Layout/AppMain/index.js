@@ -6,7 +6,7 @@ import { ToastContainer } from "react-toastify";
 import PrivateRoute from "./PrivateRoute";
 import { useDispatch } from "react-redux";
 import { verifyToken } from "../../services/authService";
-import { loginSuccess, logout } from "../../reducers/userSlice";
+import { authSuccess, loginSuccess, logout } from "../../reducers/userSlice";
 import Transactions from "../../DemoPages/Transaction";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
@@ -35,7 +35,7 @@ const AppMain = () => {
             }
             try {
                 const userData = await verifyToken(tokenState);
-                dispatch(loginSuccess(userData));
+                dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
                 localStorage.removeItem("token");

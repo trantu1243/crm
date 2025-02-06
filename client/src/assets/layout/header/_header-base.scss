@@ -48,15 +48,15 @@
 .app-header__logo {
   padding: 0 $layout-spacer-x;
   height: $app-header-height;
-  width: $app-sidebar-width;
+  width: 320px;
   display: flex;
   align-items: center;
   transition: width .2s;
 
   .logo-src {
-    height: $logo-height;
-    width: $logo-width;
-    background: url('../../../assets/utils/images/logo-inverse.png');
+    height: 26px;
+    width: 201px;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMkAAAAaCAYAAAAdbHiEAAAACXBIWXMAAAsSAAALEgHS3X78AAAC1UlEQVR4nO2c0W3bMBCGL0be6w1ConyvN7A7QZIJohHcCdpM0PS5D3U2yAZNN3DfCZDdQNmgIMAYgs2TaPEomdJ9LwEU+UQe+YNH3klXH2/ECgCeAGANNPzR1mycJSWk+/ubyO6ba6e25tv7BWL7h3Z720sA2AHAbQ77paGEdH7/StTsx/dxpB5DANgCwAsA3CTacvNtq63ZLYgFkpMPbpC8U4fgiVAgzHC8EggE/Hz7pYQUi0IE0mQokdwN9ByGjqWf3JRUiwIHaDXQc6idzRRKiSJZXkAbmBlxjXT1CwDse7qhjrgn1r7bF3xqse9sfEZ+61ac74Hr2P0x7X72m/k+xNi/ZHY+3g8RGqe/fhMdwjautY1hBQAPgevY/QoAfp5x/zGhfqAi2WtrMIdQEGVfCRmaWAdxaWtqbOCUkEGbif2ymf1ysWhr7NHkPoCMUx3jq44xDO4/MbupY470o8hwi2EGhUXCMB2wSBimA2xPcoISsiuuq31GfFYxuxLSbWhFx23OLy8DNYkhJkokSsi7yKTjrRJS+k3e5HHZWOT05Zi1EvKehVImseHWOdnnai7OY7/Mg9hw65zJUGwRXw/OmfjJSVAl5CqxXGY3l1W+iS/OjCEYNneKxIdaXKJxhA+1ThJPmdlGhncYr1iuY+IkVS/HrCRuQ/6I/K8iqrgskWWLXzaZCke56HIEOkXiT6vaMqKzFIm2Zo+V1vjlnVQkvKKPB+dJyoFXkZFgkZQDi2QkopOJzLhoa/gVgZ5oa65ifukT5idhMiaSKvI12a5MM0Zu+7nYRB4nzukYfPJgIkk5Zowht/1crAt83ZlJhPckDNNBDpFMpcDxH7G90t9MnC1OJD8IO/+W8HrrJdhvQv2codrNEHOtrdkqIS3BEaP1JeHNsofafzCMgpD9NpKe7T6e5v2SWphY+5qpKVcAh5Kqfb+R0MT5/5wxTJ1vp20GsP8BsTHPrJjkreIAAAAASUVORK5CYII=');
   }
 }
 

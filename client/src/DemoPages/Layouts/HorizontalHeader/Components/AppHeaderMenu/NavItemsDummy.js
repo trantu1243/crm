@@ -2,7 +2,7 @@ export const MainNav = [
   {
     icon: "pe-7s-rocket",
     label: "Dashboards",
-    to: "#/dashboards/default",
+    to: "/dashboards/default",
   },
   {
     icon: "pe-7s-box2",
@@ -10,34 +10,34 @@ export const MainNav = [
     content: [
       {
         label: "Horizontal Header",
-        to: "#/layouts-horizontal-header",
+        to: "/layouts-horizontal-header",
       },
       {
         label: "Vertical Sidebar Menu",
-        to: "#/layouts-left-sidebar",
+        to: "/layouts-left-sidebar",
       },
       {
         label: "Closed Sidebar Menu",
-        to: "#/layouts-right-sidebar",
+        to: "/layouts-right-sidebar",
       },
       {
         label: "Minimal Sidebar Menu",
-        to: "#/layouts-right-sidebar",
+        to: "/layouts-right-sidebar",
       },
       {
         label: "Multiple Sidebars",
-        to: "#/layouts-right-sidebar",
+        to: "/layouts-right-sidebar",
       },
       {
         label: "Multiple Horizontal Menus",
-        to: "#/layouts-top-header",
+        to: "/layouts-top-header",
       },
     ],
   },
   {
     icon: "fa-pe-7s-light",
     label: "Forms",
-    to: "#/dashboards/default",
+    to: "/dashboards/default",
   },
   {
     icon: "pe-7s-browser",
@@ -45,31 +45,31 @@ export const MainNav = [
     content: [
       {
         label: "Login",
-        to: "#/pages-login",
+        to: "/pages-login",
       },
       {
         label: "Login Boxed",
-        to: "#/pages-login",
+        to: "/pages-login",
       },
       {
         label: "Register",
-        to: "#/pages-register",
+        to: "/pages-register",
       },
       {
         label: "Register Boxed",
-        to: "#/pages-register",
+        to: "/pages-register",
       },
       {
         label: "Forgot Password",
-        to: "#/pages-forgot-password",
+        to: "/pages-forgot-password",
       },
       {
         label: "Forgot Password Boxes",
-        to: "#/pages-forgot-password",
+        to: "/pages-forgot-password",
       },
       {
         label: "Lockscreen",
-        to: "#/pages-forgot-password",
+        to: "/pages-forgot-password",
       },
     ],
   },
@@ -79,23 +79,23 @@ export const MainNav = [
     content: [
       {
         label: "Chat",
-        to: "#/dashboards/default",
+        to: "/dashboards/default",
       },
       {
         label: "Blog",
-        to: "#/dashboards/default",
+        to: "/dashboards/default",
       },
       {
         label: "ToDo",
-        to: "#/dashboards/analytics",
+        to: "/dashboards/analytics",
       },
       {
         label: "Calendar",
-        to: "#/dashboards/analytics",
+        to: "/dashboards/analytics",
       },
       {
         label: "Projects",
-        to: "#/dashboards/analytics",
+        to: "/dashboards/analytics",
       },
     ],
   },
@@ -110,69 +110,69 @@ export const ComponentsNav = [
         content: [
           {
             label: "Standard",
-            to: "#/elements/buttons-standard",
+            to: "/elements/buttons-standard",
           },
           {
             label: "Pills",
-            to: "#/elements/buttons-pills",
+            to: "/elements/buttons-pills",
           },
           {
             label: "Square",
-            to: "#/elements/buttons-square",
+            to: "/elements/buttons-square",
           },
           {
             label: "Shadow",
-            to: "#/elements/buttons-shadow",
+            to: "/elements/buttons-shadow",
           },
           {
             label: "With Icons",
-            to: "#/elements/buttons-icons",
+            to: "/elements/buttons-icons",
           },
         ],
       },
       {
         label: "Dropdowns",
-        to: "#/elements/dropdowns",
+        to: "/elements/dropdowns",
       },
       {
         label: "Icons",
-        to: "#/elements/icons",
+        to: "/elements/icons",
       },
       {
         label: "Badges",
-        to: "#/elements/badges-labels",
+        to: "/elements/badges-labels",
       },
       {
         label: "Cards",
-        to: "#/elements/cards",
+        to: "/elements/cards",
       },
       {
         label: "Loading Indicators",
-        to: "#/elements/loaders",
+        to: "/elements/loaders",
       },
       {
         label: "List Groups",
-        to: "#/elements/list-group",
+        to: "/elements/list-group",
       },
       {
         label: "Navigation Menus",
-        to: "#/elements/navigation",
+        to: "/elements/navigation",
       },
       {
         label: "Timeline",
-        to: "#/elements/timelines",
+        to: "/elements/timelines",
       },
       {
         label: "Utilities",
-        to: "#/elements/utilities",
+        to: "/elements/utilities",
       },
       {
         label: "Drag & Drop",
-        to: "#/elements/drag-drop",
+        to: "/elements/drag-drop",
       },
       {
         label: "Screen Section Visibility",
-        to: "#/elements/visibility-sensor",
+        to: "/elements/visibility-sensor",
       },
     ],
   },
@@ -182,63 +182,63 @@ export const ComponentsNav = [
     content: [
       {
         label: "Tabs",
-        to: "#/components/tabs",
+        to: "/components/tabs",
       },
       {
         label: "Accordions",
-        to: "#/components/accordions",
+        to: "/components/accordions",
       },
       {
         label: "Notifications",
-        to: "#/components/notifications",
+        to: "/components/notifications",
       },
       {
         label: "Tables",
-        to: "#/components/tables",
+        to: "/components/tables",
       },
       {
         label: "Modals",
-        to: "#/components/modals",
+        to: "/components/modals",
       },
       {
         label: "Loading Blockers",
-        to: "#/components/loading-blocks",
+        to: "/components/loading-blocks",
       },
       {
         label: "Progress Bar",
-        to: "#/components/progress-bar",
+        to: "/components/progress-bar",
       },
       {
         label: "Tooltips & Popovers",
-        to: "#/components/tooltips-popovers",
+        to: "/components/tooltips-popovers",
       },
       {
         label: "Carousel",
-        to: "#/components/carousel",
+        to: "/components/carousel",
       },
       {
         label: "Count Up",
-        to: "#/components/count-up",
+        to: "/components/count-up",
       },
       {
         label: "Sticky Elements",
-        to: "#/components/sticky-elements",
+        to: "/components/sticky-elements",
       },
       {
         label: "Scrollable",
-        to: "#/components/scrollable-elements",
+        to: "/components/scrollable-elements",
       },
       {
         label: "Tree View",
-        to: "#/components/tree-view",
+        to: "/components/tree-view",
       },
       {
         label: "Image Crop",
-        to: "#/components/image-crop",
+        to: "/components/image-crop",
       },
       {
         label: "Guided Tours",
-        to: "#/components/guided-tours",
+        to: "/components/guided-tours",
       },
     ],
   },
@@ -250,23 +250,23 @@ export const FormsNav = [
     content: [
       {
         label: "Controls",
-        to: "#/components/forms-controls",
+        to: "/components/forms-controls",
       },
       {
         label: "Layouts",
-        to: "#/components/forms-layouts",
+        to: "/components/forms-layouts",
       },
       {
         label: "Validation",
-        to: "#/components/forms-validation",
+        to: "/components/forms-validation",
       },
       {
         label: "Wizard",
-        to: "#/components/forms-wizard",
+        to: "/components/forms-wizard",
       },
       {
         label: "Sticky Form Headers",
-        to: "#/components/forms-sticky-headers",
+        to: "/components/forms-sticky-headers",
       },
     ],
   },
@@ -276,43 +276,43 @@ export const FormsNav = [
     content: [
       {
         label: "Datepicker",
-        to: "#/components/forms-datepicker",
+        to: "/components/forms-datepicker",
       },
       {
         label: "Range Slider",
-        to: "#/components/forms-range-slider",
+        to: "/components/forms-range-slider",
       },
       {
         label: "Multiselect",
-        to: "#/components/forms-input-selects",
+        to: "/components/forms-input-selects",
       },
       {
         label: "Toggle Switch",
-        to: "#/components/forms-toggle-switch",
+        to: "/components/forms-toggle-switch",
       },
       {
         label: "Dropdowns",
-        to: "#/components/forms-dropdown",
+        to: "/components/forms-dropdown",
       },
       {
         label: "WYSIWYG Editor",
-        to: "#/components/forms-wysiwyg-editor",
+        to: "/components/forms-wysiwyg-editor",
       },
       {
         label: "Input Mask",
-        to: "#/components/forms-input-mask",
+        to: "/components/forms-input-mask",
       },
       {
         label: "Typeahead",
-        to: "#/components/forms-typeahead",
+        to: "/components/forms-typeahead",
       },
       {
         label: "Dropzone",
-        to: "#/components/forms-dropzone",
+        to: "/components/forms-dropzone",
       },
       {
         label: "Color Picker",
-        to: "#/components/forms-color-picker",
+        to: "/components/forms-color-picker",
       },
     ],
   },
@@ -324,48 +324,48 @@ export const WidgetsNav = [
     content: [
       {
         label: "Variation 1",
-        to: "#/widgets/chart-boxes",
+        to: "/widgets/chart-boxes",
       },
       {
         label: "Variation 2",
-        to: "#/widgets/chart-boxes-2",
+        to: "/widgets/chart-boxes-2",
       },
       {
         label: "Variation 3",
-        to: "#/widgets/chart-boxes-3",
+        to: "/widgets/chart-boxes-3",
       },
     ],
   },
   {
     icon: "pe-7s-id",
     label: "Profile Boxes",
-    to: "#/widgets/profile-boxes",
+    to: "/widgets/profile-boxes",
   },
   {
     icon: "pe-7s-display1",
     label: "Content Boxes",
-    to: "#/widgets/content-boxes",
+    to: "/widgets/content-boxes",
   },
 ];
 export const ChartsNav = [
   {
     icon: "pe-7s-graph",
     label: "ChartJS",
-    to: "#/components/chartjs",
+    to: "/components/chartjs",
   },
   {
     icon: "pe-7s-graph1",
     label: "Chart Sparklines 1",
-    to: "#/components/charts-sparklines-1",
+    to: "/components/charts-sparklines-1",
   },
   {
     icon: "pe-7s-graph1",
     label: "Just Gages",
-    to: "#/components/charts-just-gage",
+    to: "/components/charts-just-gage",
   },
   {
     icon: "pe-7s-edit",
     label: "Chart Sparklines 2",
-    to: "#/components/charts-sparklines-2",
+    to: "/components/charts-sparklines-2",
   },
 ];

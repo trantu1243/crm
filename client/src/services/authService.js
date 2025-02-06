@@ -12,7 +12,6 @@ export const login = async (email, password) => {
                 },
             }
         );
-        console.log(response.data)
         return response.data; // Giả sử server trả về `{ user, token }`
     } catch (error) {
         console.log(error)

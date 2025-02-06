@@ -41,7 +41,7 @@ const login = async (req, res) => {
 
 const authToken = async (req, res) => {
     try {
-        const user = await Staff.findById(req.user.id).select('name_staff email uid_facebook avatar');
+        const user = await Staff.findById(req.user.id).select('name_staff email uid_facebook avatar is_admin permission_bank roles');
         res.json({ 
             message: 'Login successful', 
             user

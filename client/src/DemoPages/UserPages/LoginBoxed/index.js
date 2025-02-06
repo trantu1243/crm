@@ -18,10 +18,12 @@ const LoginBoxed = ({ match }) => {
         dispatch(loginStart());
         try {
             const data = await login(email, password);
+            console.log(data)
             localStorage.setItem("token", data.token);
             dispatch(loginSuccess(data));
-            history.push('/dashboards');
+            window.location.href = "/dashboards";
         } catch (err) {
+            console.log(err)
             dispatch(loginFailure(err));
         }
     };

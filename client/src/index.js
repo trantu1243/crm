@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import * as serviceWorker from "./serviceWorker";
 import * as process from 'process';
 
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import "./assets/base.scss";
 import Main from "./DemoPages/Main";
 import configureStore from "./config/configureStore";
@@ -21,9 +21,9 @@ window.Buffer = [];
 const renderApp = (Component) => {
   ReactDOM.render(
     <Provider store={store}>
-      <HashRouter>
+      <BrowserRouter>
         <Component />
-      </HashRouter>
+      </BrowserRouter>
     </Provider>,
     rootElement
   );
