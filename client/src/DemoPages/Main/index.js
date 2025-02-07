@@ -55,13 +55,13 @@ class Main extends React.Component {
 }
 
 const mapStateToProp = (state) => ({
-  colorScheme: state.ThemeOptions.colorScheme,
-  enableFixedHeader: state.ThemeOptions.enableFixedHeader,
-  enableMobileMenu: state.ThemeOptions.enableMobileMenu,
-  enableFixedFooter: state.ThemeOptions.enableFixedFooter,
-  enableFixedSidebar: state.ThemeOptions.enableFixedSidebar,
-  enableClosedSidebar: state.ThemeOptions.enableClosedSidebar,
-  enablePageTabsAlt: state.ThemeOptions.enablePageTabsAlt,
+    colorScheme: state.ThemeOptions.colorScheme,
+    enableFixedHeader: state.ThemeOptions.enableFixedHeader,
+    enableMobileMenu: state.ThemeOptions.enableMobileMenu,
+    enableFixedFooter: state.ThemeOptions.enableFixedFooter,
+    enableFixedSidebar: state.ThemeOptions.enableFixedSidebar,
+    enableClosedSidebar: state.ThemeOptions.enableClosedSidebar,
+    enablePageTabsAlt: state.ThemeOptions.enablePageTabsAlt,
 });
 
 export default withRouter(connect(mapStateToProp)(Main));

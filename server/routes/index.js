@@ -4,6 +4,7 @@ const authRoute = require('./auth.route');
 const transactionRoute = require('./transaction.route');
 const billRoute = require('./bill.route');
 const boxTransactionRoute = require('./boxTransaction.route');
+const staffRoute = require('./staff.route');
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const defaultRoutes = [
     {
         path: '/box-transaction',
         route: boxTransactionRoute
+    },
+    {
+        path: '/staff',
+        route: staffRoute
     },
 ];
 

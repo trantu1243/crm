@@ -149,6 +149,7 @@
   },
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7",
+    "@types/wojtekmaj__react-datetimerange-picker": "^3.0.2",
     "vm-browserify": "^1.1.2"
   }
 }

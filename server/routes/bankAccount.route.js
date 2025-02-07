@@ -1,11 +1,9 @@
 const express = require('express');
-const { BankAccount } = require('../models');
+const { bankAccountController } = require('../controllers');
+const authenticateToken = require('../middlewares/authenticateToken');
 
 const router = express.Router();
 
-router.get('/all', async (req, res) => {
-    const items = await BankAccount.find();
-    res.send(items);
-});
+router.get('/', authenticateToken, bankAccountController.getBankAccounts);
 
 module.exports = router;

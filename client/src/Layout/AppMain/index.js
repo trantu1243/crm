@@ -3,10 +3,9 @@ import React, { Suspense, lazy, Fragment, useState, useEffect } from "react";
 import Loader from "react-loaders";
 
 import { ToastContainer } from "react-toastify";
-import PrivateRoute from "./PrivateRoute";
 import { useDispatch } from "react-redux";
 import { verifyToken } from "../../services/authService";
-import { authSuccess, loginSuccess, logout } from "../../reducers/userSlice";
+import { authSuccess, logout } from "../../reducers/userSlice";
 import Transactions from "../../DemoPages/Transaction";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));

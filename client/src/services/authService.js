@@ -27,6 +27,8 @@ export const verifyToken = async (token) => {
         console.log(response.data)
         return response.data;
     } catch (error) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
         throw new Error("Token không hợp lệ");
     }
 };

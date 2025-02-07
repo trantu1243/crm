@@ -8,8 +8,17 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import HeaderLogo from "../AppLogo";
 
 import UserBox from "./Components/UserBox";
+import { Redirect } from "react-router-dom";
 
 class Header extends React.Component {
+
+    checkLogin() {
+        let { user } = this.props;
+        if (!user) {
+            window.location.href = "/login";
+        }
+    }
+
     render() {
         let {
             headerBackgroundColor,
@@ -17,6 +26,10 @@ class Header extends React.Component {
             enableHeaderShadow,
             user
         } = this.props;
+        console.log(user)
+        if (!user) {
+            return <Redirect to="/login" />
+        }
         return (
             <Fragment>
                 <TransitionGroup>
@@ -48,7 +61,7 @@ const mapStateToProps = (state) => ({
     closedSmallerSidebar: state.ThemeOptions.closedSmallerSidebar,
     headerBackgroundColor: state.ThemeOptions.headerBackgroundColor,
     enableMobileMenuSmall: state.ThemeOptions.enableMobileMenuSmall,
-    user: state.user.user
+    user: state.user.user || null
 });
 
 const mapDispatchToProps = (dispatch) => ({});

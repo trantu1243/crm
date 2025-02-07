@@ -72,9 +72,42 @@ const toggleAccountStatus = async (req, res) => {
     }
 };
   
+const getStaffs = async (req, res) => {
+    try {
+        const staffs = await Staff.find({ status: 'active' }).select('name_staff email');
+
+        res.status(200).json({
+            message: 'Staffs fetched successfully',
+            data: staffs,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const staff = await Staff.findById(id);
+        if (!staff) {
+            return res.status(404).json({ message: 'Staff not found' });
+        }
+        res.status(200).json({
+            message: 'Staff fetched successfully',
+            data: staff,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 
 module.exports = { 
     createAccount,
     updateAccount,
-    toggleAccountStatus
+    toggleAccountStatus,
+    getStaffs,
+    getById
 };

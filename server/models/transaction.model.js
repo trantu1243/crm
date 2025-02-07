@@ -9,7 +9,7 @@ const transactionSchema = new mongoose.Schema({
     stk: { type: String },
     content: { type: String },
     fee: { type: Number },
-    totalAmount: { type: String },
+    totalAmount: { type: Number },
     status: { type: Number, default: 1 },
     linkQr: { type: String },
     messengerId: { type: String },

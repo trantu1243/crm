@@ -13,13 +13,12 @@ import ForgotPassword from "./ForgotPassword/";
 import ForgotPasswordBoxed from "./ForgotPasswordBoxed/";
 
 const UserPages = ({ match }) => (
-  <Fragment>
-    <div className="app-container">
-      {/* User Pages */}
-      <LoginBoxed />
-     
-    </div>
-  </Fragment>
+    <Fragment>
+        <div className="app-container">
+            <LoginBoxed />
+        
+        </div>
+    </Fragment>
 );
 
 export default UserPages;

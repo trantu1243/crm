@@ -14,12 +14,12 @@ const getTransactions = async (req, res) => {
             page = 1,
             limit = 10,
         } = req.query;
-
         const filter = {};
 
-        if (staffId) filter.staffId = staffId;
-        if (status) filter.status = status;
-        if (bankId) filter.bankId = bankId;
+        if (staffId) filter.staffId = { $in: Array.isArray(staffId) ? staffId : [staffId] };
+        if (status) filter.status = { $in: Array.isArray(status) ? status : [status] };
+        if (bankId) filter.bankId = { $in: Array.isArray(bankId) ? bankId : [bankId] };
+
         if (minAmount || maxAmount) {
             filter.amount = {};
             if (minAmount) filter.amount.$gte = Number(minAmount);
