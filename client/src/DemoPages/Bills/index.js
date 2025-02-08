@@ -6,32 +6,29 @@ import { Button, Card, CardBody, Col, Container, Input, Label } from "reactstrap
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
 import AppHeader from "../../Layout/AppHeader";
-import TransactionsTable from "./Tables";
+import BillsTable from "./Tables";
 import { connect } from "react-redux";
-import { getTransactions, setFilters } from "../../reducers/transactionsSlice";
+import { getBills, setFilters } from "../../reducers/billsSlice";
 import { DatePicker, Multiselect, NumberPicker } from "react-widgets/cjs";
 import { fetchStaffs } from "../../services/staffService";
-import { fetchBankAccounts } from "../../services/bankAccountService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { fetchBankApi } from "../../services/bankApiService";
 
 export const dummyData = [
   {
     name: "Danh sách giao dịch trung gian",
-    content: <TransactionsTable />,
+    content: <BillsTable />,
   },
 ];
 
 const statusList = [
-    { value: 1, name: "Chưa nhận" },
+    { value: 1, name: "Đang xử lý" },
     { value: 2, name: "Thành công" },
     { value: 3, name: "Hủy" },
-    { value: 6, name: "Đã nhận" },
-    { value: 7, name: "Đang xử lý" },
-    { value: 8, name: "Hoàn thành một phần" },
 ];
 
-class Transactions extends Component {
+class Bills extends Component {
     constructor(props) {
         super(props);
     
@@ -47,13 +44,13 @@ class Transactions extends Component {
             loading: false,
             value: [],
             staffs: [],
-            bankAccounts: []
+            banks: []
         };
     }
 
     componentDidMount() {
         this.getStaffs()
-        this.getBankAccounts()
+        this.getBanks()
     }
   
     toggle(tab) {
@@ -78,10 +75,10 @@ class Transactions extends Component {
         })
     }
 
-    getBankAccounts = async () => {
-        const data = await fetchBankAccounts();
+    getBanks = async () => {
+        const data = await fetchBankApi();
         this.setState({
-            bankAccounts: data.data
+            banks: data.data
         })
     }
 
@@ -90,7 +87,7 @@ class Transactions extends Component {
     };
     
     handleFilter = () => {
-        this.props.getTransactions(this.state.filters);
+        this.props.getBills(this.state.filters);
     };
 
     handleDateChange = (date) => {
@@ -101,11 +98,11 @@ class Transactions extends Component {
     };
 
     render() {
-        let { staffs, bankAccounts } = this.state;
+        let { staffs, banks } = this.state;
         let filters = this.props.filters || {
             staffId: [],
             status: [],
-            bankId: [],
+            bankCode: [],
             minAmount: "",
             maxAmount: "",
             startDate: "",
@@ -165,16 +162,16 @@ class Transactions extends Component {
                                                     <Col md={3} className="pe-2 mb-2">
                                                         <Label>Ngân hàng</Label>
                                                         <Multiselect
-                                                            data={bankAccounts}
-                                                            value={bankAccounts.filter((b) => filters?.bankId?.includes(b._id))}
+                                                            data={banks}
+                                                            value={banks.filter((b) => filters?.bankCode?.includes(b.bankCode))}
                                                             onChange={(selected) =>
-                                                                this.props.setFilters({
+                                                                setFilters({
                                                                     ...filters,
-                                                                    bankId: selected.map((b) => b._id),
+                                                                    bankCode: selected.map((b) => b.bankCode),
                                                                 })
                                                             }
                                                             textField="bankCode"
-                                                            valueField="_id"
+                                                            valueField="bankCode"
                                                             placeholder="Chọn ngân hàng"
                                                         />
                                                     </Col>
@@ -267,7 +264,7 @@ class Transactions extends Component {
                                                                 color="primary" 
                                                                 onClick={()=>{
                                                                     this.props.setFilters({...filters, page: 1});
-                                                                    this.props.getTransactions(filters);
+                                                                    this.props.getBills(filters);
                                                                 }}
                                                             >
                                                                 <FontAwesomeIcon icon={faSearch} className="me-2"  />
@@ -304,14 +301,14 @@ class Transactions extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    transactions: state.transactions.transactions,
-    filters: state.transactions.filters,
-    loading: state.transactions.loading  || false,
+    bills: state.bills.bills,
+    filters: state.bills.filters,
+    loading: state.bills.loading  || false,
 });
   
 const mapDispatchToProps = {
-    getTransactions,
+    getBills,
     setFilters
 };
   
-export default connect(mapStateToProps, mapDispatchToProps)(Transactions);
+export default connect(mapStateToProps, mapDispatchToProps)(Bills);

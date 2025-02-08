@@ -1,6 +1,6 @@
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
-const TransactionsPagination = ({ totalPages, currentPage, hasPrevPage, hasNextPage, onPageChange }) => {
+const PaginationTable = ({ totalPages, currentPage, hasPrevPage, hasNextPage, onPageChange }) => {
     const maxPagesToShow = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
@@ -48,4 +48,4 @@ const TransactionsPagination = ({ totalPages, currentPage, hasPrevPage, hasNextP
     );
 };
 
-export default TransactionsPagination;
+export default PaginationTable;

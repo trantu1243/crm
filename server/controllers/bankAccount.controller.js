@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const { BankAccount } = require('../models');
   
 const getBankAccounts = async (req, res) => {

@@ -55,7 +55,12 @@ const getTransactions = async (req, res) => {
 const getById = async (req, res) => {
     try {
         const { id } = req.params;
-        const transaction = await Transaction.findById(id);
+        const transaction = await Transaction.findById(id).populate(
+            [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+            ]
+        );
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }

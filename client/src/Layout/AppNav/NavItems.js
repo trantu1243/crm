@@ -40,7 +40,7 @@ export const MainNav = [
         content: [
             {
                 label: "Tạo giao dịch trung gian",
-                to: "/dashboards/analytics",
+                to: "/create-transaction",
             },
             {
                 label: "Quản lý giao dịch trung gian",
@@ -48,7 +48,7 @@ export const MainNav = [
             },
             {
                 label: "Quản lý thanh khoản",
-                to: "/dashboards/sales",
+                to: "/bills",
             },
         ],
     },

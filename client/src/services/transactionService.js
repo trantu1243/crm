@@ -32,3 +32,25 @@ export const fetchTransactions = async (filters) => {
         throw error.response?.data?.message || "Failed to fetch transactions!";
     }
 };
+
+export const fetchTransactionById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching transactions", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch transaction!";
+    }
+};

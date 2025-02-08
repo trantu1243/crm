@@ -1,6 +1,61 @@
 const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction } = require("../models");
 const { generateQrCode } = require("../services/qr.service");
 
+const getBills = async (req, res) => {
+    try {
+        const {
+            staffId,
+            status,
+            bankCode,
+            minAmount,
+            maxAmount,
+            startDate,
+            endDate,
+            content,
+            page = 1,
+            limit = 10,
+        } = req.query;
+        
+        const filter = {};
+
+        if (staffId) filter.staffId = { $in: Array.isArray(staffId) ? staffId : [staffId] };
+        if (status) filter.status = { $in: Array.isArray(status) ? status : [status] };
+        if (bankCode) filter.bankCode = { $in: Array.isArray(bankCode) ? bankCode : [bankCode] };
+
+        if (minAmount || maxAmount) {
+            filter.amount = {};
+            if (minAmount) filter.amount.$gte = Number(minAmount);
+            if (maxAmount) filter.amount.$lte = Number(maxAmount);
+        }
+        if (startDate || endDate) {
+            filter.createdAt = {};
+            if (startDate) filter.createdAt.$gte = new Date(startDate);
+            if (endDate) filter.createdAt.$lte = new Date(endDate);
+        }
+        if (content) filter.content = { $regex: content, $options: 'i' };
+
+        const bills = await Bill.paginate(filter, {
+            page: Number(page),
+            limit: Number(limit),
+            populate: [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+            ],
+            sort: { createdAt: -1 },
+        });
+
+        res.status(200).json({
+            message: 'Bills fetched successfully',
+            data: bills,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+module.exports = { getBills };
+
+
 const createBill = async (req, res) => {
     try {
         const requiredFields = ['boxId', 'buyer', 'seller'];
@@ -138,7 +193,7 @@ const createBill = async (req, res) => {
             await sellerBill.save();
         }
 
-        const transactions = await Transaction.updateMany({ boxId: boxId, status: { $in: [2, 6, 8] }}, {status: 7});
+        const bills = await Transaction.updateMany({ boxId: boxId, status: { $in: [2, 6, 8] }}, {status: 7});
         
         return res.status(201).json({
             message: 'Bill created successfully',
@@ -327,5 +382,6 @@ module.exports = {
     confirmBill,
     updateBill,
     cancelBill,
-    getById
+    getById,
+    getBills
 }

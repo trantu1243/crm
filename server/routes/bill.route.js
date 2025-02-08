@@ -4,6 +4,8 @@ const { billController } = require('../controllers');
 
 const router = express.Router();
 
+router.get('/', authenticateToken, billController.getBills);
+
 router.get('/:id', authenticateToken, billController.getById);
 
 router.post('/create', authenticateToken, billController.createBill);

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchTransactions } from "../services/transactionService";
+import { fetchTransactionById, fetchTransactions } from "../services/transactionService";
 
 // Action async để fetch transactions
 export const getTransactions = createAsyncThunk(
@@ -17,9 +17,36 @@ export const getTransactions = createAsyncThunk(
     }
 );
 
+export const getTransactionById = createAsyncThunk(
+    "transactions/getTransactionById",
+    async (id, { rejectWithValue }) => {
+        try {
+            return await fetchTransactionById(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const initialState = {
     transactions: {
         docs: []
+    },
+    transaction: {
+        _id: '',
+        amount: 0,
+        bankId: null,
+        bonus: 0,
+        boxId: '',
+        content: '',
+        fee:'',
+        messengerId: '',
+        linkQr: '',
+        totalAmount: '',
+        typeFee: '',
+        createdAt: '',
+        updatedAt: '',
+        status: null
     },
     loading: false,
     error: null,
@@ -50,6 +77,18 @@ const transactionsSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(getTransactionById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getTransactionById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.transaction = action.payload.data;
+            })
+            .addCase(getTransactionById.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
             .addCase(getTransactions.pending, (state) => {
                 state.loading = true;
                 state.error = null;

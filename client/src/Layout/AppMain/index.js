@@ -6,7 +6,10 @@ import { ToastContainer } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { verifyToken } from "../../services/authService";
 import { authSuccess, logout } from "../../reducers/userSlice";
-import Transactions from "../../DemoPages/Transaction";
+import Transactions from "../../DemoPages/Transactions";
+import Bills from "../../DemoPages/Bills";
+import Transaction from "../../DemoPages/Transaction";
+import CreateTransaction from "../../DemoPages/CreateTransaction";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Applications = lazy(() => import("../../DemoPages/Applications"));
@@ -234,7 +237,55 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/transactions" render={() => <Transactions/>
+                <Route path="/transactions" render={() => isAuth ? <Transactions /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/transaction/:id" render={() => isAuth ? <Transaction /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/create-transaction" render={() => isAuth ? <CreateTransaction /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+            
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/bills" render={() => isAuth ? <Bills /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
