@@ -23,7 +23,7 @@ const BillStatusBadge = ({ status }) => {
     }
 
     return (
-        <td>
+        <td className="text-center text-muted">
             <span className={`badge ${badgeClass}`}>{badgeText}</span>
         </td>
     );

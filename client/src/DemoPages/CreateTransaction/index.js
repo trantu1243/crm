@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 
-import { Button, Card, CardBody, CardTitle, Col, Container, FormText, Input, InputGroup, Label } from "reactstrap";
+import { Button, Card, CardBody, CardTitle, Col, Container, Input, Label } from "reactstrap";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -10,8 +10,8 @@ import cx from "classnames";
 
 import { Combobox, NumberPicker } from "react-widgets/cjs";
 import { fetchBankAccounts } from "../../services/bankAccountService";
-import { withRouter } from "../../utils/withRouter";
 import { fetchFee } from "../../services/feeService";
+import { createTransaction } from "../../services/transactionService";
 
 const typeFee = [
     {name: 'Bên mua chịu phí', value: 'buyer'},
@@ -28,14 +28,16 @@ class CreateTransaction extends Component {
             bankAccounts: [],
             fee: [],
             copied: false,
+            loading: false,
             input: {
                 amount: '',
-                bankCode: '',
-                bonus: '',
+                bankId: '',
+                bonus: '0',
                 content: '',
                 fee: '',
                 messengerId: '',
                 typeFee: 'buyer',
+                typeBox: 'facebook',
                 isToggleOn: true,
             },
         };
@@ -49,6 +51,7 @@ class CreateTransaction extends Component {
 
     getBankAccounts = async () => {
         const data = await fetchBankAccounts();
+        console.log(data)
         this.setState({
             bankAccounts: data.data
         })
@@ -88,7 +91,7 @@ class CreateTransaction extends Component {
         this.setState((prevState) => ({
             input: {
                 ...prevState.input,
-                amount: value,
+                amount: value < 0 ? 0 : value,
                 fee: fee,
             },
         }));
@@ -102,6 +105,14 @@ class CreateTransaction extends Component {
                 [name]: value,
             },
         }));
+    };
+
+    handleSubmit = async (e) => {
+        e.preventDefault();
+        this.setState({loading: true});
+        const res = await createTransaction(this.state.input);
+        this.setState({loading: false});
+        window.location.href = `/box/${res.transaction.boxId}`;
     };
 
     render() {
@@ -143,7 +154,6 @@ class CreateTransaction extends Component {
                                                             defaultValue="facebook"
                                                         />
                                                     </Col>
-                                                    
                                                 </Row>
 
                                                 <Row className="mb-4">
@@ -151,12 +161,12 @@ class CreateTransaction extends Component {
                                                         <Combobox
                                                             data={this.state.bankAccounts}
                                                             textField="bankName"
-                                                            valueField="bankCode"
-                                                            value={this.state.bankAccounts.find(item => item.bankCode === input.bankCode) || null}
+                                                            valueField="_id"
+                                                            value={this.state.bankAccounts.find(item => item._id === input.bankId) || null}
                                                             onChange={(item) => {
-                                                                const selectedValue = typeof item === "string" ? item : item?.bankCode;
+                                                                const selectedValue = typeof item === "string" ? item : item?._id;
                                                                 this.setState((prevState) => ({
-                                                                    input: { ...prevState.input, bankCode: selectedValue }
+                                                                    input: { ...prevState.input, bankId: selectedValue }
                                                                 }));
                                                             }}
                                                             placeholder="Chọn ngân hàng"
@@ -180,7 +190,12 @@ class CreateTransaction extends Component {
                                                             step={10000}
                                                             name="fee"
                                                             value={input.fee}
-                                                            onChange={this.handleInputChange}
+                                                            onChange={(value)=>{this.setState((prevState) => ({
+                                                                input: {
+                                                                    ...prevState.input,
+                                                                    fee: value < 0 ? 0 : value,
+                                                                },
+                                                            }));}}
                                                         />
                                                     </Col>           
                                                 </Row>
@@ -233,10 +248,11 @@ class CreateTransaction extends Component {
                                                     <Button 
                                                         className="btn-wide me-2 mt-2 btn-dashed w-100" 
                                                         color="primary" 
+                                                        onClick={this.handleSubmit}
+                                                        disabled={this.state.loading}    
                                                     >
-                                                        Tạo QR
+                                                        {this.state.loading ? "Đang tạo..." : "Tạo QR"}
                                                     </Button>
-                                                    
                                                 </div>
                                             </div>
                                         </Row>

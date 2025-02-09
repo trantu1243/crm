@@ -28,6 +28,42 @@ const getTransactionsByBoxId = async (req, res) => {
     }
 };
 
+const getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(404).json({ message: 'Bad request' });
+        }
+        const box = await BoxTransaction.findById(id).populate(
+            [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+            ]
+        );
+        if (!box) {
+            return res.status(404).json({ message: 'Box not found' });
+        }
+        const transactions = await Transaction.find({ boxId: id }).sort({ createdAt: -1 }).populate(
+            [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+            ]
+        );;
+        const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
+            { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+        ]);
+        const boxObject = box.toObject();
+        boxObject.transactions = transactions;
+        boxObject.bills = bills;
+        res.status(200).json({
+            message: 'Transaction fetched successfully',
+            data: boxObject,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 
 const undoBox = async (req, res) => {
     try {
@@ -147,5 +183,6 @@ const undoBox = async (req, res) => {
 module.exports = {
     undoBox,
     getTransactionsByBoxId,
-    getBillsByBoxId
+    getBillsByBoxId,
+    getById
 }

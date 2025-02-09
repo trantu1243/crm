@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcryptjs");
 const { Staff } = require('../models');
 
 const createAccount = async (req, res) => {

@@ -1,55 +1,39 @@
 import { Button, Card, CardFooter, CardHeader, Col, Row, Table } from "reactstrap";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 import React, { Component } from "react";
-import { formatDate } from "./data";
-import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getTransactions, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
-import TransactionsPagination from "./PaginationTable";
-import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
-import { faCheck, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import StatusBadge from "../../Transactions/Tables/StatusBadge";
+import { formatDate } from "../../Transactions/Tables/data";
+import { faCheck, faInfoCircle, faMinus, faMoneyBill, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { getBoxById } from "../../../reducers/boxSlice";
 import { confirmTransaction } from "../../../services/transactionService";
+import { withRouter } from "../../../utils/withRouter";
 
 class TransactionsTable extends Component {
-    componentDidMount() {
-        this.props.getTransactions({});
-    }
-    componentDidUpdate(prevProps) {
-        if (prevProps.filters.page !== this.props.filters.page) {
-            this.props.getTransactions(this.props.filters);
-        }
-        if (prevProps.filters.limit !== this.props.filters.limit) {
-            this.props.getTransactions(this.props.filters);
-        }
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            show: false,
+        };
     }
 
-    handleConfirm = async (id) => {
-        try {
+     handleConfirm = async (id, boxId) => {
+        try {                    
             const res = await confirmTransaction(id);
             if (res.status) {
-                this.props.getTransactions(this.props.filters);
+                this.props.getBoxById(boxId)
+                this.setState({show: false});
             }
         } catch (error) {
 
         }
     }
-
+    
     render() { 
-        let filters = this.props.filters || {
-            staffId: [],
-            status: [],
-            bankId: [],
-            minAmount: "",
-            maxAmount: "",
-            startDate: "",
-            endDate: "",
-            content: "",
-            page: 1,
-            limit: 10,
-        };
         const { transactions } = this.props;
         
         return (<Card className="main-card mb-3">
@@ -62,7 +46,6 @@ class TransactionsTable extends Component {
                     <a href="/create-transaction" className={"btn btn-sm btn-info me-1 al-min-width-max-content"} style={{minWidth: "max-content", textTransform: "none"}}>
                         Tạo GDTG
                     </a>
-                    <h3 className="text-center w-100">Tổng số GD: <span className="text-danger fw-bold">{transactions.totalDocs}</span></h3>
                     
                 </CardHeader>
                 <Table responsive hover striped borderless className="align-middle mb-0">
@@ -85,7 +68,7 @@ class TransactionsTable extends Component {
                     </thead>
                     <tbody>
                     
-                        {transactions.docs.map((item) => <tr>
+                        {transactions.map((item) => <tr>
                             <td className="text-center text-muted">{item._id.slice(-8)}</td>
                             <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
                             <td className="text-center text-muted">{item.bankId.bankCode}</td>
@@ -104,16 +87,18 @@ class TransactionsTable extends Component {
                                     </button>
                                 </>}
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-success me-1" title="Xác nhận giao dịch">
+                                    <button className="btn btn-sm btn-success me-1" title="Xác nhận giao dịch" onClick={() => this.setState({ show: true })}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
+
+                                    <SweetAlert title="Xác nhận giao dịch!"  show={this.state.show}
+                                        type="warning" onConfirm={() => {this.handleConfirm(item._id, item.boxId)}}/>
+   
                                     <a href={`/transaction/${item._id}`} className="btn btn-sm btn-info me-1" title="Xem chi tiết giao dịch">
                                         <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
                                     </a>
                                 </>}
-                                <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light me-1" title="Xem chi tiết box">
-                                    <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
-                                </a>
+                               
                                 {item.status === 1 && <>
                                     <button className="btn btn-sm btn-danger me-1" title="Hủy">
                                         <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
@@ -129,36 +114,7 @@ class TransactionsTable extends Component {
                     </tbody>
                 </Table>
                 <CardFooter className="d-block text-center">
-                    <Row>
-                        <Col md={11}>
-                            <TransactionsPagination
-                                totalPages={transactions.totalPages}
-                                currentPage={transactions.page}
-                                hasPrevPage={transactions.hasPrevPage}
-                                hasNextPage={transactions.hasNextPage}
-                                onPageChange={(page) => {
-                                    this.props.setFilters({
-                                        ...filters,
-                                        page,
-                                    });
-                                }}
-                            />
-                        </Col>
-                        <Col md={1}>
-                            <Combobox 
-                                data={[10, 20, 30, 50, 100]} 
-                                defaultValue={[10]} 
-                                value={filters.limit} 
-                                onChange={(value) => {
-                                        this.props.setFilters({
-                                            ...filters,
-                                            limit: value,
-                                        });
-                                    }
-                                }/>
-                        </Col>
-                    </Row>
-                    
+                
                 </CardFooter>
             </>)}
         </Card>)
@@ -166,14 +122,12 @@ class TransactionsTable extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    transactions: state.transactions.transactions,
-    loading: state.transactions.loading,
-    filters: state.transactions.filters,
+    transactions: state.box.box ? state.box.box.transactions : [],
+    loading: state.box.loading,
 });
   
 const mapDispatchToProps = {
-    getTransactions,
-    setFilters
+    getBoxById
 };
   
-export default connect(mapStateToProps, mapDispatchToProps)(TransactionsTable);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(TransactionsTable));

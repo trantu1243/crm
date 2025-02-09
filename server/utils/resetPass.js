@@ -1,5 +1,5 @@
 const { Staff } = require("../models")
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcryptjs");
 
 const resetPass = async () => {
     try{

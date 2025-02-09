@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchBills } from "../services/billService";
+import { fetchBillById, fetchBills } from "../services/billService";
 
 // Action async để fetch bills
 export const getBills = createAsyncThunk(
@@ -17,10 +17,22 @@ export const getBills = createAsyncThunk(
     }
 );
 
+export const getBillById = createAsyncThunk(
+    "transactions/getTransactionById",
+    async (id, { rejectWithValue }) => {
+        try {
+            return await fetchBillById(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 const initialState = {
     bills: {
         docs: []
     },
+    bill: null,
     loading: false,
     error: null,
     filters: {
@@ -50,6 +62,18 @@ const billsSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(getBillById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getBillById.fulfilled, (state, action) => {
+                state.loading = false;
+                state.bill = action.payload.data;
+            })
+            .addCase(getBillById.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
             .addCase(getBills.pending, (state) => {
                 state.loading = true;
                 state.error = null;

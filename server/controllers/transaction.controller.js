@@ -1,4 +1,5 @@
-const { Transaction, BoxTransaction, BankAccount, Customer } = require("../models");
+const { Transaction, BoxTransaction, BankAccount, Customer, Staff } = require("../models");
+const { generateQrCode } = require("../services/qr.service");
 
 const getTransactions = async (req, res) => {
     try {
@@ -273,6 +274,7 @@ const confirmTransaction = async (req, res) => {
         await transaction.save();
 
         return res.status(200).json({
+            status: true,
             message: 'Transaction confirmed successfully',
         });
     } catch (error) {

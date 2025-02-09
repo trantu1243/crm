@@ -21,7 +21,7 @@ const LoginBoxed = ({ match }) => {
             console.log(data)
             localStorage.setItem("token", data.token);
             dispatch(loginSuccess(data));
-            window.location.href = "/dashboards";
+            window.location.href = "/transactions";
         } catch (err) {
             console.log(err)
             dispatch(loginFailure(err));

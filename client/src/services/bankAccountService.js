@@ -1,6 +1,7 @@
 import axios from "axios";
+import { SERVER_URL } from "./url";
 
-const API_URL = "http://localhost:3000/v1/bank-account";
+const API_URL = `${SERVER_URL}/v1/bank-account`;
 
 export const fetchBankAccounts = async () => {
     try {

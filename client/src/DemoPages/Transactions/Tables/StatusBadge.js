@@ -6,7 +6,7 @@ const StatusBadge = ({ status }) => {
 
     switch (status) {
         case 1:
-            badgeClass = 'bg-warning';
+            badgeClass = 'bg-secondary';
             badgeText = 'Chưa nhận';
             break;
         case 2:
@@ -18,7 +18,7 @@ const StatusBadge = ({ status }) => {
             badgeText = 'Hủy';
             break;
         case 6:
-            badgeClass = 'bg-secondary';
+            badgeClass = 'bg-warning';
             badgeText = 'Đã nhận';
             break;
         case 7:
@@ -35,7 +35,7 @@ const StatusBadge = ({ status }) => {
     }
 
     return (
-        <td>
+        <td className="text-center text-muted">
             <span className={`badge ${badgeClass}`}>{badgeText}</span>
         </td>
     );

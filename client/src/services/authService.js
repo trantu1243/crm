@@ -1,6 +1,7 @@
 import axios from "axios";
+import { SERVER_URL } from "./url";
 
-const API_URL = "http://localhost:3000/v1";
+const API_URL = `${SERVER_URL}/v1`;
 
 export const login = async (email, password) => {
     try {

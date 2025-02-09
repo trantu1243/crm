@@ -10,6 +10,8 @@ import Transactions from "../../DemoPages/Transactions";
 import Bills from "../../DemoPages/Bills";
 import Transaction from "../../DemoPages/Transaction";
 import CreateTransaction from "../../DemoPages/CreateTransaction";
+import Box from "../../DemoPages/Box";
+import Bill from "../../DemoPages/Bill";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Applications = lazy(() => import("../../DemoPages/Applications"));
@@ -269,6 +271,22 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
+                <Route path="/box/:id" render={() => isAuth ? <Box /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
                 <Route path="/create-transaction" render={() => isAuth ? <CreateTransaction /> : <Redirect to="/login" />
                 }  />
             </Suspense>
@@ -286,6 +304,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/bills" render={() => isAuth ? <Bills /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/bill/:id" render={() => isAuth ? <Bill /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

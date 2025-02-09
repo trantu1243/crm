@@ -10,6 +10,7 @@ import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import PaginationTable from "../../Transactions/Tables/PaginationTable";
 import { formatDate } from "../../Transactions/Tables/data";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 class BillsTable extends Component {
     componentDidMount() {
@@ -45,9 +46,9 @@ class BillsTable extends Component {
                 </div>
             ) : ( <>
                 <CardHeader className="mt-2">
-                    <Button className={"btn btn-sm btn-info me-1 al-min-width-max-content"} style={{minWidth: "max-content"}}>
+                    <a href="/create-transaction" className={"btn btn-sm btn-info me-1 al-min-width-max-content"} style={{minWidth: "max-content"}}>
                         + Tạo GDTG
-                    </Button>
+                    </a>
                     <h3 className="text-center w-100">Tổng bill: <span className="text-danger fw-bold">{bills.totalDocs}</span></h3>
                     
                 </CardHeader>
@@ -77,9 +78,13 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <StatusBadge status={item.status} />
-                            <td><img width={40} className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff}/></td>
-                            <td><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
-
+                            <td className="text-center text-muted"><img width={40} className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff}/></td>
+                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                            <td className="text-center text-muted">
+                                <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light">
+                                    <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
+                                </a>
+                            </td>
                         </tr>)}
                     </tbody>
                 </Table>

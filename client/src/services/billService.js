@@ -1,6 +1,7 @@
 import axios from "axios";
+import { SERVER_URL } from "./url";
 
-const API_URL = "http://localhost:3000/v1/bill";
+const API_URL = `${SERVER_URL}/v1/bill`;
 
 export const fetchBills = async (filters) => {
     try {
@@ -31,4 +32,48 @@ export const fetchBills = async (filters) => {
 
         throw error.response?.data?.message || "Failed to fetch bills!";
     }
+};
+
+export const fetchBillById = async (id) => {
+    try {
+        const response = await axios.get(`${API_URL}/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching bill", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch bill!";
+    }
+};
+
+
+export const createBill = async (billData) => {
+    try {
+        const response = await axios.post(`${API_URL}/create`, billData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating bill", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to creating bill!";
+    }  
 };

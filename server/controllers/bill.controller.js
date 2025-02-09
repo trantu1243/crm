@@ -363,10 +363,14 @@ const cancelBill = async (req, res) => {
 const getById = async (req, res) => {
     try {
         const { id } = req.params;
-        const bill = await Bill.findById(id);
+        const bill = await Bill.findById(id).populate([
+            { path: 'billId', select: 'bankCode stk content amount bonus typeTransfer boxId linkQr status staffId billId' },
+            { path: 'boxId', select: 'name status messengerId staffId typeBox amount notes' },
+        ]);
         if (!bill) {
             return res.status(404).json({ message: 'Bill not found' });
         }
+
         res.status(200).json({
             message: 'Bill fetched successfully',
             data: bill,

@@ -206,7 +206,7 @@ class Transactions extends Component {
                                                             onChange={(value) =>
                                                                 this.props.setFilters({
                                                                     ...filters,
-                                                                    minAmount: value,
+                                                                    minAmount: value < 0 ? 0 : value,
                                                                 })
                                                             }
                                                         />
@@ -219,7 +219,7 @@ class Transactions extends Component {
                                                             onChange={(value) =>
                                                                 this.props.setFilters({
                                                                     ...filters,
-                                                                    maxAmount: value,
+                                                                    maxAmount: value < 0 ? 0 : value,
                                                                 })
                                                             }
                                                         />

@@ -21,7 +21,7 @@ services:
     container_name: server
     environment:
       - PORT=3000
-      - MONGODB_URL=mongodb://admin:admin036203@mongodb-container:27017/crm_main?authSource=admin
+      # - MONGODB_URL=mongodb://admin:admin036203@mongodb-container:27017/crm_main?authSource=admin
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
