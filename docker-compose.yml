@@ -14,6 +14,18 @@ services:
       - ./db/:/data/db
     networks:
       - crm_network
+  traefik:
+    image: traefik:v3.2
+    container_name: traefik
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - crm_network
   server:
     build:
       context: ./server
@@ -40,13 +52,17 @@ services:
       dockerfile: Dockerfile
     container_name: client
     ports:
-      - "3001:3001"
+      - "80:80"
     restart: always
     depends_on:
       - "mongodb"
     volumes:
        - ./client:/usr/src/client
        - /usr/src/client/node_modules
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.rule=Host(`thantai.tathanhan.com`)"
+      - "traefik.http.services.client.loadbalancer.server.port=80"
     networks:
       - crm_network
 networks:
