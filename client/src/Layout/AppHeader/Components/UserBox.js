@@ -43,7 +43,7 @@ class UserBox extends React.Component {
         ));
 
     render() {
-        const { user } = this.props;
+        const { user, logout } = this.props;
         return (
             <Fragment>
                 <div className="header-btn-lg pe-0">
@@ -80,7 +80,7 @@ class UserBox extends React.Component {
                                                                 </div>
                                                             </div>
                                                             <div className="widget-content-right me-2">
-                                                                <Button className="btn-pill btn-shadow btn-shine" color="focus">
+                                                                <Button className="btn-pill btn-shadow btn-shine" color="focus" onClick={logout}>
                                                                     Đăng xuất
                                                                 </Button>
                                                             </div>

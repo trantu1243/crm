@@ -1,6 +1,7 @@
 import "./polyfills";
 import React from "react";
 import ReactDOM from "react-dom";
+import { Helmet } from "react-helmet";
 
 import * as serviceWorker from "./serviceWorker";
 import * as process from 'process';
@@ -22,7 +23,12 @@ const renderApp = (Component) => {
   ReactDOM.render(
     <Provider store={store}>
       <BrowserRouter>
-        <Component />
+        <>
+          <Helmet>
+            <meta name="robots" content="noindex, nofollow" />
+          </Helmet>
+          <Component />
+        </> 
       </BrowserRouter>
     </Provider>,
     rootElement

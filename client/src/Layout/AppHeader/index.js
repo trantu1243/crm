@@ -9,6 +9,7 @@ import HeaderLogo from "../AppLogo";
 
 import UserBox from "./Components/UserBox";
 import { Redirect } from "react-router-dom";
+import { logout } from "../../reducers/userSlice";
 
 class Header extends React.Component {
 
@@ -45,7 +46,7 @@ class Header extends React.Component {
                                 })}>
                             
                                 <div className="app-header-right">
-                                    <UserBox user={user}/>
+                                    <UserBox user={user} logout={this.props.logout}/>
                                 </div>
                             </div>
                         </div>
@@ -64,6 +65,8 @@ const mapStateToProps = (state) => ({
     user: state.user.user || null
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+    logout: () => dispatch(logout())
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Header);

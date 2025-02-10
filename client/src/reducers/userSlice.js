@@ -37,7 +37,9 @@ const userSlice = createSlice({
         },
         logout: (state) => {
             state.user = null;
+            localStorage.removeItem("token");
             state.token = null;
+            window.location.href = "/login";
         },
     },
 });
