@@ -4,12 +4,17 @@ import { Col, Row, Button, Form, FormGroup, Input } from "reactstrap";
 import { loginFailure, loginStart, loginSuccess } from "../../../reducers/userSlice";
 import { login } from "../../../services/authService";
 import { useHistory } from "react-router-dom";
+import SweetAlert from 'react-bootstrap-sweetalert';
+
 
 // Layout
 
 const LoginBoxed = ({ match }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [alert, setAlert] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.user);
     const history = useHistory()
@@ -23,7 +28,8 @@ const LoginBoxed = ({ match }) => {
             dispatch(loginSuccess(data));
             window.location.href = "/transactions";
         } catch (err) {
-            console.log(err)
+            setErrorMsg(err);
+            setAlert(true);
             dispatch(loginFailure(err));
         }
     };
@@ -81,6 +87,8 @@ const LoginBoxed = ({ match }) => {
                                         </Button>
                                     </div>
                                 </div>
+                                <SweetAlert title={errorMsg}  show={alert}
+                                    type="error" onConfirm={() => setAlert(false)}/>
                             </div>
                         </div>
                         <div className="text-center text-white opacity-8 mt-3">

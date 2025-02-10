@@ -32,18 +32,22 @@ services:
       dockerfile: Dockerfile
     container_name: server
     environment:
-      - PORT=3000
+      - PORT=80
       # - MONGODB_URL=mongodb://admin:admin036203@mongodb-container:27017/crm_main?authSource=admin
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
-      - "3000:3000"
+      - "80"
     restart: always
     depends_on:
       - "mongodb"
     volumes:
        - ./server:/usr/src/server
        - /usr/src/server/node_modules
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.server.rule=Host(`mayman.tathanhan.com`)"
+      - "traefik.http.services.server.loadbalancer.server.port=80"
     networks:
       - crm_network
   client:

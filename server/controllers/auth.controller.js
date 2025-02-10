@@ -8,19 +8,20 @@ const login = async (req, res) => {
         const requiredFields = ['email', 'password'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
-                return res.status(400).json({ message: `${field} is required` });
+                return res.status(400).json({ message: `Chưa nhập ${field}` });
             }
         }
         const { email, password } = req.body;
 
         const user = await Staff.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng!' });
         }
      
-        const isPasswordValid = bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng!' });
         }
 
         const accessToken = jwt.sign(
@@ -30,7 +31,7 @@ const login = async (req, res) => {
         );
 
         res.json({ 
-            message: 'Login successful', 
+            message: 'Đăng nhập thành công', 
             token: accessToken,
         });
     } catch (error) {
