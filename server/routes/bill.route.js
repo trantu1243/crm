@@ -14,6 +14,8 @@ router.post('/:id/update', authenticateToken, billController.updateBill);
 
 router.post('/:id/confirm', authenticateToken, billController.confirmBill);
 
+router.post('/:id/switch', authenticateToken, billController.switchBills);
+
 router.post('/:id/cancel', authenticateToken, billController.cancelBill);
 
 module.exports = router;

@@ -42,7 +42,6 @@ export const fetchBillById = async (id) => {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         });
-        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Error fetching bill", error);
@@ -60,6 +59,27 @@ export const fetchBillById = async (id) => {
 export const createBill = async (billData) => {
     try {
         const response = await axios.post(`${API_URL}/create`, billData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating bill", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to creating bill!";
+    }  
+};
+
+export const switchBill = async (id) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/switch`, {}, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`

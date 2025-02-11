@@ -58,7 +58,7 @@ module.exports = { getBills };
 
 const createBill = async (req, res) => {
     try {
-        const requiredFields = ['boxId', 'buyer', 'seller'];
+        const requiredFields = ['boxId'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `${field} is required` });
@@ -93,21 +93,21 @@ const createBill = async (req, res) => {
 
         let buyerBill = null;
         if ( buyer ) {
-            const requiredBuyerFields = ['bankCode', 'stk', 'content', 'amount', 'bonus'];
+            const requiredBuyerFields = ['bankCode', 'stk', 'content', 'amount'];
             for (const field of requiredBuyerFields) {
                 if (!buyer[field]) {
                     return res.status(400).json({ message: `${field} is required` });
                 }
             }
-            const { bankCode, stk, content, amount, bonus } = buyer;
+            const { bankCode, stk, content, amount, bonus = 0} = buyer;
 
             const bank = await BankApi.findOne({ bankCode: bankCode});
+            console.log(boxId)
             const customer = await Customer.findOne({
                 boxId: { $in: [boxId] },
                 type: 'buyer',
                 isDeleted: false,
             });
-
             const exists = customer.bankAccounts.some(
                 (account) => account.bankCode === bankCode && account.stk === stk
             );
@@ -134,20 +134,20 @@ const createBill = async (req, res) => {
                 bonus: Number(bonus),
                 typeTransfer: 'buyer',
                 boxId: box._id,
-                linkQr: qrLink,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${amount}&addInfo=${content}&accountName=`,
                 staffId: staff._id
             });
         }
 
         let sellerBill = null;
         if ( seller ) {
-            const requiredSellerFields = ['bankCode', 'stk', 'content', 'amount', 'bonus'];
+            const requiredSellerFields = ['bankCode', 'stk', 'content', 'amount'];
             for (const field of requiredSellerFields) {
                 if (!seller[field]) {
                     return res.status(400).json({ message: `${field} is required` });
                 }
             }
-            const { bankCode, stk, content, amount, bonus } = seller;
+            const { bankCode, stk, content, amount, bonus = 0 } = seller;
             const bank = await BankApi.findOne({ bankCode: bankCode});
             const customer = await Customer.findOne({
                 boxId: { $in: [boxId] },
@@ -163,15 +163,6 @@ const createBill = async (req, res) => {
                 customer.bankAccounts.push({ bankCode, stk });
                 await customer.save();
             }
-
-            const qrPayload = {
-                accountNo: stk,
-                acqId: bank.binBank, 
-                addInfo: content,
-                amount: amount.toString(),
-            };
-        
-            const qrLink = await generateQrCode(qrPayload);
         
             sellerBill = await Bill.create({
                 bankCode,
@@ -181,7 +172,7 @@ const createBill = async (req, res) => {
                 bonus: Number(bonus),
                 typeTransfer: 'seller',
                 boxId: box._id,
-                linkQr: qrLink,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${amount}&addInfo=${content}&accountName=`,
                 staffId: staff._id
             });
         }
@@ -329,6 +320,7 @@ const updateBill = async (req, res) => {
         await bill.save();
 
         return res.status(200).json({
+            status: true,
             message: 'Bill updated successfully',
             bill
         });
@@ -352,6 +344,7 @@ const cancelBill = async (req, res) => {
         await bill.save();
 
         return res.status(200).json({
+            status: true,
             message: 'Bill canceled successfully',
         });
     } catch (error) {
@@ -370,8 +363,8 @@ const getById = async (req, res) => {
         if (!bill) {
             return res.status(404).json({ message: 'Bill not found' });
         }
-
         res.status(200).json({
+            status: true,
             message: 'Bill fetched successfully',
             data: bill,
         });
@@ -381,11 +374,40 @@ const getById = async (req, res) => {
     }
 }
 
+const switchBills = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const bill = await Bill.findById(id).populate([
+            { path: 'billId'},
+        ]);
+
+        if (!bill || !bill.billId) {
+            return res.status(400).json({ message: 'Bill not eligible for switch' });
+        }
+        const typeTranfer = bill.typeTransfer;
+        bill.typeTransfer = bill.billId.typeTransfer;
+        const sideBill = await Bill.findById(bill.billId._id);
+        sideBill = typeTranfer;
+        await sideBill.save();
+        await bill.save();
+
+        return res.status(200).json({
+            status: true,
+            message: 'Bill canceled successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     createBill,
     confirmBill,
     updateBill,
     cancelBill,
     getById,
-    getBills
+    getBills,
+    switchBills
 }

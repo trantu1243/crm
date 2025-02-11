@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 
-import { Card, CardBody, CardHeader, CardTitle, Col, Container, Input, Label } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Input, Label } from "reactstrap";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -16,6 +16,8 @@ class Box extends Component {
         this.state = {
             loading: false,
             value: [],
+            showBuyerQR: false,
+            showSellerQR: false
         };
     }
 
@@ -23,6 +25,14 @@ class Box extends Component {
         const { id } = this.props.params; 
         this.props.getBillById(id);
     }
+
+    toggleQR = (side) => {
+        if (side === "buyer") {
+            this.setState({ showBuyerQR: !this.state.showBuyerQR, showSellerQR: false });
+        } else {
+            this.setState({ showSellerQR: !this.state.showSellerQR, showBuyerQR: false });
+        }
+    };
 
     // componentDidUpdate(prevProps) {
     //     if (prevProps.bill !== this.props.bill) {
@@ -33,7 +43,7 @@ class Box extends Component {
     // }
 
     render() {       
-        const box = this.props.bill.boxId || {
+        const box = this.props.bill?.boxId || {
             messengerId: '',
             name: '',
             amount: '',
@@ -48,12 +58,13 @@ class Box extends Component {
             amount: '',
             bonus: '',
             typeTransfer: '',
-            boxId: '',
+            boxId: null,
             linkQr: '',
             status: '',
             staffId: '',
             billId: null,
         }
+        const { showBuyerQR, showSellerQR } = this.state;
         return (
             <Fragment>
                 <AppHeader />
@@ -109,31 +120,83 @@ class Box extends Component {
                                 </Row>
                             </Container>
                             <Container fluid>
-                                <Row>
-                                    <Col md={6} className="pe-2">
-                                        <Card className="main-card mb-3">
-                                            <div className="btn btn-primary">Bên mua</div>
-                                            { (bill.typeTransfer === 'buyer') && <>
-                                                <img src={bill.linkQr} alt="" style={{width: '100%', height: '100%', padding: '0 6em'}}></img>
-                                            </>}
-                                            {(bill.billId && bill.billId.typeTransfer === 'buyer') && <>
-                                                <img src={bill.billId.linkQr} alt="" style={{width: '100%', height: '100%', padding: '0 6em'}}></img>
-                                            </>}
-                                        </Card>
-                                    </Col>
-                                    <Col md={6} className="ps-2">
-                                        <Card className="main-card mb-3">
-                                            <div className="btn btn-primary">Bên bán</div>
-                                            { (bill.typeTransfer === 'seller') && <>
-                                                <img src={bill.linkQr} alt="" style={{width: '100%', height: '100%', padding: '0 6em'}}></img>
-                                            </>}
-                                            {(bill.billId && bill.billId.typeTransfer === 'seller') && <>
-                                                    <img src={bill.billId.linkQr} alt="" style={{width: '100%', height: '100%', padding: '0 6em'}}></img>
-                                            </>}
-                                        </Card>
-                                    </Col>
-                                </Row>
+                            <Row>
+                                {/* Bên Mua */}
+                                <Col md={6} className="pe-2">
+                                    <Card className="main-card mb-3">
+                                        <div className="btn btn-primary">Bên mua</div>
+
+                                        {(bill.typeTransfer === 'buyer' || (bill.billId && bill.billId.typeTransfer === 'buyer')) && (
+                                            <>
+                                                <img 
+                                                    src={bill.linkQr || bill.billId?.linkQr} 
+                                                    alt="QR Code" 
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        padding: '0 6em',
+                                                        filter: (bill.status === 2 || !showBuyerQR) ? 'blur(10px)' : 'none',
+                                                        transition: 'filter 0.3s ease'
+                                                    }}
+                                                    onClick={() => this.toggleQR("buyer")}
+                                                />
+                                            
+                                                {bill.status === 1 && (
+                                                    <div className="d-flex justify-content-center gap-3 p-3">
+                                                        <Button color="success">Xác nhận bill</Button>
+                                                        <Button color="danger">Huỷ</Button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </Card>
+                                </Col>
+
+                                {/* Bên Bán */}
+                                <Col md={6} className="ps-2">
+                                    <Card className="main-card mb-3">
+                                        <div className="btn btn-primary">Bên bán</div>
+
+                                        {(bill.typeTransfer === 'seller' || (bill.billId && bill.billId.typeTransfer === 'seller')) && (
+                                            <>
+                                                <img 
+                                                    src={bill.linkQr || bill.billId?.linkQr} 
+                                                    alt="QR Code" 
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        padding: '0 6em',
+                                                        filter: (bill.status === 2 || !showSellerQR) ? 'blur(10px)' : 'none',
+                                                        transition: 'filter 0.3s ease'
+                                                    }}
+                                                    onClick={() => this.toggleQR("seller")}
+                                                />
+                                            
+                                                {bill.status === 1 && (
+                                                    <div className="d-flex justify-content-center gap-3 p-3">
+                                                        <Button color="success">Xác nhận bill</Button>
+                                                        <Button color="danger">Huỷ</Button>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </Card>
+                                </Col>
+                            </Row>
                             </Container>
+
+                            <Container fluid>
+                                <Card className="p-3">
+                                    <div className="d-flex justify-content-center gap-3 mb-2">
+                                        <Button color="success" style={{width: 150}}>Đảo bill</Button>
+                                    </div> 
+                                    <div className="d-flex justify-content-center gap-3">
+                                        <a href={`/box/${bill.boxId?._id || ''}`} className="btn btn-secondary" style={{width: 150}}>Quay lại box</a>
+                                        <a href="/bills" className="btn btn-secondary" style={{width: 150}}>Quay lại quản lý bill</a>
+                                    </div>
+                                </Card>
+                            </Container>
+
 
                         </div>
                     </div>

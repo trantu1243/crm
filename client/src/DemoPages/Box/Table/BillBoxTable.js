@@ -11,7 +11,9 @@ import { formatDate } from "../../Transactions/Tables/data";
 import { faCopy, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import cx from "classnames";
 import { fetchBankApi } from "../../../services/bankApiService";
-import { Combobox, NumberPicker } from "react-widgets/cjs";
+import { NumberPicker } from "react-widgets/cjs";
+import Select from "react-select";
+
 import { createBill } from "../../../services/billService";
 
 class BillsTable extends Component {
@@ -74,11 +76,15 @@ class BillsTable extends Component {
      handleSubmit = async (e) => {
             e.preventDefault();
             this.setState({loading: true});
-            let data = {};
+            let data = {
+                boxId: this.props.boxId,
+                buyer: null,
+                seller: null
+            };
             if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
             if (this.state.isSellerToggleOn) data.seller = this.state.seller;
             if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
-                const res = await createBill(this.state.input);
+                const res = await createBill(data);
                 if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
                 else window.location.href = `/bill/${res.sellerBill._id}`;
             }
@@ -155,20 +161,20 @@ class BillsTable extends Component {
                                                 <Label>Ngân hàng khách mua</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <Combobox
-                                                    data={this.state.banks}
-                                                    textField="bankName"
-                                                    valueField="bankCode"
-                                                    value={buyer.bankCode || ""}
-                                                    onChange={(item) => {
-                                                        const selectedValue = typeof item === "string" ? item : item?.bankCode;
-                                                        this.setState((prevState) => ({
-                                                            buyer: { ...prevState.buyer, bankCode: selectedValue }
-                                                        }));
-                                                    }}
-                                                    filter="contains"
-                                                    placeholder="Chọn ngân hàng"
-                                                />
+                                            <Select
+                                                value={this.state.banks
+                                                    .map(bank => ({ value: bank.bankCode, label: bank.bankName }))
+                                                    .find(option => option.value === this.state.buyer.bankCode) || null}
+                                                onChange={selected => this.setState(prevState => ({
+                                                    buyer: { ...prevState.buyer, bankCode: selected.value }
+                                                }))}
+                                                options={this.state.banks.map(bank => ({
+                                                    value: bank.bankCode,
+                                                    label: bank.bankName
+                                                }))}
+                                                placeholder="Chọn ngân hàng"
+                                            />
+
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">
@@ -205,40 +211,54 @@ class BillsTable extends Component {
                                         </Row>
                                         <Row className="mb-3">
                                             <Col md={4}>
-                                                <Label>Số tiền giao dịch</Label>
+                                                <Label>Số tiền giao dịch</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <NumberPicker
-                                                    step={100000}
-                                                    value={buyer.amount}
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
                                                     name="buyerAmount"
-                                                    onChange={(value)=>{this.setState((prevState) => ({
-                                                        buyer: {
-                                                            ...prevState.buyer,
-                                                            amount: value < 0 ? 0 : value,
-                                                        },
-                                                    }));}}
+                                                    value={new Intl.NumberFormat('en-US').format(this.state.buyer.amount)}
+                                                    onChange={(e) => {
+                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                        
+                                                        this.setState((prevState) => ({
+                                                            buyer: {
+                                                                ...prevState.buyer,
+                                                                amount: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
+
                                         <Row className="mb-3">
                                             <Col md={4}>
-                                                <Label>Tiền tip</Label>
+                                                <Label>Tiền tip</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <NumberPicker
-                                                    step={100000}
-                                                    value={buyer.bonus}
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
                                                     name="buyerBonus"
-                                                    onChange={(value)=>{this.setState((prevState) => ({
-                                                        buyer: {
-                                                            ...prevState.buyer,
-                                                            bonus: value < 0 ? 0 : value,
-                                                        },
-                                                    }));}}
+                                                    value={new Intl.NumberFormat('en-US').format(this.state.buyer.bonus)}
+                                                    onChange={(e) => {
+                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                        
+                                                        this.setState((prevState) => ({
+                                                            buyer: {
+                                                                ...prevState.buyer,
+                                                                bonus: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
+
                                     </Col>
                                     <Col md={6} className="ps-2">
                                         <Row className="mb-3">
@@ -267,8 +287,8 @@ class BillsTable extends Component {
                                             <Col md={8}>
                                                 <Input
                                                     type="text"
-                                                    name="buyer"
-                                                    id="buyer"
+                                                    name="seller"
+                                                    id="sellers"
                                                     value={""}
                                                     disabled
                                                 />
@@ -279,18 +299,17 @@ class BillsTable extends Component {
                                                 <Label>Ngân hàng khách bán</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <Combobox
-                                                    data={this.state.banks}
-                                                    textField="bankName"
-                                                    valueField="bankCode"
-                                                    value={seller.bankCode || ""}
-                                                    onChange={(item) => {
-                                                        const selectedValue = typeof item === "string" ? item : item?.bankCode;
-                                                        this.setState((prevState) => ({
-                                                            seller: { ...prevState.seller, bankCode: selectedValue }
-                                                        }));
-                                                    }}
-                                                    filter="contains"
+                                                <Select
+                                                    value={this.state.banks
+                                                        .map(bank => ({ value: bank.bankCode, label: bank.bankName }))
+                                                        .find(option => option.value === this.state.seller.bankCode) || null}
+                                                    onChange={selected => this.setState(prevState => ({
+                                                        seller: { ...prevState.seller, bankCode: selected.value }
+                                                    }))}
+                                                    options={this.state.banks.map(bank => ({
+                                                        value: bank.bankCode,
+                                                        label: bank.bankName
+                                                    }))}
                                                     placeholder="Chọn ngân hàng"
                                                 />
                                             </Col>
@@ -304,7 +323,7 @@ class BillsTable extends Component {
                                                     type="text"
                                                     name="sellerStk"
                                                     id="sellerStk"
-                                                    value={buyer.stk}
+                                                    value={seller.stk}
                                                     onChange={(e)=>{this.setState((prevState) => ({
                                                         seller: { ...prevState.seller, stk: e.target.value }
                                                     }));}}
@@ -320,7 +339,7 @@ class BillsTable extends Component {
                                                     type="text"
                                                     name="sellerContent"
                                                     id="sellerContent"
-                                                    value={buyer.content}
+                                                    value={seller.content}
                                                     onChange={(e)=>{this.setState((prevState) => ({
                                                         seller: { ...prevState.seller, content: e.target.value }
                                                     }));}}
@@ -329,40 +348,54 @@ class BillsTable extends Component {
                                         </Row>
                                         <Row className="mb-3">
                                             <Col md={4}>
-                                                <Label>Số tiền giao dịch</Label>
+                                                <Label>Số tiền giao dịch</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <NumberPicker
-                                                    step={100000}
-                                                    value={seller.amount}
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
                                                     name="sellerAmount"
-                                                    onChange={(value)=>{this.setState((prevState) => ({
-                                                        seller: {
-                                                            ...prevState.seller,
-                                                            amount: value < 0 ? 0 : value,
-                                                        },
-                                                    }));}}
+                                                    value={new Intl.NumberFormat('en-US').format(this.state.seller.amount)}
+                                                    onChange={(e) => {
+                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
+                                                        this.setState((prevState) => ({
+                                                            seller: {
+                                                                ...prevState.seller,
+                                                                amount: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
+
                                         <Row className="mb-3">
                                             <Col md={4}>
-                                                <Label>Tiền tip</Label>
+                                                <Label>Tiền tip</Label>
                                             </Col>
                                             <Col md={8}>
-                                                <NumberPicker
-                                                    step={100000}
-                                                    value={seller.bonus}
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
                                                     name="sellerBonus"
-                                                    onChange={(value)=>{this.setState((prevState) => ({
-                                                        seller: {
-                                                            ...prevState.seller,
-                                                            seller: value < 0 ? 0 : value,
-                                                        },
-                                                    }));}}
+                                                    value={new Intl.NumberFormat('en-US').format(this.state.seller.bonus)}
+                                                    onChange={(e) => {
+                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
+                                                        this.setState((prevState) => ({
+                                                            seller: {
+                                                                ...prevState.seller,
+                                                                bonus: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
+
                                     </Col>
                                 </Row>
                             </ModalBody>
@@ -425,6 +458,7 @@ class BillsTable extends Component {
 
 const mapStateToProps = (state) => ({
     totalAmount: state.box.box ? state.box.box.amount : 0,
+    boxId: state.box.box ? state.box.box._id : '',
     bills: state.box.box ? state.box.box.bills : [],
     loading: state.box.loading,
 });

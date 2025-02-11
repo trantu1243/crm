@@ -197,28 +197,37 @@ class Bills extends Component {
                                                 <Row>
                                                     <Col md={3} className="pe-2 mb-2">
                                                         <Label>Số tiền min</Label>
-                                                        <NumberPicker
-                                                            step={15}
-                                                            value={filters?.minAmount || 0}
-                                                            onChange={(value) =>
+                                                        <Input
+                                                            type="text"
+                                                            value={new Intl.NumberFormat('en-US').format(filters?.minAmount || 0)}
+                                                            onChange={(e) => {
+                                                                let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy để xử lý số
+                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
                                                                 this.props.setFilters({
                                                                     ...filters,
-                                                                    minAmount: value < 0 ? 0 : value,
-                                                                })
-                                                            }
+                                                                    minAmount: numericValue < 0 ? 0 : numericValue, // Đảm bảo không có số âm
+                                                                });
+                                                            }}
+                                                            className="form-control"
                                                         />
                                                     </Col>
+
                                                     <Col md={3} className="pe-2 mb-2">
                                                         <Label>Số tiền max</Label>
-                                                        <NumberPicker
-                                                            step={15}
-                                                            value={filters?.maxAmount || 0}
-                                                            onChange={(value) =>
+                                                        <Input
+                                                            type="text"
+                                                            value={new Intl.NumberFormat('en-US').format(filters?.maxAmount || 0)}
+                                                            onChange={(e) => {
+                                                                let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy để xử lý số
+                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
                                                                 this.props.setFilters({
                                                                     ...filters,
-                                                                    maxAmount: value < 0 ? 0 : value,
-                                                                })
-                                                            }
+                                                                    maxAmount: numericValue < 0 ? 0 : numericValue, // Đảm bảo không có số âm
+                                                                });
+                                                            }}
+                                                            className="form-control"
                                                         />
                                                     </Col>
                                                     <Col md={3} className="pe-2 mb-2">

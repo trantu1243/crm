@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 
 import { Button, Card, CardBody, CardTitle, Col, Container, Input, Label } from "reactstrap";
+import Select from "react-select";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -8,7 +9,7 @@ import AppHeader from "../../Layout/AppHeader";
 import { connect } from "react-redux";
 import cx from "classnames";
 
-import { Combobox, NumberPicker } from "react-widgets/cjs";
+import { Combobox } from "react-widgets/cjs";
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { fetchFee } from "../../services/feeService";
 import { createTransaction } from "../../services/transactionService";
@@ -87,7 +88,7 @@ class CreateTransaction extends Component {
         if (feeItem) {
             fee = feeItem.feeDefault;
         }
-
+    
         this.setState((prevState) => ({
             input: {
                 ...prevState.input,
@@ -96,7 +97,7 @@ class CreateTransaction extends Component {
             },
         }));
     };
-
+    
     handleInputChange = (e) => {
         const { name, value } = e.target;
         this.setState((prevState) => ({
@@ -158,45 +159,54 @@ class CreateTransaction extends Component {
 
                                                 <Row className="mb-4">
                                                     <Col md={12}>
-                                                        <Combobox
-                                                            data={this.state.bankAccounts}
-                                                            textField="bankName"
-                                                            valueField="_id"
-                                                            value={this.state.bankAccounts.find(item => item._id === input.bankId) || null}
-                                                            onChange={(item) => {
-                                                                const selectedValue = typeof item === "string" ? item : item?._id;
-                                                                this.setState((prevState) => ({
-                                                                    input: { ...prevState.input, bankId: selectedValue }
-                                                                }));
-                                                            }}
-                                                            placeholder="Chọn ngân hàng"
-                                                        />
+                                                    <Select
+                                                        value={this.state.bankAccounts
+                                                            .map(bank => ({ value: bank._id, label: bank.bankName }))
+                                                            .find(option => option.value === this.state.input.bankId) || null}
+                                                        onChange={selected => this.setState({ input: { ...this.state.input, bankId: selected.value } })}
+                                                        options={this.state.bankAccounts.map(bank => ({
+                                                            value: bank._id,
+                                                            label: bank.bankName
+                                                        }))}
+                                                        placeholder="Chọn ngân hàng"
+                                                    />
                                                     </Col>       
                                                 </Row>
                                                 <Row className="mb-4">
                                                 
                                                     <Col md={6} className="pe-2">
                                                         <Label>Số tiền</Label>
-                                                        <NumberPicker
-                                                            step={100000}
+                                                        <Input
+                                                            type="text"
                                                             name="amount"
-                                                            value={input.amount}
-                                                            onChange={this.handleAmountChange}
+                                                            value={new Intl.NumberFormat('en-US').format(this.state.input.amount)}
+                                                            onChange={(e) => {
+                                                                let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy để xử lý số
+                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
+                                                                this.handleAmountChange(numericValue);
+                                                            }}
                                                         />
                                                     </Col>
                                                     <Col md={6} className="ps-2">
                                                         <Label>Phí</Label>
-                                                        <NumberPicker
-                                                            step={10000}
+                                                        <Input
+                                                            type="text"
                                                             name="fee"
-                                                            value={input.fee}
-                                                            onChange={(value)=>{this.setState((prevState) => ({
-                                                                input: {
-                                                                    ...prevState.input,
-                                                                    fee: value < 0 ? 0 : value,
-                                                                },
-                                                            }));}}
+                                                            value={new Intl.NumberFormat('en-US').format(this.state.input.fee)}
+                                                            onChange={(e) => {
+                                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+
+                                                                this.setState((prevState) => ({
+                                                                    input: {
+                                                                        ...prevState.input,
+                                                                        fee: numericValue < 0 ? 0 : numericValue, // Không cho phép số âm
+                                                                    },
+                                                                }));
+                                                            }}
                                                         />
+
                                                     </Col>           
                                                 </Row>
                                                 <Row className="mb-4">
@@ -224,19 +234,20 @@ class CreateTransaction extends Component {
                                                         />
                                                     </Col>
                                                     <Col md={6} className="ps-2">
-                                                        <Combobox
-                                                            data={typeFee}
-                                                            textField="name"
-                                                            valueField="value"
-                                                            value={typeFee.find(item => item.value === input.typeFee) || null}
-                                                            onChange={(item) => {
-                                                                const selectedValue = typeof item === "string" ? item : item?.value;
-                                                                this.setState((prevState) => ({
-                                                                    input: { ...prevState.input, typeFee: selectedValue }
-                                                                }));
-                                                            }}
-                                                            placeholder="Chọn loại phí"
-                                                        />
+                                                    <Select
+                                                        value={typeFee
+                                                            .map(option => ({ value: option.value, label: option.name }))
+                                                            .find(option => option.value === this.state.input.typeFee) || null}
+                                                        onChange={selected => this.setState(prevState => ({
+                                                            input: { ...prevState.input, typeFee: selected?.value }
+                                                        }))}
+                                                        options={typeFee.map(option => ({
+                                                            value: option.value,
+                                                            label: option.name
+                                                        }))}
+                                                        placeholder="Chọn loại phí"
+                                                    />
+
                                                     </Col>
                                                 </Row>
                                             </Col>
