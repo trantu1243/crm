@@ -117,9 +117,7 @@ const undoBox = async (req, res) => {
             ]);
             const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
             let paidAmount = totalAmount - box.amount; // Số tiền đã thanh toán
-            console.log(totalAmount)
-            console.log(box.amount)
-            console.log(paidAmount)
+
             // Lấy danh sách transaction có status = 7 theo thứ tự cũ nhất trước
             const transactionsToUpdate = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
 
@@ -192,6 +190,8 @@ const undoBox = async (req, res) => {
         // Nếu transaction mới nhất có status = 1, tìm transaction tiếp theo có status = 6 để cập nhật
         else if (latestTransaction.status === 1) {
             const hasStatus8 = transactions.some(transaction => transaction.status === 8);
+            const hasStatus7 = transactions.some(transaction => transaction.status === 7);
+
             if (hasStatus8) {
                 const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
 
@@ -215,7 +215,49 @@ const undoBox = async (req, res) => {
     
                 // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7
                 await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
-            } else {
+            } else if (hasStatus7) {
+                  // Xóa tất cả bill có status = 1 liên quan đến boxId
+                await Bill.updateMany({ boxId: box._id, status: { $in: 1, $ne: 3}}, { status: 3 });
+
+                // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
+                const result = await Transaction.aggregate([
+                    { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
+                    { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+                ]);
+                const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
+                let paidAmount = totalAmount - box.amount; // Số tiền đã thanh toán
+
+                // Lấy danh sách transaction có status = 7 theo thứ tự cũ nhất trước
+                const transactionsToUpdate = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
+
+                if (box.amount === 0) {
+                    // Nếu số dư trong box là 0, tất cả giao dịch trạng thái 7 chuyển thành 2
+                    await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 });
+                } else if (paidAmount > 0) {
+                    // Nếu đã thanh toán nhiều hơn số dư hiện tại, cập nhật trạng thái giao dịch
+                    const bulkOps = [];
+                    for (const transaction of transactionsToUpdate) {
+                        paidAmount -= transaction.amount;
+                        bulkOps.push({
+                            updateOne: {
+                                filter: { _id: transaction._id },
+                                update: { status: 8 },
+                            },
+                        });
+                        if (paidAmount <= 0) break; // Dừng khi số tiền còn lại không đủ để trừ tiếp
+                    }
+
+                    if (bulkOps.length > 0) {
+                        await Transaction.bulkWrite(bulkOps);
+                    }
+
+                    // Đổi trạng thái tất cả các transaction còn lại từ 7 sang 6
+                    await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
+                } else if (paidAmount === 0) {
+                    await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
+                }
+            }
+            else {
                 let index = 1;
                 while (index < transactions.length) {
                     if (transactions[index].status === 6 || transactions[index].status === 3) {
@@ -227,7 +269,8 @@ const undoBox = async (req, res) => {
                     index++;
                 }
             }
-            const hasStatus7 = transactions.some(transaction => transaction.status === 7);
+
+            
         }
 
         return res.json({ 
