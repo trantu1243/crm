@@ -47,7 +47,7 @@ const getById = async (req, res) => {
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
             ]
-        );;
+        );
         const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
         ]);
