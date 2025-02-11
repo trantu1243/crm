@@ -269,10 +269,8 @@ const undoBox = async (req, res) => {
                     index++;
                 }
             }
-
-            
         }
-
+        await Bill.deleteMany({status: 3});
         return res.json({ 
             status: true,
             message: 'Undo box success',
