@@ -1,4 +1,4 @@
-const { Transaction, BoxTransaction, BankAccount, Customer, Staff } = require("../models");
+const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = require("../models");
 const { generateQrCode } = require("../services/qr.service");
 
 const getTransactions = async (req, res) => {
@@ -260,6 +260,10 @@ const confirmTransaction = async (req, res) => {
         const box = await BoxTransaction.findById(transaction.boxId);
         box.amount += transaction.amount;
         transaction.status = 6;
+
+        const existingBill = await Bill.findOne({boxId: box._id, status: 1});
+        if (existingBill) transaction.status = 7;
+        
         await box.save();
         await transaction.save();
 
