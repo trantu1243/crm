@@ -6,9 +6,7 @@ import { login } from "../../../services/authService";
 import { useHistory } from "react-router-dom";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
-
 // Layout
-
 const LoginBoxed = ({ match }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -87,7 +85,7 @@ const LoginBoxed = ({ match }) => {
                                         </Button>
                                     </div>
                                 </div>
-                                <SweetAlert title={errorMsg}  show={alert}
+                                <SweetAlert title={errorMsg} show={alert}
                                     type="error" onConfirm={() => setAlert(false)}/>
                             </div>
                         </div>

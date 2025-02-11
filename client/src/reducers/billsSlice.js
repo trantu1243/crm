@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchBillById, fetchBills } from "../services/billService";
+import { confirmBillService, fetchBillById, fetchBills, switchBillService } from "../services/billService";
 
 // Action async để fetch bills
 export const getBills = createAsyncThunk(
@@ -22,6 +22,30 @@ export const getBillById = createAsyncThunk(
     async (id, { rejectWithValue }) => {
         try {
             return await fetchBillById(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const switchBill = createAsyncThunk(
+    "bills/switchBill",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await switchBillService(id); 
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const confirmBill = createAsyncThunk(
+    "bills/switchBill",
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await confirmBillService(id); 
+            return response.data;
         } catch (error) {
             return rejectWithValue(error.message);
         }
@@ -83,6 +107,17 @@ const billsSlice = createSlice({
                 state.bills = action.payload;
             })
             .addCase(getBills.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(switchBill.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(switchBill.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(switchBill.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

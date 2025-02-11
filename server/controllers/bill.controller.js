@@ -257,7 +257,10 @@ const confirmBill = async (req, res) => {
             }
         }
 
-        return res.status(200).json({ message: 'Bill confirmed successfully' });
+        return res.status(200).json({ 
+            status: true,
+            message: 'Bill confirmed successfully' 
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -382,13 +385,13 @@ const switchBills = async (req, res) => {
             { path: 'billId'},
         ]);
 
-        if (!bill || !bill.billId) {
+        if (!bill || !bill.billId || bill.status !== 1 || bill.billId.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for switch' });
         }
         const typeTranfer = bill.typeTransfer;
         bill.typeTransfer = bill.billId.typeTransfer;
         const sideBill = await Bill.findById(bill.billId._id);
-        sideBill = typeTranfer;
+        sideBill.typeTransfer = typeTranfer;
         await sideBill.save();
         await bill.save();
 

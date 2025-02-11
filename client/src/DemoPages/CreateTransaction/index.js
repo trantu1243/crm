@@ -9,6 +9,7 @@ import AppHeader from "../../Layout/AppHeader";
 import { connect } from "react-redux";
 import cx from "classnames";
 
+import SweetAlert from 'react-bootstrap-sweetalert';
 import { Combobox } from "react-widgets/cjs";
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { fetchFee } from "../../services/feeService";
@@ -30,6 +31,8 @@ class CreateTransaction extends Component {
             fee: [],
             copied: false,
             loading: false,
+            alert: false,
+            errorMsg: '',
             input: {
                 amount: '',
                 bankId: '',
@@ -109,11 +112,18 @@ class CreateTransaction extends Component {
     };
 
     handleSubmit = async (e) => {
-        e.preventDefault();
-        this.setState({loading: true});
-        const res = await createTransaction(this.state.input);
-        this.setState({loading: false});
-        window.location.href = `/box/${res.transaction.boxId}`;
+        try{
+            e.preventDefault();
+            this.setState({loading: true});
+            const res = await createTransaction(this.state.input);
+            this.setState({loading: false});
+            window.location.href = `/box/${res.transaction.boxId}`;
+        } catch(error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
     };
 
     render() {
@@ -277,6 +287,8 @@ class CreateTransaction extends Component {
                         </div>
                     </div>
                 </div>
+                <SweetAlert title={this.state.errorMsg} show={this.state.alert}
+                    type="error" onConfirm={() => this.setState({alert: false})}/>
             </Fragment>
         );
     }    

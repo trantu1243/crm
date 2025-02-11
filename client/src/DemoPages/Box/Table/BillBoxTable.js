@@ -8,22 +8,24 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import BillStatusBadge from "../../Bills/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCopy, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import cx from "classnames";
 import { fetchBankApi } from "../../../services/bankApiService";
-import { NumberPicker } from "react-widgets/cjs";
 import Select from "react-select";
 
-import { createBill } from "../../../services/billService";
+import { confirmBillService, createBill } from "../../../services/billService";
+import { getBoxById } from "../../../reducers/boxSlice";
 
 class BillsTable extends Component {
     constructor(props) {
         super(props);
         this.state = {
             modal: false,
+            confirmBillModal: false,
             isBuyerToggleOn: false,
             isSellerToggleOn: false,
             banks: [],
+            confirmBill: null,
             buyer: {
                 bankCode: '', 
                 stk: '', 
@@ -41,6 +43,7 @@ class BillsTable extends Component {
         };
     
         this.toggle = this.toggle.bind(this);
+        this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
         this.handleBuyerClick = this.handleBuyerClick.bind(this);
     }
 
@@ -51,6 +54,12 @@ class BillsTable extends Component {
     toggle() {
         this.setState({
             modal: !this.state.modal,
+        });
+    }
+
+    toggleConfirmBill() {
+        this.setState({
+            confirmBillModal: !this.state.confirmBillModal,
         });
     }
 
@@ -73,23 +82,35 @@ class BillsTable extends Component {
         }));
     };
 
-     handleSubmit = async (e) => {
-            e.preventDefault();
-            this.setState({loading: true});
-            let data = {
-                boxId: this.props.boxId,
-                buyer: null,
-                seller: null
-            };
-            if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
-            if (this.state.isSellerToggleOn) data.seller = this.state.seller;
-            if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
-                const res = await createBill(data);
-                if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
-                else window.location.href = `/bill/${res.sellerBill._id}`;
-            }
-            this.setState({loading: false});
+    handleSubmit = async (e) => {
+        e.preventDefault();
+        this.setState({loading: true});
+        let data = {
+            boxId: this.props.boxId,
+            buyer: null,
+            seller: null
         };
+        if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
+        if (this.state.isSellerToggleOn) data.seller = this.state.seller;
+        if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
+            const res = await createBill(data);
+            if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
+            else window.location.href = `/bill/${res.sellerBill._id}`;
+        }
+        this.setState({loading: false});
+    };
+
+    handleConfirmBill = async () => {
+         try {                    
+            const res = await confirmBillService(this.state.confirmBill?._id);
+            if (res.status) {
+                this.props.getBoxById(this.props.boxId)
+                this.toggleConfirmBill()
+            }
+        } catch (error) {
+            
+        }
+    }
 
     render() { 
 
@@ -440,6 +461,11 @@ class BillsTable extends Component {
                             <td className="text-center text-muted"><img width={40} className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff}/></td>
                             <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
+                                {item.status === 1 && <>
+                                    <button className="btn btn-sm btn-success me-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
+                                        <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
+                                    </button>
+                                </>}
                                 <a href={`/bill/${item._id}`} className="btn btn-sm btn-info m-1" title="Xem chi tiết giao dịch">
                                     <FontAwesomeIcon icon={faMoneyBill} color="#fff" size="3xs"/>
                                 </a>
@@ -451,6 +477,24 @@ class BillsTable extends Component {
                    
                     
                 </CardFooter>
+                <Modal isOpen={this.state.confirmBillModal} toggle={this.toggleConfirmBill} className={this.props.className}>
+                    <ModalHeader toggle={this.toggleConfirmBill}><span style={{fontWeight: 'bold'}}>Xác nhận bill</span></ModalHeader>
+                    <ModalBody>
+                        Số tài khoản: {this.state.confirmBill?.stk} <br />
+                        Ngân hàng: {this.state.confirmBill?.bankCode} <br />
+                        Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
+                        Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button color="link" onClick={this.toggleConfirmBill}>
+                            Cancel
+                        </Button>
+                        <Button color="primary" onClick={this.handleConfirmBill}>
+                            Xác nhận
+                        </Button>{" "}
+                    </ModalFooter>
+                </Modal>
             </>)}
         </Card>)
     }
@@ -465,7 +509,8 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBills,
-    setFilters
+    setFilters,
+    getBoxById
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(BillsTable);

@@ -21,7 +21,7 @@ class TransactionsTable extends Component {
         };
     }
 
-     handleConfirm = async (id, boxId) => {
+    handleConfirm = async (id, boxId) => {
         try {                    
             const res = await confirmTransaction(id);
             if (res.status) {
@@ -29,7 +29,7 @@ class TransactionsTable extends Component {
                 this.setState({show: false});
             }
         } catch (error) {
-
+            
         }
     }
     
