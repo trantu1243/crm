@@ -102,13 +102,13 @@ const undoBox = async (req, res) => {
             await box.save();
 
             // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7
-            await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8] } }, { status: 7 });
+            await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
         }
 
         // Nếu transaction mới nhất có status = 7
         else if (latestTransaction.status === 7) {
             // Xóa tất cả bill có status = 1 liên quan đến boxId
-            await Bill.updateMany({ boxId: box._id, status: 1 }, { status: 3 });
+            await Bill.updateMany({ boxId: box._id, status: { $in: 1, $ne: 3}}, { status: 3 });
 
             // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
             const result = await Transaction.aggregate([
@@ -153,10 +153,36 @@ const undoBox = async (req, res) => {
 
         // Nếu transaction mới nhất có status = 6, cập nhật thành 1 và giảm số dư trong box
         else if (latestTransaction.status === 6) {
-            latestTransaction.status = 1;
-            box.amount -= latestTransaction.amount;
-            await latestTransaction.save();
-            await box.save();
+            const hasStatus8 = transactions.some(transaction => transaction.status === 8);
+            if (hasStatus8) {
+                const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
+
+                if (lastestBill) {
+                    lastestBill.status = 1;
+                    box.amount += lastestBill.amount;
+                    await lastestBill.save();
+    
+                    // Nếu bill có liên kết với một bill khác, cập nhật bill đó
+                    if (lastestBill.billId) {
+                        const includedBill = await Bill.findById(lastestBill.billId);
+                        if (includedBill) {
+                            includedBill.status = 1;
+                            box.amount += includedBill.amount;
+                            await includedBill.save();
+                        }
+                    }
+                }
+    
+                await box.save();
+    
+                // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7
+                await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
+            } else {
+                latestTransaction.status = 1;
+                box.amount -= latestTransaction.amount;
+                await latestTransaction.save();
+                await box.save();
+            }
         } 
         
         else if (latestTransaction.status === 3) {
@@ -165,16 +191,43 @@ const undoBox = async (req, res) => {
         }
         // Nếu transaction mới nhất có status = 1, tìm transaction tiếp theo có status = 6 để cập nhật
         else if (latestTransaction.status === 1) {
-            let index = 1;
-            while (index < transactions.length) {
-                if (transactions[index].status === 6 || transactions[index].status === 3) {
-                    await transactions[index].updateOne({ status: 1 });
-                    box.amount -= transactions[index].amount;
-                    await box.save();
-                    break;
+            const hasStatus8 = transactions.some(transaction => transaction.status === 8);
+            if (hasStatus8) {
+                const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
+
+                if (lastestBill) {
+                    lastestBill.status = 1;
+                    box.amount += lastestBill.amount;
+                    await lastestBill.save();
+    
+                    // Nếu bill có liên kết với một bill khác, cập nhật bill đó
+                    if (lastestBill.billId) {
+                        const includedBill = await Bill.findById(lastestBill.billId);
+                        if (includedBill) {
+                            includedBill.status = 1;
+                            box.amount += includedBill.amount;
+                            await includedBill.save();
+                        }
+                    }
                 }
-                index++;
+    
+                await box.save();
+    
+                // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7
+                await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
+            } else {
+                let index = 1;
+                while (index < transactions.length) {
+                    if (transactions[index].status === 6 || transactions[index].status === 3) {
+                        await transactions[index].updateOne({ status: 1 });
+                        box.amount -= transactions[index].amount;
+                        await box.save();
+                        break;
+                    }
+                    index++;
+                }
             }
+            const hasStatus7 = transactions.some(transaction => transaction.status === 7);
         }
 
         return res.json({ 

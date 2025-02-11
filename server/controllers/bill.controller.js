@@ -202,7 +202,9 @@ const confirmBill = async (req, res) => {
         const { id } = req.params;
 
         // Tìm hóa đơn (Bill)
-        const bill = await Bill.findById(id);
+        const bill = await Bill.findById(id).populate([
+            { path: 'billId'},
+        ]);
         if (!bill) return res.status(404).json({ message: 'Bill not found' });
 
         // Kiểm tra trạng thái của hóa đơn
@@ -234,6 +236,13 @@ const confirmBill = async (req, res) => {
         let paidAmount = totalAmount - box.amount;
 
         // Lấy danh sách transaction có status = 7
+        if (bill.billId.status === 1) {
+            return res.status(200).json({ 
+                status: true,
+                message: 'Bill confirmed successfully' 
+            });
+        }
+        
         const transactions = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
 
         if (box.amount === 0) {
@@ -255,6 +264,8 @@ const confirmBill = async (req, res) => {
             if (bulkOps.length > 0) {
                 await Transaction.bulkWrite(bulkOps);
             }
+
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
         }
 
         return res.status(200).json({ 
