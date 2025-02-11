@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import Tabs from "react-responsive-tabs";
 
 import { Card, CardBody, CardHeader, CardTitle, Col, Container, Input, Label } from "reactstrap";
+import Loader from "react-loaders";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -79,6 +80,11 @@ class Box extends Component {
                     <AppSidebar />
                     <div className="app-main__outer">
                         <div className="app-main__inner">
+                        {this.props.loading ? (
+                            <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
+                                <Loader type="ball-spin-fade-loader" />
+                            </div>
+                        ) : ( <>
                             <Container fluid>
                                 <Row>
                                     <Col md="12">
@@ -183,6 +189,7 @@ class Box extends Component {
                                     </Col>
                                 </Row>
                             </Container>
+                        </>)}
                         </div>
                     </div>
                 </div>

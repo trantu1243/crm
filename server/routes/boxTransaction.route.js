@@ -10,6 +10,6 @@ router.get('/:id/transaction', authenticateToken, boxTransactionController.getTr
 
 router.get('/:id/bill', authenticateToken, boxTransactionController.getBillsByBoxId);
 
-router.post('/undo/:id', authenticateToken, boxTransactionController.undoBox);
+router.post('/:id/undo', authenticateToken, boxTransactionController.undoBox);
 
 module.exports = router;

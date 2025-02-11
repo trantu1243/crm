@@ -24,3 +24,24 @@ export const fetchBoxTransactionById = async (id) => {
         throw error.response?.data?.message || "Failed to fetch box transaction!";
     }
 };
+
+export const undoBoxService = async (id) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/undo`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating transactions", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to creating transaction!";
+    }  
+};

@@ -106,7 +106,7 @@ const undoBox = async (req, res) => {
         }
 
         // Nếu transaction mới nhất có status = 7
-        if (latestTransaction.status === 7) {
+        else if (latestTransaction.status === 7) {
             // Xóa tất cả bill có status = 1 liên quan đến boxId
             await Bill.updateMany({ boxId: box._id, status: 1 }, { status: 3 });
 
@@ -117,7 +117,9 @@ const undoBox = async (req, res) => {
             ]);
             const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
             let paidAmount = totalAmount - box.amount; // Số tiền đã thanh toán
-
+            console.log(totalAmount)
+            console.log(box.amount)
+            console.log(paidAmount)
             // Lấy danh sách transaction có status = 7 theo thứ tự cũ nhất trước
             const transactionsToUpdate = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
 
@@ -144,35 +146,41 @@ const undoBox = async (req, res) => {
 
                 // Đổi trạng thái tất cả các transaction còn lại từ 7 sang 6
                 await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
+            } else if (paidAmount === 0) {
+                await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
             }
         }
 
         // Nếu transaction mới nhất có status = 6, cập nhật thành 1 và giảm số dư trong box
-        if (latestTransaction.status === 6) {
+        else if (latestTransaction.status === 6) {
             latestTransaction.status = 1;
             box.amount -= latestTransaction.amount;
             await latestTransaction.save();
             await box.save();
+        } 
+        
+        else if (latestTransaction.status === 3) {
+            latestTransaction.status = 1;
+            await latestTransaction.save();
         }
-
         // Nếu transaction mới nhất có status = 1, tìm transaction tiếp theo có status = 6 để cập nhật
-        if (latestTransaction.status === 1) {
+        else if (latestTransaction.status === 1) {
             let index = 1;
             while (index < transactions.length) {
-                if (transactions[index].status === 6) {
+                if (transactions[index].status === 6 || transactions[index].status === 3) {
                     await transactions[index].updateOne({ status: 1 });
+                    box.amount -= transactions[index].amount;
+                    await box.save();
                     break;
                 }
                 index++;
             }
-
-            // Nếu không có transaction nào có status = 6, đặt transaction mới nhất thành 3
-            if (index === transactions.length) {
-                await latestTransaction.updateOne({ status: 3 });
-            }
         }
 
-        return res.json({ message: 'Undo box success' });
+        return res.json({ 
+            status: true,
+            message: 'Undo box success',
+        });
 
     } catch (error) {
         console.error(error);

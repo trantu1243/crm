@@ -41,7 +41,7 @@ export const switchBill = createAsyncThunk(
 );
 
 export const confirmBill = createAsyncThunk(
-    "bills/switchBill",
+    "bills/confirmBill",
     async (id, { rejectWithValue }) => {
         try {
             const response = await confirmBillService(id); 
