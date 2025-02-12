@@ -42,9 +42,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                localStorage.removeItem("token");
-                dispatch(logout());
-                setIsAuth(false);
+                // localStorage.removeItem("token");
+                // dispatch(logout());
+                // setIsAuth(false);
             }
         };
 

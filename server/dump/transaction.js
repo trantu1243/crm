@@ -40,8 +40,6 @@ async function transactionToMongo() {
                     staffId: staff._id,
                     typeFee: item.type_fee,
                     bonus: Number(item.bonus),
-                    isPartiallyCompleted: Number(item.is_partially_completed),
-                    isCompleted: Number(item.is_completed),
                     decodeQr: item.decode_qr,
                     createdAt: createdAt.toISOString(),
                     updatedAt: updatedAt.toISOString(),

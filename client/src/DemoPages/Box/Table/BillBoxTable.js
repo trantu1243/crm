@@ -12,6 +12,7 @@ import { faCheck, faCopy, faMoneyBill } from "@fortawesome/free-solid-svg-icons"
 import cx from "classnames";
 import { fetchBankApi } from "../../../services/bankApiService";
 import Select from "react-select";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 import { confirmBillService, createBill } from "../../../services/billService";
 import { getBoxById } from "../../../reducers/boxSlice";
@@ -26,6 +27,8 @@ class BillsTable extends Component {
             isSellerToggleOn: false,
             banks: [],
             confirmBill: null,
+            alert: false,
+            errorMsg: '',
             buyer: {
                 bankCode: '', 
                 stk: '', 
@@ -266,8 +269,8 @@ class BillsTable extends Component {
                                                     name="buyerBonus"
                                                     value={new Intl.NumberFormat('en-US').format(this.state.buyer.bonus)}
                                                     onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
-                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                        let rawValue = e.target.value.replace(/,/g, ''); 
+                                                        let numericValue = parseInt(rawValue, 10) || 0;
                                                         
                                                         this.setState((prevState) => ({
                                                             buyer: {
@@ -496,6 +499,7 @@ class BillsTable extends Component {
                     </ModalFooter>
                 </Modal>
             </>)}
+             <SweetAlert title={this.state.errorMsg} show={this.state.alert} type="error" onConfirm={() => this.setState({alert: false})}/>
         </Card>)
     }
 }

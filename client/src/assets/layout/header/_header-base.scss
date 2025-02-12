@@ -46,7 +46,7 @@
 }
 
 .app-header__logo {
-  padding: 0 $layout-spacer-x;
+  padding: 0 0.3rem;
   height: $app-header-height;
   width: 320px;
   display: flex;
@@ -63,7 +63,7 @@
 .app-header__menu,
 .app-header__mobile-menu {
   display: none;
-  padding: 0 $layout-spacer-x;
+  padding: 0 0.3rem;
   height: $app-header-height;
   align-items: center;
 }

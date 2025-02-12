@@ -296,13 +296,11 @@ class Transactions extends Component {
                             </Container>
 
                             <Container fluid>
-                                <Row>
-                                    <Col md="12">
+                            
                                         <div className="mb-3">
                                         <Tabs tabsWrapperClass="card-header" {...this.state} />
                                         </div>
-                                    </Col>
-                                </Row>
+                                 
                             </Container>
                         </div>
                     </div>

@@ -23,8 +23,6 @@ const transactionSchema = new mongoose.Schema({
         required: true
     },
     bonus: { type: Number, default: 0 },
-    isPartiallyCompleted: { type: Number, default: 0 },
-    isCompleted: { type: Number, default: 0 },
     decodeQr: { type: String },
 }, {
     timestamps: true,

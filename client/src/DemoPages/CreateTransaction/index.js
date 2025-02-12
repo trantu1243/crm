@@ -123,6 +123,7 @@ class CreateTransaction extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false})
         }
     };
 
@@ -240,7 +241,12 @@ class CreateTransaction extends Component {
                                                             id="messengerId"
                                                             placeholder="Messenger ID"
                                                             value={input.messengerId}
-                                                            onChange={this.handleInputChange}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                if (/^\d*$/.test(value)) { 
+                                                                    this.handleInputChange(e);
+                                                                }
+                                                            }}
                                                         />
                                                     </Col>
                                                     <Col md={6} className="ps-2">

@@ -15,6 +15,9 @@ import {
   setEnableMobileMenu,
   setEnableMobileMenuSmall,
 } from "../../reducers/ThemeOptions";
+import { logout } from "../../reducers/userSlice";
+import { Redirect } from "react-router-dom";
+import UserBoxMobile from "./UserBoxMobile";
 
 class AppMobileMenu extends React.Component {
   constructor(props) {
@@ -46,6 +49,12 @@ class AppMobileMenu extends React.Component {
   };
 
   render() {
+    let {
+        user
+    } = this.props;
+    if (!user) {
+        return <Redirect to="/login" />
+    }
     return (
       <Fragment>
         <div className="app-header__mobile-menu">
@@ -55,22 +64,9 @@ class AppMobileMenu extends React.Component {
           </div>
         </div>
         <div className="app-header__menu">
-          <span onClick={this.toggleMobileSmall}>
-            <Button size="sm" className={cx("btn-icon btn-icon-only", {
-                active: this.state.activeSecondaryMenuMobile,
-              })}
-              color="primary"
-              onClick={() =>
-                this.setState({
-                  activeSecondaryMenuMobile: !this.state
-                    .activeSecondaryMenuMobile,
-                })
-              }>
-              <div className="btn-icon-wrapper">
-                <FontAwesomeIcon icon={faEllipsisV} />
-              </div>
-            </Button>
-          </span>
+          <div className="app-header-right">
+              <UserBoxMobile user={user} logout={this.props.logout}/>
+          </div>
         </div>
       </Fragment>
     );
@@ -81,12 +77,15 @@ const mapStateToProps = (state) => ({
   closedSmallerSidebar: state.ThemeOptions.closedSmallerSidebar,
   enableMobileMenu: state.ThemeOptions.enableMobileMenu,
   enableMobileMenuSmall: state.ThemeOptions.enableMobileMenuSmall,
+  user: state.user.user || null
 });
 
 const mapDispatchToProps = (dispatch) => ({
   setEnableMobileMenu: (enable) => dispatch(setEnableMobileMenu(enable)),
   setEnableMobileMenuSmall: (enable) =>
     dispatch(setEnableMobileMenuSmall(enable)),
+      logout: () => dispatch(logout())
+  
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppMobileMenu);

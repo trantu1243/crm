@@ -20,9 +20,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import city3 from "../../../assets/utils/images/dropdown-header/city3.jpg";
+import city3 from "../../assets/utils/images/dropdown-header/city3.jpg";
 
-class UserBox extends React.Component {
+class UserBoxMobile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -46,17 +46,14 @@ class UserBox extends React.Component {
         const { user, logout } = this.props;
         return (
             <Fragment>
-                <div className="header-btn-lg pe-0">
+                <div className="header-btn-xs pe-0">
                     <div className="widget-content p-0">
                         <div className="widget-content-wrapper">
                             <div className="widget-content-left">
                                 <UncontrolledButtonDropdown>
                                     <DropdownToggle color="link" className="p-0 pt-4">
                                         <img width={42} className="rounded-circle" src={user.avatar} alt=""/>
-                                        <FontAwesomeIcon
-                                            className="ms-2 opacity-8"
-                                            icon={faAngleDown}
-                                        />
+                                        
                                     </DropdownToggle>
                                     <DropdownMenu end className="rm-pointers dropdown-menu-lg">
                                         <div className="dropdown-menu-header">
@@ -69,7 +66,7 @@ class UserBox extends React.Component {
                                                     <div className="widget-content p-0">
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left me-3">
-                                                                <img width={42} className="rounded-circle" src={user.avatar} alt=""/>
+                                                                <img width={42} height={42} className="rounded-circle" src={user.avatar} alt=""/>
                                                             </div>
                                                             <div className="widget-content-left">
                                                                 <div className="widget-heading">
@@ -115,11 +112,7 @@ class UserBox extends React.Component {
                                     </DropdownMenu>
                                 </UncontrolledButtonDropdown>
                             </div>
-                            <div className="widget-content-left  ms-3 header-user-info">
-                                <div className="widget-heading">{user.name_staff}</div>
-                                <div className="widget-subheading"> {user.is_admin ? 'Quản trị viên' : 'Nhân viên'}</div>
-                            </div>
-                        
+                         
                         </div>
                     </div>
                 </div>
@@ -128,4 +121,4 @@ class UserBox extends React.Component {
     }
 }
 
-export default UserBox;
+export default UserBoxMobile;

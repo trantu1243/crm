@@ -15,12 +15,7 @@ const boxTransactionSchema = new mongoose.Schema({
     typeBox: { type: String, default: 'facebook'},
     amount: { type: Number, default: 0 },
     notes: {
-        type: [{ 
-            note: { type: String },
-            status: { type: Boolean},
-            createdAt: { type: String },
-            createdBy: { type: mongoose.Types.ObjectId, ref: 'Staff', index: true }
-        }],
+        type: [{ type: String }],
         default: []
     },
 }, {

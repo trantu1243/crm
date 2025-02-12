@@ -74,7 +74,7 @@ const undoBox = async (req, res) => {
         if (!box) return res.status(404).json({ message: 'Box not found' });
 
         // Lấy danh sách transactions (trừ những transaction có status = 3), sắp xếp theo thời gian mới nhất
-        const transactions = await Transaction.find({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
+        const transactions = await Transaction.find({ boxId: box._id, status: { $ne: 1 } }).sort({ createdAt: -1 });
         if (transactions.length === 0) return res.status(400).json({ message: 'No transactions found' });
 
         const latestTransaction = transactions[0]; // Giao dịch mới nhất
@@ -108,7 +108,7 @@ const undoBox = async (req, res) => {
         // Nếu transaction mới nhất có status = 7
         else if (latestTransaction.status === 7) {
             // Xóa tất cả bill có status = 1 liên quan đến boxId
-            await Bill.updateMany({ boxId: box._id, status: { $in: 1, $ne: 3}}, { status: 3 });
+            await Bill.deleteMany({ boxId: box._id, status: { $in: 1, $ne: 3}});
 
             // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
             const result = await Transaction.aggregate([
@@ -217,7 +217,7 @@ const undoBox = async (req, res) => {
                 await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
             } else if (hasStatus7) {
                   // Xóa tất cả bill có status = 1 liên quan đến boxId
-                await Bill.updateMany({ boxId: box._id, status: { $in: 1, $ne: 3}}, { status: 3 });
+                await Bill.deleteMany({ boxId: box._id, status: 1});
 
                 // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
                 const result = await Transaction.aggregate([
@@ -270,7 +270,6 @@ const undoBox = async (req, res) => {
                 }
             }
         }
-        await Bill.deleteMany({status: 3});
         return res.json({ 
             status: true,
             message: 'Undo box success',
@@ -282,9 +281,28 @@ const undoBox = async (req, res) => {
     }
 };
 
+const addNote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Tìm BoxTransaction theo ID
+        const box = await BoxTransaction.findById(id);
+        if (!box) return res.status(404).json({ message: 'Box not found' });
+
+        const { note } = req.body;
+        if (!note) return res.status(400).json({ message: `Chưa nhập note` });
+
+        box.notes.push(note);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     undoBox,
     getTransactionsByBoxId,
     getBillsByBoxId,
-    getById
+    getById,
+    addNote
 }

@@ -79,7 +79,7 @@ const createBill = async (req, res) => {
 
         const existingTransaction = await Transaction.findOne({ boxId: box._id, status: { $in: [1, 7] } });
         if (existingTransaction) {
-            return res.status(400).json({ message: 'Có gdtg chưa được thanh toán' });
+            return res.status(400).json({ message: 'Có giao dịch chưa nhận được tiền' });
         }
 
         let boxAmount = box.amount;
@@ -126,7 +126,7 @@ const createBill = async (req, res) => {
         
             const qrLink = await generateQrCode(qrPayload);
         
-            buyerBill = await Bill.create({
+            buyerBill = {
                 bankCode,
                 stk,
                 content,
@@ -136,7 +136,7 @@ const createBill = async (req, res) => {
                 boxId: box._id,
                 linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${amount}&addInfo=${content}&accountName=`,
                 staffId: staff._id
-            });
+            };
         }
 
         let sellerBill = null;
@@ -164,7 +164,7 @@ const createBill = async (req, res) => {
                 await customer.save();
             }
         
-            sellerBill = await Bill.create({
+            sellerBill = {
                 bankCode,
                 stk,
                 content,
@@ -174,8 +174,11 @@ const createBill = async (req, res) => {
                 boxId: box._id,
                 linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${amount}&addInfo=${content}&accountName=`,
                 staffId: staff._id
-            });
+            };
         }
+
+        if (buyer) buyerBill = await Bill.create(buyerBill);
+        if (seller) sellerBill = await Bill.create(sellerBill);
 
         if (buyer && seller) {
             buyerBill.billId = sellerBill._id;
@@ -236,7 +239,7 @@ const confirmBill = async (req, res) => {
         let paidAmount = totalAmount - box.amount;
 
         // Lấy danh sách transaction có status = 7
-        if (bill.billId.status === 1) {
+        if (bill.billId?.status === 1) {
             return res.status(200).json({ 
                 status: true,
                 message: 'Bill confirmed successfully' 

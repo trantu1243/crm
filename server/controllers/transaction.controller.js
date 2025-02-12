@@ -267,6 +267,8 @@ const confirmTransaction = async (req, res) => {
         await box.save();
         await transaction.save();
 
+        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 });
+        
         return res.status(200).json({
             status: true,
             message: 'Transaction confirmed successfully',

@@ -23,7 +23,6 @@ class Header extends React.Component {
     render() {
         let {
             headerBackgroundColor,
-            enableMobileMenuSmall,
             enableHeaderShadow,
             user
         } = this.props;
@@ -38,13 +37,11 @@ class Header extends React.Component {
                         className={cx("app-header", headerBackgroundColor, {
                           "header-shadow": enableHeaderShadow,
                         })}
-                        appear={true} timeout={1500} enter={false} exit={false}>
+                        appear={true} timeout={1500} enter={false} exit={false}
+                    >
                         <div>
                             <HeaderLogo />
-                            <div className={cx("app-header__content", {
-                                    "header-mobile-open": enableMobileMenuSmall,
-                                })}>
-                            
+                            <div className={cx("app-header__content")}>
                                 <div className="app-header-right">
                                     <UserBox user={user} logout={this.props.logout}/>
                                 </div>
