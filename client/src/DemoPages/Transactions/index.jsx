@@ -9,7 +9,7 @@ import AppHeader from "../../Layout/AppHeader";
 import TransactionsTable from "./Tables";
 import { connect } from "react-redux";
 import { getTransactions, setFilters } from "../../reducers/transactionsSlice";
-import { DatePicker, Multiselect, NumberPicker } from "react-widgets/cjs";
+import { DatePicker, Multiselect } from "react-widgets/cjs";
 import { fetchStaffs } from "../../services/staffService";
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

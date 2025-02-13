@@ -107,7 +107,7 @@ class Box extends Component {
                                                 </CardHeader>
                                                 <CardBody>
                                                     <Row>
-                                                        <Col md={6} className="pe-2">
+                                                        <Col md={6} xs={12} className="pe-2">
                                                             <Row>
                                                                 <Col md={4}>
                                                                     <Label>Tên box</Label>
@@ -123,7 +123,7 @@ class Box extends Component {
                                                             </Row>
                                                         </Col>
 
-                                                        <Col md={6} className="ps-2">
+                                                        <Col md={6} xs={12} className="ps-2">
                                                             <Row>
                                                                 <Col md={4}>
                                                                     <Label>Messenger ID</Label>
@@ -148,7 +148,7 @@ class Box extends Component {
                                 <Container fluid>
                                     <Row>
                                         {/* Bên Mua */}
-                                        <Col md={6} className="pe-2">
+                                        <Col md={6} xs={12} className="pe-2">
                                             <Card className="main-card mb-3">
                                                 <div className="btn btn-primary">Bên mua</div>
 
@@ -223,7 +223,7 @@ class Box extends Component {
                                         </Col>
 
                                         {/* Bên Bán */}
-                                        <Col md={6} className="ps-2">
+                                        <Col md={6} xs={12} className="ps-2">
                                             <Card className="main-card mb-3">
                                                 <div className="btn btn-primary">Bên bán</div>
 

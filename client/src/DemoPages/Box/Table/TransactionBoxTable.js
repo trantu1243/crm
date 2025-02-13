@@ -1,4 +1,4 @@
-import { Button, Card, CardFooter, CardHeader, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import { Button, Card, CardHeader, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
 import Select from "react-select";
 
 import React, { Component } from "react";
@@ -12,7 +12,6 @@ import { faCheck, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-so
 import { getBoxById, undoBox } from "../../../reducers/boxSlice";
 import { confirmTransaction, createTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
-import { Combobox } from "react-widgets/cjs";
 import cx from "classnames";
 import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
@@ -381,7 +380,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                                 <td className="text-center text-muted">{item.content}</td>
                                 <StatusBadge status={item.status} />
-                                <td className="text-center text-muted"><img width={40} className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff}/></td>
+                                <td className="text-center text-muted"><img className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center text-muted">
                                     {item.status === 6 && <>

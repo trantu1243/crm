@@ -9,7 +9,7 @@ import AppHeader from "../../Layout/AppHeader";
 import BillsTable from "./Tables";
 import { connect } from "react-redux";
 import { getBills, setFilters } from "../../reducers/billsSlice";
-import { DatePicker, Multiselect, NumberPicker } from "react-widgets/cjs";
+import { DatePicker, Multiselect } from "react-widgets/cjs";
 import { fetchStaffs } from "../../services/staffService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -125,7 +125,7 @@ class Bills extends Component {
                                         <Card className="main-card mb-3">
                                             <CardBody>
                                                 <Row>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Nhân viên</Label>
                                                         <Multiselect
                                                             data={staffs}
@@ -142,7 +142,7 @@ class Bills extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Trạng thái</Label>
                                                         <Multiselect
                                                             data={statusList}
@@ -159,7 +159,7 @@ class Bills extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Ngân hàng</Label>
                                                         <Multiselect
                                                             data={banks}
@@ -176,7 +176,7 @@ class Bills extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label for="content">Nội dung</Label>
                                                         <Input
                                                             type="text"
@@ -195,7 +195,7 @@ class Bills extends Component {
                                                 </Row>
     
                                                 <Row>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Số tiền min</Label>
                                                         <Input
                                                             type="text"
@@ -213,7 +213,7 @@ class Bills extends Component {
                                                         />
                                                     </Col>
 
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Số tiền max</Label>
                                                         <Input
                                                             type="text"
@@ -230,7 +230,7 @@ class Bills extends Component {
                                                             className="form-control"
                                                         />
                                                     </Col>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Start Date</Label>
                                                         <DatePicker
                                                             selected={filters?.startDate ? new Date(filters.startDate) : null}
@@ -246,7 +246,7 @@ class Bills extends Component {
                                                             dateFormat="yyyy-MM-dd"
                                                         />
                                                     </Col>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>End Date</Label>
                                                         <DatePicker
                                                             selected={filters?.endDate ? new Date(filters.endDate) : null}

@@ -1,4 +1,4 @@
-import { Button, Card, CardFooter, CardHeader, Col, Row, Table } from "reactstrap";
+import { Card, CardFooter, CardHeader, Col, Row, Table } from "reactstrap";
 
 import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
@@ -108,7 +108,7 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <StatusBadge status={item.status} />
-                            <td className="text-center text-muted"><img width={40} className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff}/></td>
+                            <td className="text-center text-muted"><img className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
                             <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light">

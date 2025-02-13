@@ -3,14 +3,6 @@ import { connect } from "react-redux";
 
 import { Slider } from "react-burgers";
 
-import cx from "classnames";
-
-import { faEllipsisV } from "@fortawesome/free-solid-svg-icons";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import { Button } from "reactstrap";
-
 import {
   setEnableMobileMenu,
   setEnableMobileMenuSmall,

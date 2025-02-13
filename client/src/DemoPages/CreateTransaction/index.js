@@ -10,7 +10,6 @@ import { connect } from "react-redux";
 import cx from "classnames";
 
 import SweetAlert from 'react-bootstrap-sweetalert';
-import { Combobox } from "react-widgets/cjs";
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { fetchFee } from "../../services/feeService";
 import { createTransaction } from "../../services/transactionService";
