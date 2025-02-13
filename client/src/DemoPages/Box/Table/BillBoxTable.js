@@ -16,6 +16,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 
 import { confirmBillService, createBill } from "../../../services/billService";
 import { getBoxById } from "../../../reducers/boxSlice";
+import { SERVER_URL } from "../../../services/url";
 
 class BillsTable extends Component {
     constructor(props) {
@@ -461,7 +462,7 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <BillStatusBadge status={item.status} />
-                            <td className="text-center text-muted"><img className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                            <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                             <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>

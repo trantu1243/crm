@@ -16,6 +16,7 @@ import cx from "classnames";
 import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
 import { typeFee } from "../../CreateTransaction";
+import { SERVER_URL } from "../../../services/url";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -380,7 +381,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                                 <td className="text-center text-muted">{item.content}</td>
                                 <StatusBadge status={item.status} />
-                                <td className="text-center text-muted"><img className="rounded-circle" src={item.staffId.avatar} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center text-muted">
                                     {item.status === 6 && <>
