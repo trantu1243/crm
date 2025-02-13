@@ -289,7 +289,7 @@ class Transaction extends Component {
                                                 </Row>
                                                 <Row className="mb-4"> 
                                                     <div>
-                                                        <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.state.updateTransaction?.status}/>           
+                                                        <Label>Trạng thái: &nbsp;</Label><StatusBadge status={status}/>           
                                                     </div>        
                                                 </Row>
                                                 <Row className="mb-4">
