@@ -46,9 +46,6 @@ class BillsTable extends Component {
                 </div>
             ) : ( <>
                 <CardHeader className="mt-2">
-                    <a href="/create-transaction" className={"btn btn-sm btn-info me-1 al-min-width-max-content"} style={{minWidth: "max-content"}}>
-                        + Tạo GDTG
-                    </a>
                     <h3 className="text-center w-100">Tổng bill: <span className="text-danger fw-bold">{bills.totalDocs}</span></h3>
                     
                 </CardHeader>

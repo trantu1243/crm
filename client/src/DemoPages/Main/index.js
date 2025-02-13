@@ -1,18 +1,28 @@
-import React, { Fragment } from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import cx from "classnames";
 import { withRouter } from "react-router-dom";
-
-import ResizeDetector from "react-resize-detector";
-
 import AppMain from "../../Layout/AppMain";
 
-class Main extends React.Component {
+class Main extends Component {
     constructor(props) {
         super(props);
         this.state = {
             closedSmallerSidebar: false,
+            containerWidth: window.innerWidth < 1250,
         };
+    }
+
+    updateWidth = () => {
+        this.setState({ containerWidth: window.innerWidth < 1250});
+    };
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateWidth);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateWidth);
     }
 
     render() {
@@ -28,31 +38,23 @@ class Main extends React.Component {
         } = this.props;
 
         return (
-            <ResizeDetector
-                handleWidth
-                render={({ width }) => {
-             
-                    return (
-                        <Fragment>
-                            <div
-                                className={cx(
-                                    "app-container app-theme-" + colorScheme,
-                                    { "fixed-header": enableFixedHeader },
-                                    { "fixed-sidebar": enableFixedSidebar || width < 1250 },
-                                    { "closed-sidebar": enableClosedSidebar || width < 1250 },
-                                    {
-                                        "closed-sidebar-mobile": closedSmallerSidebar || width < 1250,
-                                    },
-                                    { "sidebar-mobile-open": enableMobileMenu },
-                                    { "body-tabs-shadow-btn": enablePageTabsAlt }
-                                )}
-                            >
-                                <AppMain />
-                            </div>
-                        </Fragment>
-                    );
-                }}
-            />
+            <Fragment>
+                <div
+                    className={cx(
+                        "app-container app-theme-" + colorScheme,
+                        { "fixed-header": enableFixedHeader },
+                        { "fixed-sidebar": enableFixedSidebar || this.state.containerWidth },
+                        { "closed-sidebar": enableClosedSidebar || this.state.containerWidth },
+                        {
+                            "closed-sidebar-mobile": closedSmallerSidebar || this.state.containerWidth,
+                        },
+                        { "sidebar-mobile-open": enableMobileMenu },
+                        { "body-tabs-shadow-btn": enablePageTabsAlt }
+                    )}
+                >
+                    <AppMain />
+                </div>
+            </Fragment>
         );
     }
 }

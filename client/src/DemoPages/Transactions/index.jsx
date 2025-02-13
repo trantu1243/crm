@@ -22,7 +22,7 @@ export const dummyData = [
   },
 ];
 
-const statusList = [
+export const statusList = [
     { value: 1, name: "Chưa nhận" },
     { value: 2, name: "Thành công" },
     { value: 3, name: "Hủy" },
@@ -128,7 +128,7 @@ class Transactions extends Component {
                                         <Card className="main-card mb-3">
                                             <CardBody>
                                                 <Row>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Nhân viên</Label>
                                                         <Multiselect
                                                             data={staffs}
@@ -145,7 +145,7 @@ class Transactions extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Trạng thái</Label>
                                                         <Multiselect
                                                             data={statusList}
@@ -162,7 +162,7 @@ class Transactions extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Ngân hàng</Label>
                                                         <Multiselect
                                                             data={bankAccounts}
@@ -179,7 +179,7 @@ class Transactions extends Component {
                                                         />
                                                     </Col>
     
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label for="content">Nội dung</Label>
                                                         <Input
                                                             type="text"
@@ -198,7 +198,7 @@ class Transactions extends Component {
                                                 </Row>
     
                                                 <Row>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Số tiền min</Label>
                                                         <Input
                                                             type="text"
@@ -216,7 +216,7 @@ class Transactions extends Component {
                                                         />
                                                     </Col>
 
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Số tiền max</Label>
                                                         <Input
                                                             type="text"
@@ -233,7 +233,7 @@ class Transactions extends Component {
                                                             className="form-control"
                                                         />
                                                     </Col>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Start Date</Label>
                                                         <DatePicker
                                                             selected={filters?.startDate ? new Date(filters.startDate) : null}
@@ -249,7 +249,7 @@ class Transactions extends Component {
                                                             dateFormat="yyyy-MM-dd"
                                                         />
                                                     </Col>
-                                                    <Col md={3} className="pe-2 mb-2">
+                                                    <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>End Date</Label>
                                                         <DatePicker
                                                             selected={filters?.endDate ? new Date(filters.endDate) : null}

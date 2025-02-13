@@ -1,5 +1,5 @@
-import { Button, Card, CardFooter, CardHeader, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
-import SweetAlert from 'react-bootstrap-sweetalert';
+import { Button, Card, CardFooter, CardHeader, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import Select from "react-select";
 
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,28 +8,69 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faInfoCircle, faMinus, faMoneyBill, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { getBoxById, undoBox } from "../../../reducers/boxSlice";
-import { confirmTransaction } from "../../../services/transactionService";
+import { confirmTransaction, createTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
+import { Combobox } from "react-widgets/cjs";
+import cx from "classnames";
+import { fetchBankAccounts } from "../../../services/bankAccountService";
+import { fetchFee } from "../../../services/feeService";
+import { typeFee } from "../../CreateTransaction";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
+            isMobile: window.innerWidth < 768,
+            bankAccounts: [],
+            fee: [],
             show: false,
             undoModal: false,
+            createModal: false,
             confirmTransactionModal: false,
             confirmTransaction: null,
+            loading: false,
+            input: {
+                amount: '',
+                bankId: '',
+                bonus: '0',
+                content: '',
+                fee: '',
+                messengerId: this.props.messengerId,
+                typeFee: 'buyer',
+                typeBox: 'facebook',
+                isToggleOn: true,
+            },
         };
 
         this.toggleUndo = this.toggleUndo.bind(this);
-        this.toggleConfirmTransaction = this.toggleConfirmTransaction.bind(this);
+        this.toggleConfirmTransaction = this.toggleConfirmTransaction.bind(this)
+        this.toggleCreate = this.toggleCreate.bind(this);
+
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateScreenSize);
+        this.getBankAccounts();
+        this.getFee();
+        const savedBankId = localStorage.getItem("selectedBankId");
+        if (savedBankId) {
+            this.setState((prevState) => ({
+                input: { ...prevState.input, bankId: savedBankId },
+            }));
+        }
     }
 
     toggleUndo() {
         this.setState({
             undoModal: !this.state.undoModal,
+        });
+    }
+
+    toggleCreate() {
+        this.setState({
+            createModal: !this.state.createModal,
         });
     }
 
@@ -45,6 +86,81 @@ class TransactionsTable extends Component {
         await this.props.getBoxById(this.props.boxId)
     }
 
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+
+
+    updateScreenSize = () => {
+        this.setState({ isMobile: window.innerWidth < 768 });
+    };
+
+    getBankAccounts = async () => {
+        const data = await fetchBankAccounts();
+        console.log(data)
+        this.setState({
+            bankAccounts: data.data
+        })
+    }
+
+    getFee = async () => {
+        const data = await fetchFee();
+        this.setState({
+            fee: data.data
+        })
+    }
+
+    handleClick = () => {
+        this.setState((prevState) => ({
+            input: {
+                ...prevState.input,
+                isToggleOn: !prevState.input.isToggleOn
+            }
+        }));
+    };
+
+    handleAmountChange = (value) => {
+        let fee = 0;
+        const feeItem = this.state.fee.find(item => value >= item.min && value <= item.max);
+        if (feeItem) {
+            fee = feeItem.feeDefault;
+        }
+    
+        this.setState((prevState) => ({
+            input: {
+                ...prevState.input,
+                amount: value < 0 ? 0 : value,
+                fee: fee,
+            },
+        }));
+    };
+    
+    handleInputChange = (e) => {
+        const { name, value } = e.target;
+        this.setState((prevState) => ({
+            input: {
+                ...prevState.input,
+                [name]: value,
+            },
+        }));
+    };
+
+    handleSubmit = async (e) => {
+        try{
+            e.preventDefault();
+            this.setState({loading: true});
+            const res = await createTransaction(this.state.input);
+            this.setState({loading: false});
+            window.location.href = `/transaction/${res.transaction._id}`;
+        } catch(error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false})
+        }
+    };
+
     handleConfirmTransaction = async () => {
         try {          
             this.toggleConfirmTransaction();          
@@ -59,7 +175,8 @@ class TransactionsTable extends Component {
     
     render() { 
         const { transactions } = this.props;
-        
+        const input = this.state.input;
+
         return (
             <Card className="main-card mb-3">
                 {this.props.loading ? (
@@ -68,10 +185,170 @@ class TransactionsTable extends Component {
                     </div>
                 ) : ( <>
                     <CardHeader className="mt-2">
-                        <a href="/create-transaction" className={"btn btn-sm btn-info me-1 al-min-width-max-content"} style={{minWidth: "max-content", textTransform: "none"}}>
+                        <Button color="info" onClick={this.toggleCreate}>
                             Tạo GDTG
-                        </a>
-                        
+                        </Button>
+                        <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
+                            <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
+                            <ModalBody className="p-4">
+                                <Row className="mb-4">
+                                    <Col md={3} xs={6}>
+                                        <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
+                                    </Col>
+                                    <Col md={3} xs={6}>
+                                        <div className="switch has-switch mb-2 me-2" data-on-label="ON"
+                                            data-off-label="OFF" onClick={this.handleClick}>
+                                            <div className={cx("switch-animate", {
+                                                "switch-on": input.isToggleOn,
+                                                "switch-off": !input.isToggleOn,
+                                                })}>
+                                                <input type="checkbox" />
+                                                <span className="switch-left bg-info">ON</span>
+                                                <label>&nbsp;</label>
+                                                <span className="switch-right bg-info">OFF</span>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col md={6} xs={12}>
+                                        <Select
+                                            value={['facebook']
+                                                .map(platform => ({ value: platform, label: platform }))
+                                                .find(option => option.value === this.state.input.typeBox) || { value: "facebook", label: "facebook" }}
+                                            onChange={selected => {
+                                                this.setState({ input: { ...this.state.input, typeBox: selected.value } });
+                                            }}
+                                            options={['facebook'].map(platform => ({
+                                                value: platform,
+                                                label: platform
+                                            }))}
+                                            placeholder="Chọn nền tảng"
+                                        />
+                                    </Col>
+                                </Row>
+
+                                <Row className="mb-4">
+                                    <Col md={12} xs={12}>
+                                        <Select
+                                            value={this.state.bankAccounts
+                                                .map(bank => ({ value: bank._id, label: bank.bankName }))
+                                                .find(option => option.value === this.state.input.bankId) || null}
+                                            onChange={selected => {
+                                                    this.setState({ input: { ...this.state.input, bankId: selected.value } })
+                                                    localStorage.setItem("selectedBankId", selected.value);
+                                                }
+                                            }
+                                            options={this.state.bankAccounts.map(bank => ({
+                                                value: bank._id,
+                                                label: bank.bankName
+                                            }))}
+                                            placeholder="Chọn ngân hàng"
+                                        />
+                                    </Col>
+                                    {this.state.input.bankId && (
+                                        (() => {
+                                            const selectedBank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
+                                            return selectedBank ? (
+                                                <label className="fw-bold text-danger mt-2">
+                                                    {selectedBank.bankName} - {selectedBank.bankAccountName} - {selectedBank.bankAccount}
+                                                </label>
+                                            ) : null;
+                                        })()
+                                    )}
+                                </Row>
+                                <Row className="mb-4">
+                                
+                                    <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                        <Label>Số tiền</Label>
+                                        <Input
+                                            type="text"
+                                            name="amount"
+                                            value={new Intl.NumberFormat('en-US').format(this.state.input.amount)}
+                                            onChange={(e) => {
+                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                this.handleAmountChange(numericValue);
+                                            }}
+                                        />
+                                    </Col>
+                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                        <Label>Phí</Label>
+                                        <Input
+                                            type="text"
+                                            name="fee"
+                                            value={new Intl.NumberFormat('en-US').format(this.state.input.fee)}
+                                            onChange={(e) => {
+                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                this.setState((prevState) => ({
+                                                    input: {
+                                                        ...prevState.input,
+                                                        fee: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
+                                        />
+
+                                    </Col>           
+                                </Row>
+                                <Row className="mb-4">
+                                    <Col md={12} xs={12}>
+                                        <Label for="content">Nội dung chuyển khoản</Label>
+                                        <Input
+                                            type="text"
+                                            name="content"
+                                            id="content"
+                                            placeholder="Nhập nội dung"
+                                            value={input.content}
+                                            onChange={this.handleInputChange}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row className="mb-4">
+                                    <Col md={6} xs={12} className={cx("mb-4", { "pe-2": !this.state.isMobile })}>
+                                        <Input
+                                            type="text"
+                                            name="messengerId"
+                                            id="messengerId"
+                                            placeholder="Messenger ID"
+                                            value={input.messengerId}
+                                            disabled
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                if (/^\d*$/.test(value)) { 
+                                                    this.handleInputChange(e);
+                                                }
+                                            }}
+                                        />
+                                    </Col>
+                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                    <Select
+                                        value={typeFee
+                                            .map(option => ({ value: option.value, label: option.name }))
+                                            .find(option => option.value === this.state.input.typeFee) || null}
+                                        onChange={selected => this.setState(prevState => ({
+                                            input: { ...prevState.input, typeFee: selected?.value }
+                                        }))}
+                                        options={typeFee.map(option => ({
+                                            value: option.value,
+                                            label: option.name
+                                        }))}
+                                        placeholder="Chọn loại phí"
+                                    />
+
+                                    </Col>
+                                </Row>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="link" onClick={this.toggleCreate}>
+                                    Hủy
+                                </Button>
+                                <Button color="primary" disabled={this.state.loading} onClick={this.handleSubmit}>
+                                    {this.state.loading ? "Đang tạo..." : "Tạo"}
+                                </Button>{" "}
+                            </ModalFooter>
+                        </Modal>
                     </CardHeader>
 
                     <Table responsive hover striped borderless className="align-middle mb-0">
@@ -151,7 +428,7 @@ class TransactionsTable extends Component {
                     </Modal>
 
                     <Modal isOpen={this.state.confirmTransactionModal} toggle={this.toggleConfirmTransaction} className={this.props.className}>
-                        <ModalHeader toggle={this.toggleConfirmTransaction}><span style={{fontWeight: 'bold'}}>Xác nhận bill</span></ModalHeader>
+                        <ModalHeader toggle={this.toggleConfirmTransaction}><span style={{fontWeight: 'bold'}}>Xác nhận đã nhận được tiền</span></ModalHeader>
                         <ModalBody>
                             Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
@@ -178,6 +455,7 @@ const mapStateToProps = (state) => ({
     transactions: state.box.box ? state.box.box.transactions : [],
     loading: state.box.loading,
     boxId: state.box.box ? state.box.box._id : '',
+    messengerId: state.box.box ? state.box.box.messengerId : '',
 });
   
 const mapDispatchToProps = {

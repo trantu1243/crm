@@ -15,7 +15,7 @@ import { fetchBankAccounts } from "../../services/bankAccountService";
 import { fetchFee } from "../../services/feeService";
 import { createTransaction } from "../../services/transactionService";
 
-const typeFee = [
+export const typeFee = [
     {name: 'Bên mua chịu phí', value: 'buyer'},
     {name: 'Bên bán chịu phí', value: 'seller'},
     {name: 'Chia đôi', value: 'split'},
@@ -26,6 +26,7 @@ class CreateTransaction extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isMobile: window.innerWidth < 768,
             value: [],
             bankAccounts: [],
             fee: [],
@@ -49,9 +50,25 @@ class CreateTransaction extends Component {
     }
 
     componentDidMount() {
+        window.addEventListener("resize", this.updateScreenSize);
         this.getBankAccounts();
         this.getFee();
+        const savedBankId = localStorage.getItem("selectedBankId");
+        if (savedBankId) {
+            this.setState((prevState) => ({
+                input: { ...prevState.input, bankId: savedBankId },
+            }));
+        }
     }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+
+
+    updateScreenSize = () => {
+        this.setState({ isMobile: window.innerWidth < 768 });
+    };
 
     getBankAccounts = async () => {
         const data = await fetchBankAccounts();
@@ -117,7 +134,7 @@ class CreateTransaction extends Component {
             this.setState({loading: true});
             const res = await createTransaction(this.state.input);
             this.setState({loading: false});
-            window.location.href = `/box/${res.transaction.boxId}`;
+            window.location.href = `/transaction/${res.transaction._id}`;
         } catch(error) {
             this.setState({
                 alert: true,
@@ -143,10 +160,10 @@ class CreateTransaction extends Component {
                                         <Row>
                                             <Col md={6}>
                                                 <Row className="mb-4">
-                                                    <Col md={3}>
+                                                    <Col md={3} xs={6}>
                                                         <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
                                                     </Col>
-                                                    <Col md={3}>
+                                                    <Col md={3} xs={6}>
                                                         <div className="switch has-switch mb-2 me-2" data-on-label="ON"
                                                             data-off-label="OFF" onClick={this.handleClick}>
                                                             <div className={cx("switch-animate", {
@@ -160,46 +177,69 @@ class CreateTransaction extends Component {
                                                             </div>
                                                         </div>
                                                     </Col>
-                                                    <Col md={6}>
-                                                        <Combobox
-                                                            data={['facebook']} 
-                                                            defaultValue="facebook"
+                                                    <Col md={6} xs={12}>
+                                                        <Select
+                                                            value={['facebook']
+                                                                .map(platform => ({ value: platform, label: platform }))
+                                                                .find(option => option.value === this.state.input.typeBox) || { value: "facebook", label: "facebook" }}
+                                                            onChange={selected => {
+                                                                this.setState({ input: { ...this.state.input, typeBox: selected.value } });
+                                                            }}
+                                                            options={['facebook'].map(platform => ({
+                                                                value: platform,
+                                                                label: platform
+                                                            }))}
+                                                            placeholder="Chọn nền tảng"
                                                         />
                                                     </Col>
                                                 </Row>
 
                                                 <Row className="mb-4">
-                                                    <Col md={12}>
-                                                    <Select
-                                                        value={this.state.bankAccounts
-                                                            .map(bank => ({ value: bank._id, label: bank.bankName }))
-                                                            .find(option => option.value === this.state.input.bankId) || null}
-                                                        onChange={selected => this.setState({ input: { ...this.state.input, bankId: selected.value } })}
-                                                        options={this.state.bankAccounts.map(bank => ({
-                                                            value: bank._id,
-                                                            label: bank.bankName
-                                                        }))}
-                                                        placeholder="Chọn ngân hàng"
-                                                    />
-                                                    </Col>       
+                                                    <Col md={12} xs={12}>
+                                                        <Select
+                                                            value={this.state.bankAccounts
+                                                                .map(bank => ({ value: bank._id, label: bank.bankName }))
+                                                                .find(option => option.value === this.state.input.bankId) || null}
+                                                            onChange={selected => {
+                                                                    this.setState({ input: { ...this.state.input, bankId: selected.value } })
+                                                                    localStorage.setItem("selectedBankId", selected.value);
+                                                                }
+                                                            }
+                                                            options={this.state.bankAccounts.map(bank => ({
+                                                                value: bank._id,
+                                                                label: bank.bankName
+                                                            }))}
+                                                            placeholder="Chọn ngân hàng"
+                                                        />
+                                                    </Col>
+                                                    {this.state.input.bankId && (
+                                                        (() => {
+                                                            const selectedBank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
+                                                            return selectedBank ? (
+                                                                <label className="fw-bold text-danger mt-2">
+                                                                    {selectedBank.bankName} - {selectedBank.bankAccountName} - {selectedBank.bankAccount}
+                                                                </label>
+                                                            ) : null;
+                                                        })()
+                                                    )}
                                                 </Row>
                                                 <Row className="mb-4">
                                                 
-                                                    <Col md={6} className="pe-2">
+                                                    <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                                         <Label>Số tiền</Label>
                                                         <Input
                                                             type="text"
                                                             name="amount"
                                                             value={new Intl.NumberFormat('en-US').format(this.state.input.amount)}
                                                             onChange={(e) => {
-                                                                let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy để xử lý số
-                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                                let numericValue = parseInt(rawValue, 10) || 0;
 
                                                                 this.handleAmountChange(numericValue);
                                                             }}
                                                         />
                                                     </Col>
-                                                    <Col md={6} className="ps-2">
+                                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                         <Label>Phí</Label>
                                                         <Input
                                                             type="text"
@@ -207,12 +247,12 @@ class CreateTransaction extends Component {
                                                             value={new Intl.NumberFormat('en-US').format(this.state.input.fee)}
                                                             onChange={(e) => {
                                                                 let rawValue = e.target.value.replace(/,/g, '');
-                                                                let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                                let numericValue = parseInt(rawValue, 10) || 0;
 
                                                                 this.setState((prevState) => ({
                                                                     input: {
                                                                         ...prevState.input,
-                                                                        fee: numericValue < 0 ? 0 : numericValue, // Không cho phép số âm
+                                                                        fee: numericValue < 0 ? 0 : numericValue,
                                                                     },
                                                                 }));
                                                             }}
@@ -221,7 +261,7 @@ class CreateTransaction extends Component {
                                                     </Col>           
                                                 </Row>
                                                 <Row className="mb-4">
-                                                    <Col md={12}>
+                                                    <Col md={12} xs={12}>
                                                         <Label for="content">Nội dung chuyển khoản</Label>
                                                         <Input
                                                             type="text"
@@ -234,7 +274,7 @@ class CreateTransaction extends Component {
                                                     </Col>
                                                 </Row>
                                                 <Row className="mb-4">
-                                                    <Col md={6} className="pe-2">
+                                                    <Col md={6} xs={12} className={cx("mb-4", { "pe-2": !this.state.isMobile })}>
                                                         <Input
                                                             type="text"
                                                             name="messengerId"
@@ -249,7 +289,7 @@ class CreateTransaction extends Component {
                                                             }}
                                                         />
                                                     </Col>
-                                                    <Col md={6} className="ps-2">
+                                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                     <Select
                                                         value={typeFee
                                                             .map(option => ({ value: option.value, label: option.name }))
