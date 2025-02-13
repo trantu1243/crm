@@ -200,59 +200,76 @@ const createBill = async (req, res) => {
     }
 }
 
+
 const confirmBill = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { id } = req.params;
 
-        // Tìm hóa đơn (Bill)
-        const bill = await Bill.findById(id).populate([
-            { path: 'billId'},
-        ]);
-        if (!bill) return res.status(404).json({ message: 'Bill not found' });
+        // 🔍 Tìm bill với status = 1 (chỉ xác nhận nếu bill chưa được xác nhận)
+        const bill = await Bill.findOneAndUpdate(
+            { _id: id, status: 1 },
+            { status: 2 },
+            { new: true, session }
+        );
 
-        // Kiểm tra trạng thái của hóa đơn
-        if (bill.status !== 1) {
-            return res.status(400).json({ message: 'Bad request' });
+        if (!bill) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: "Bill not eligible for confirmation" });
         }
 
-        // Tìm box liên quan
-        const box = await BoxTransaction.findById(bill.boxId);
-        if (!box) return res.status(404).json({ message: 'Box not found' });
+        // 🔍 Lấy box liên quan
+        const box = await BoxTransaction.findById(bill.boxId).session(session);
+        if (!box) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: "Box not found" });
+        }
 
-        // Tổng số tiền từ các transaction có status 2, 6, 7, 8
+        // 📌 Tính tổng tiền có thể sử dụng từ các transaction có status 2, 6, 7, 8
         const result = await Transaction.aggregate([
             { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
             { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
-        ]);
+        ]).session(session);
+
         const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
 
-        // Kiểm tra số dư trước khi trừ tiền
+        // ❌ Kiểm tra số dư trước khi trừ tiền
         if (box.amount < bill.amount) {
-            return res.status(400).json({ message: 'Insufficient balance in box' });
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: "Insufficient balance in box" });
         }
 
-        // Cập nhật trạng thái của bill và giảm số dư trong box
-        bill.status = 2;
-        box.amount -= bill.amount;
-        await Promise.all([bill.save(), box.save()]);
+        // ✅ Cập nhật số dư trong BoxTransaction
+        await BoxTransaction.updateOne(
+            { _id: box._id },
+            { $inc: { amount: -bill.amount } },
+            { session }
+        );
 
         let paidAmount = totalAmount - box.amount;
 
-        // Lấy danh sách transaction có status = 7
+        // 🔍 Kiểm tra bill có billId liên quan không
         if (bill.billId?.status === 1) {
-            return res.status(200).json({ 
-                status: true,
-                message: 'Bill confirmed successfully' 
-            });
+            await session.commitTransaction();
+            session.endSession();
+            return res.status(200).json({ status: true, message: "Bill confirmed successfully" });
         }
-        
-        const transactions = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
+
+        // 🔍 Lấy danh sách transaction có status = 7
+        const transactions = await Transaction.find({ boxId: box._id, status: 7 })
+            .sort({ createdAt: 1 })
+            .session(session);
 
         if (box.amount === 0) {
-            // Cập nhật toàn bộ transaction có status = 7 -> 2
-            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 });
+            // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 }, { session });
         } else if (paidAmount > 0) {
-            // Dùng bulkWrite để tối ưu cập nhật trạng thái giao dịch
+            // ✅ Dùng bulkWrite để tối ưu cập nhật trạng thái giao dịch
             const bulkOps = [];
             for (const transaction of transactions) {
                 paidAmount -= transaction.amount;
@@ -264,22 +281,27 @@ const confirmBill = async (req, res) => {
                 });
                 if (paidAmount <= 0) break;
             }
+
             if (bulkOps.length > 0) {
-                await Transaction.bulkWrite(bulkOps);
+                await Transaction.bulkWrite(bulkOps, { session });
             }
 
-            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 }, { session });
         }
 
-        return res.status(200).json({ 
-            status: true,
-            message: 'Bill confirmed successfully' 
-        });
+        // ✅ Commit transaction nếu mọi thứ thành công
+        await session.commitTransaction();
+        session.endSession();
+
+        return res.status(200).json({ status: true, message: "Bill confirmed successfully" });
     } catch (error) {
+        await session.abortTransaction(); // ❌ Hoàn tác nếu có lỗi
+        session.endSession();
         console.error(error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 const updateBill = async (req, res) => {
     try {

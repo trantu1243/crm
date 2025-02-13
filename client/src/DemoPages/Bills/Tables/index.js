@@ -11,11 +11,31 @@ import Loader from "react-loaders";
 import PaginationTable from "../../Transactions/Tables/PaginationTable";
 import { formatDate } from "../../Transactions/Tables/data";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { confirmBillService } from "../../../services/billService";
 
 class BillsTable extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            confirmBillModal: false,
+            confirmBill: null,
+            alert: false,
+            errorMsg: '',
+        };
+    
+        this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
+    }
+
     componentDidMount() {
         this.props.getBills({});
     }
+
+    toggleConfirmBill() {
+        this.setState({
+            confirmBillModal: !this.state.confirmBillModal,
+        });
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
             this.props.getBills(this.props.filters);
@@ -24,6 +44,19 @@ class BillsTable extends Component {
             this.props.getBills(this.props.filters);
         }
     }
+
+     handleConfirmBill = async () => {
+        try {                    
+            const res = await confirmBillService(this.state.confirmBill?._id);
+            this.toggleConfirmBill()
+            if (res.status) {
+                this.props.getBills(this.props.filters);
+            }
+        } catch (error) {
+            
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],

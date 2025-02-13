@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import 'react-toastify/dist/ReactToastify.css';
 
 import city3 from "../../../assets/utils/images/dropdown-header/city3.jpg";
+import { SERVER_URL } from "../../../services/url";
 
 class UserBox extends React.Component {
     constructor(props) {
@@ -51,8 +52,8 @@ class UserBox extends React.Component {
                         <div className="widget-content-wrapper">
                             <div className="widget-content-left">
                                 <UncontrolledButtonDropdown>
-                                    <DropdownToggle color="link" className="p-0 pt-4">
-                                        <img width={42} className="rounded-circle" src={user.avatar} alt=""/>
+                                    <DropdownToggle color="link" className="p-0 pt-1">
+                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                         <FontAwesomeIcon
                                             className="ms-2 opacity-8"
                                             icon={faAngleDown}
@@ -69,7 +70,7 @@ class UserBox extends React.Component {
                                                     <div className="widget-content p-0">
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left me-3">
-                                                                <img width={42} className="rounded-circle" src={user.avatar} alt=""/>
+                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                                             </div>
                                                             <div className="widget-content-left">
                                                                 <div className="widget-heading">

@@ -248,36 +248,65 @@ const updateTransaction = async (req, res) => {
 }
 
 const confirmTransaction = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { id } = req.params;
 
-        const transaction = await Transaction.findById(id);
+        // 🔍 Tìm và cập nhật transaction (chỉ cập nhật nếu status === 1)
+        const transaction = await Transaction.findOneAndUpdate(
+            { _id: id, status: 1 }, 
+            { status: 6 }, 
+            { new: true, session }
+        );
 
-        if (!transaction || transaction.status !== 1) {
-            return res.status(400).json({ message: 'Transaction not eligible for confirmation' });
+        if (!transaction) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: "Transaction not eligible for confirmation" });
         }
 
-        const box = await BoxTransaction.findById(transaction.boxId);
-        box.amount += transaction.amount;
-        transaction.status = 6;
+        // 🔍 Lấy box và cập nhật số tiền
+        const box = await BoxTransaction.findById(transaction.boxId).session(session);
+        if (!box) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: "Box not found" });
+        }
 
-        const existingBill = await Bill.findOne({boxId: box._id, status: 1});
-        if (existingBill) transaction.status = 7;
-        
-        await box.save();
-        await transaction.save();
+        // 🔥 Cộng tiền vào BoxTransaction
+        await BoxTransaction.updateOne(
+            { _id: box._id },
+            { $inc: { amount: transaction.amount } },
+            { session }
+        );
 
-        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 });
-        
+        // 🔍 Kiểm tra xem đã có Bill chưa
+        const existingBill = await Bill.findOne({ boxId: box._id, status: 1 }).session(session);
+        if (existingBill) {
+            await Transaction.updateOne({ _id: transaction._id }, { status: 7 }, { session });
+        }
+
+        // 🔥 Cập nhật tất cả giao dịch có status = 2 thành status = 8
+        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 }, { session });
+
+        // ✅ Commit transaction (lưu tất cả thay đổi)
+        await session.commitTransaction();
+        session.endSession();
+
         return res.status(200).json({
             status: true,
-            message: 'Transaction confirmed successfully',
+            message: "Transaction confirmed successfully",
         });
     } catch (error) {
+        await session.abortTransaction(); // ❌ Hoàn tác nếu có lỗi
+        session.endSession();
         console.error(error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+
 
 const cancelTransaction = async (req, res) => {
     try {

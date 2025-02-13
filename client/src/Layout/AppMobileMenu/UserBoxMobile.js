@@ -11,12 +11,9 @@ import {
     NavLink,
     UncontrolledButtonDropdown,
 } from "reactstrap";
+import { SERVER_URL } from "../../services/url";
 
 import { toast, Bounce } from "react-toastify";
-
-import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -51,8 +48,8 @@ class UserBoxMobile extends React.Component {
                         <div className="widget-content-wrapper">
                             <div className="widget-content-left">
                                 <UncontrolledButtonDropdown>
-                                    <DropdownToggle color="link" className="p-0 pt-4">
-                                        <img width={42} className="rounded-circle" src={user.avatar} alt=""/>
+                                    <DropdownToggle color="link" className="p-0 pt-1">
+                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                         
                                     </DropdownToggle>
                                     <DropdownMenu end className="rm-pointers dropdown-menu-lg">
@@ -66,7 +63,7 @@ class UserBoxMobile extends React.Component {
                                                     <div className="widget-content p-0">
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left me-3">
-                                                                <img width={42} height={42} className="rounded-circle" src={user.avatar} alt=""/>
+                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                                             </div>
                                                             <div className="widget-content-left">
                                                                 <div className="widget-heading">

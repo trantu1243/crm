@@ -10,6 +10,7 @@ require('dotenv').config();
 const routes = require('./routes/index');
 const { importExcelToMongo } = require('./dump');
 const { resetPass } = require('./utils/resetPass');
+const path = require('path');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -41,6 +42,8 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/images", express.static(path.join(__dirname, "imgs")));
 
 app.use(mongoSanitize());
 app.use('/v1', routes);
