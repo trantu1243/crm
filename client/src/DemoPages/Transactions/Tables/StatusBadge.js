@@ -35,9 +35,7 @@ const StatusBadge = ({ status }) => {
     }
 
     return (
-        <td className="text-center text-muted">
-            <span className={`badge ${badgeClass}`}>{badgeText}</span>
-        </td>
+        <span className={`badge ${badgeClass}`}>{badgeText}</span>
     );
 };
 

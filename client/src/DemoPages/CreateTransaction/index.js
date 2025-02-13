@@ -289,19 +289,19 @@ class CreateTransaction extends Component {
                                                         />
                                                     </Col>
                                                     <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                    <Select
-                                                        value={typeFee
-                                                            .map(option => ({ value: option.value, label: option.name }))
-                                                            .find(option => option.value === this.state.input.typeFee) || null}
-                                                        onChange={selected => this.setState(prevState => ({
-                                                            input: { ...prevState.input, typeFee: selected?.value }
-                                                        }))}
-                                                        options={typeFee.map(option => ({
-                                                            value: option.value,
-                                                            label: option.name
-                                                        }))}
-                                                        placeholder="Chọn loại phí"
-                                                    />
+                                                        <Select
+                                                            value={typeFee
+                                                                .map(option => ({ value: option.value, label: option.name }))
+                                                                .find(option => option.value === this.state.input.typeFee) || null}
+                                                            onChange={selected => this.setState(prevState => ({
+                                                                input: { ...prevState.input, typeFee: selected?.value }
+                                                            }))}
+                                                            options={typeFee.map(option => ({
+                                                                value: option.value,
+                                                                label: option.name
+                                                            }))}
+                                                            placeholder="Chọn loại phí"
+                                                        />
 
                                                     </Col>
                                                 </Row>

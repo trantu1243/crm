@@ -1,5 +1,6 @@
 const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = require("../models");
 const { generateQrCode } = require("../services/qr.service");
+const mongoose = require('mongoose');
 
 const getTransactions = async (req, res) => {
     try {

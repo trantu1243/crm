@@ -1,4 +1,4 @@
-import { Button, Card, CardHeader, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import { Button, Card, CardHeader, Col, FormText, Input, InputGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
 import Select from "react-select";
 
 import React, { Component } from "react";
@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { getBoxById, undoBox } from "../../../reducers/boxSlice";
 import { confirmTransaction, createTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
@@ -17,6 +17,7 @@ import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
 import { typeFee } from "../../CreateTransaction";
 import { SERVER_URL } from "../../../services/url";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -28,9 +29,16 @@ class TransactionsTable extends Component {
             show: false,
             undoModal: false,
             createModal: false,
+            updateModal: false,
+            cancelModal: false,
             confirmTransactionModal: false,
             confirmTransaction: null,
+            undoTransaction: null,
+            updateTransaction: null,
+            cancelTransaction: null,
             loading: false,
+            textCopy: '',
+            copied: false,
             input: {
                 amount: '',
                 bankId: '',
@@ -42,12 +50,23 @@ class TransactionsTable extends Component {
                 typeBox: 'facebook',
                 isToggleOn: true,
             },
+            update: {
+                amount: '',
+                bankId: '',
+                bonus: '0',
+                content: '',
+                fee: '',
+                messengerId: '',
+                typeFee: 'buyer',
+                typeBox: 'facebook',
+            }
         };
 
         this.toggleUndo = this.toggleUndo.bind(this);
         this.toggleConfirmTransaction = this.toggleConfirmTransaction.bind(this)
         this.toggleCreate = this.toggleCreate.bind(this);
-
+        this.toggleUpdate = this.toggleUpdate.bind(this);
+        this.toggleCancel = this.toggleCancel.bind(this);
     }
 
     componentDidMount() {
@@ -74,11 +93,27 @@ class TransactionsTable extends Component {
         });
     }
 
+    toggleUpdate() {
+        this.setState({
+            updateModal: !this.state.updateModal,
+        });
+    }
+
     toggleConfirmTransaction() {
         this.setState({
             confirmTransactionModal: !this.state.confirmTransactionModal,
         });
     }
+
+    toggleCancel() {
+        this.setState({
+            cancelModal: !this.state.cancelModal,
+        });
+    }
+
+    onCopy = () => {
+        this.setState({ copied: true });
+    };
 
     handleUndo = async () => {
         this.toggleUndo()    
@@ -140,6 +175,16 @@ class TransactionsTable extends Component {
         this.setState((prevState) => ({
             input: {
                 ...prevState.input,
+                [name]: value,
+            },
+        }));
+    };
+
+    handleUpdateChange = (e) => {
+        const { name, value } = e.target;
+        this.setState((prevState) => ({
+            update: {
+                ...prevState.update,
                 [name]: value,
             },
         }));
@@ -380,7 +425,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center text-muted">{item.totalAmount.toLocaleString()}</td>
                                 <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                                 <td className="text-center text-muted">{item.content}</td>
-                                <StatusBadge status={item.status} />
+                                <td className="text-center text-muted"> <StatusBadge status={item.status} /></td>
                                 <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center text-muted">
@@ -390,22 +435,43 @@ class TransactionsTable extends Component {
                                         </button>
                                     </>}
                                     {item.status === 1 && <>
-                                        <button className="btn btn-sm btn-success me-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
+                                        <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
                                             <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                         </button>
     
-                                        <a href={`/transaction/${item._id}`} className="btn btn-sm btn-info me-1" title="Xem chi tiết giao dịch">
+                                        <button 
+                                            className="btn btn-sm btn-success me-1 mb-1" 
+                                            title="Chỉnh sửa giao dịch" 
+                                            onClick={() => {
+                                                this.setState({
+                                                    updateTransaction: item,
+                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
+                                                    update: {
+                                                        amount: String(item.amount),
+                                                        bankId: item.bankId._id,
+                                                        bonus: String(item.bonus),
+                                                        content: item.content,
+                                                        fee: String(item.fee),
+                                                        messengerId: item.messengerId,
+                                                        typeFee: item.typeFee,
+                                                        typeBox: 'facebook',
+
+                                                    }
+                                                });
+                                                this.toggleUpdate()
+                                            }}
+                                        >
                                             <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
-                                        </a>
+                                        </button>
                                     </>}
                                 
                                     {item.status === 1 && <>
-                                        <button className="btn btn-sm btn-danger me-1" title="Hủy">
+                                        <button className="btn btn-sm btn-danger me-1 mb-1" title="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>
                                             <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
                                         </button>
                                     </>}
                                     {(item.status !== 1) && <>
-                                        <button className="btn btn-sm btn-warning me-1" title="Hoàn tác" onClick={this.toggleUndo}>
+                                        <button className="btn btn-sm btn-warning me-1 mb-1" title="Hoàn tác" onClick={()=> {this.setState({undoTransaction: item});this.toggleUndo()}}>
                                             <FontAwesomeIcon icon={faUndoAlt} color="#fff" size="3xs"/>
                                         </button>
                                     </>}
@@ -416,7 +482,14 @@ class TransactionsTable extends Component {
 
                     <Modal isOpen={this.state.undoModal} toggle={this.toggleUndo} className={this.props.className}>
                         <ModalHeader toggle={this.toggleUndo}><span style={{fontWeight: 'bold'}}>Xác nhận hoàn tác box</span></ModalHeader>
-
+                        <ModalBody>
+                            
+                            Số tài khoản: {this.state.undoTransaction?.bankId.bankAccount} <br />
+                            Ngân hàng: {this.state.undoTransaction?.bankId.bankName} <br />
+                            Chủ tài khoản: {this.state.undoTransaction?.bankId.bankAccountName} <br />
+                            Tổng tiền: <span className="fw-bold text-danger">{this.state.undoTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+            
+                        </ModalBody>
                         <ModalFooter>
                             <Button color="link" onClick={this.toggleUndo}>
                                 Cancel
@@ -433,7 +506,7 @@ class TransactionsTable extends Component {
                             Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.confirmTransaction?.bankId.bankAccountName} <br />
-                            Số tiền: <span className="fw-bold text-danger">{this.state.confirmTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+                            Tổng tiền: <span className="fw-bold text-danger">{this.state.confirmTransaction?.totalAmount.toLocaleString()} vnd</span><br />
             
                         </ModalBody>
 
@@ -443,6 +516,199 @@ class TransactionsTable extends Component {
                             </Button>
                             <Button color="primary" onClick={this.handleConfirmTransaction}>
                                 Xác nhận
+                            </Button>{" "}
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={this.state.cancelModal} toggle={this.toggleCancel} className={this.props.className}>
+                        <ModalHeader toggle={this.toggleCancel}><span style={{fontWeight: 'bold'}}>Xác nhận hủy giao dịch</span></ModalHeader>
+                        <ModalBody>
+                            Số tài khoản: {this.state.cancelTransaction?.bankId.bankAccount} <br />
+                            Ngân hàng: {this.state.cancelTransaction?.bankId.bankName} <br />
+                            Chủ tài khoản: {this.state.cancelTransaction?.bankId.bankAccountName} <br />
+                            Tổng tiền: <span className="fw-bold text-danger">{this.state.cancelTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+            
+                        </ModalBody>
+    
+                        <ModalFooter>
+                            <Button color="link" onClick={this.toggleCancel}>
+                                Cancel
+                            </Button>
+                            <Button color="danger" onClick={this.toggleCancel}>
+                                Hủy giao dịch
+                            </Button>{" "}
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-xl">
+                        <ModalHeader toggle={this.toggleUpdate}><span style={{fontWeight: 'bold'}}>Chỉnh sửa giao dịch</span></ModalHeader>
+                        <ModalBody>
+                            <Row>
+                                <Col md={6} xs={12}>
+
+                                    <Row className="mb-4">
+                                        <Col md={12}>
+                                            <Select
+                                                value={this.state.bankAccounts
+                                                    .map(bank => ({ value: bank._id, label: bank.bankName }))
+                                                    .find(option => option.value === this.state.update.bankId) || null}
+                                                onChange={selected => {
+                                                        this.setState({ update: { ...this.state.update, bankId: selected.value } })
+                                                        localStorage.setItem("selectedBankId", selected.value);
+                                                    }
+                                                }
+                                                options={this.state.bankAccounts.map(bank => ({
+                                                    value: bank._id,
+                                                    label: bank.bankName
+                                                }))}
+                                                placeholder="Chọn ngân hàng"
+                                            />
+                                        </Col>       
+                                    </Row>
+                                    <Row className="mb-4">
+                                        <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                            <Label>Số tiền</Label>
+                                            <Input
+                                                type="text"
+                                                name="amount"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.update.amount)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, '');
+                                                    let value = parseInt(rawValue, 10) || 0;
+
+                                                    let fee = 0;
+                                                    const feeItem = this.state.fee.find(item => value >= item.min && value <= item.max);
+                                                    if (feeItem) {
+                                                        fee = feeItem.feeDefault;
+                                                    }
+                                                
+                                                    this.setState((prevState) => ({
+                                                        update: {
+                                                            ...prevState.update,
+                                                            amount: value < 0 ? 0 : value,
+                                                            fee: fee,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+                                        </Col>
+                                        <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                            <Label>Phí</Label>
+                                            <Input
+                                                type="text"
+                                                name="fee"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.update.fee)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, '');
+                                                    let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                    this.setState((prevState) => ({
+                                                        update: {
+                                                            ...prevState.input,
+                                                            fee: numericValue < 0 ? 0 : numericValue,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+
+                                        </Col>                    
+                                    </Row>
+                                    <Row className="mb-4">
+                                        <Col md={12}>
+                                            <Label for="content">Nội dung chuyển khoản</Label>
+                                            <Input
+                                                type="text"
+                                                name="content"
+                                                id="content"
+                                                placeholder="Nhập nội dung"
+                                                value={this.state.update.content}
+                                                onChange={this.handleUpdateChange}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-4">
+                                        <Col md={6} xs={12} className="pe-2">
+                                            <Input
+                                                type="text"
+                                                name="messengerId"
+                                                id="messengerId"
+                                                placeholder="Messenger ID"
+                                                value={this.state.update.messengerId}
+                                                onChange={this.handleUpdateChange}
+                                            />
+                                        </Col>
+                                        <Col md={6} xs={12} className="ps-2">
+                                            <Select
+                                                value={typeFee
+                                                    .map(option => ({ value: option.value, label: option.name }))
+                                                    .find(option => option.value === this.state.update.typeFee) || null}
+                                                onChange={selected => this.setState(prevState => ({
+                                                    update: { ...prevState.update, typeFee: selected?.value }
+                                                }))}
+                                                options={typeFee.map(option => ({
+                                                    value: option.value,
+                                                    label: option.name
+                                                }))}
+                                                placeholder="Chọn loại phí"
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-4">
+                                        <div>
+                                            <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.state.updateTransaction?.status}/>           
+                                        </div>
+                                    </Row>
+                                    <Row className="mb-4">
+                                        <Col md={12} xs={12} style={{position: 'relative'}}>
+                                            <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                            <div style={{position: 'absolute', right: 0, top: 0}}>
+                                                <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
+                                                    <Button color="link">
+                                                        <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg"/>
+                                                    </Button>
+                                                </CopyToClipboard>
+                                            </div>
+                                        
+                                            {this.state.copied ? (
+                                                <FormText color="success">Text has been copied.</FormText>
+                                            ) : null}
+                                        </Col>
+                                    </Row>
+                                    
+                                </Col>
+                                <Col md={6} xs={12}>
+                                    <Row>
+                                        <Col md={6}>
+
+                                        </Col>
+                                        <Col md={6} xs={12}>
+                                            <InputGroup>
+                                                <Input value={this.state.updateTransaction?.linkQr} placeholder="Link QR" disabled/>
+                                                <CopyToClipboard text={this.state.updateTransaction?.linkQr}>
+                                                    <Button color="primary">
+                                                        <FontAwesomeIcon icon={faCopy} />
+                                                    </Button>
+                                                </CopyToClipboard>
+                                            </InputGroup>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>
+                                    </Row>
+                                </Col>
+                            
+                            </Row>
+                        </ModalBody>
+
+                        <ModalFooter>
+                            <Button color="link" onClick={this.toggleUpdate}>
+                                Cancel
+                            </Button>
+                            <a href={`/box/${this.state.updateTransaction?.boxId}`} className="btn btn-secondary">
+                                Chi tiết box
+                            </a>
+                            <Button color="primary" onClick={this.toggleUpdate}>
+                                Cập nhật
                             </Button>{" "}
                         </ModalFooter>
                     </Modal>
