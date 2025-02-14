@@ -74,6 +74,9 @@ const transactionsSlice = createSlice({
         resetFilters: (state) => {
             state.filters = { ...initialState.filters };
         },
+        setTransaction: (state, action) => {
+            state.transaction = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -104,5 +107,5 @@ const transactionsSlice = createSlice({
     },
 });
 
-export const { setFilters, resetFilters } = transactionsSlice.actions;
+export const { setFilters, resetFilters, setTransaction } = transactionsSlice.actions;
 export default transactionsSlice.reducer;

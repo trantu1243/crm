@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 
-import { Button, Card, CardBody, CardTitle, Col, Container, Input, Label } from "reactstrap";
+import { Button, Card, CardBody, CardTitle, Col, Container, FormText, Input, InputGroup, Label } from "reactstrap";
 import Select from "react-select";
 
 import Row from "../Components/GuidedTours/Examples/Row";
@@ -13,6 +13,10 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { fetchFee } from "../../services/feeService";
 import { createTransaction } from "../../services/transactionService";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCopy } from "@fortawesome/free-solid-svg-icons";
+import StatusBadge from "../Transactions/Tables/StatusBadge";
 
 export const typeFee = [
     {name: 'Bên mua chịu phí', value: 'buyer'},
@@ -33,6 +37,9 @@ class CreateTransaction extends Component {
             loading: false,
             alert: false,
             errorMsg: '',
+            isCreated: false,
+            textCopy: '',
+            linkQr: '',
             input: {
                 amount: '',
                 bankId: '',
@@ -130,10 +137,41 @@ class CreateTransaction extends Component {
     handleSubmit = async (e) => {
         try{
             e.preventDefault();
-            this.setState({loading: true});
-            const res = await createTransaction(this.state.input);
-            this.setState({loading: false});
-            window.location.href = `/transaction/${res.transaction._id}`;
+            if (this.state.input.isToggleOn) {
+                this.setState({loading: true});
+                const res = await createTransaction(this.state.input);
+                console.log(res.data);
+                this.setState({loading: false});
+
+            } else {
+                const { amount, bankId, bonus, content, fee, typeFee } = this.state.input;
+                if (!amount || !bankId || !bonus || !content || !fee || !typeFee) {
+                    this.setState({loading: false})
+                    return this.setState({
+                        alert: true,
+                        errorMsg: 'Vui lòng nhập đầy đủ'
+                    })
+                }
+
+                let oriAmount = Number(amount);
+                let totalAmount = Number(amount);
+
+                if (typeFee === "buyer") {
+                    totalAmount += fee;
+                } else if (typeFee === "seller") {
+                    oriAmount -= fee;
+                } else if (typeFee === "split") {
+                    oriAmount -= fee / 2;
+                    totalAmount += fee / 2;
+                }
+                const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
+                this.setState({
+                    isCreated: true,
+                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${amount.toLocaleString()} vnd\nPhí: ${fee.toLocaleString()} vnd\nNội dung: ${content}`
+                })
+            }
+            
         } catch(error) {
             this.setState({
                 alert: true,
@@ -305,12 +343,74 @@ class CreateTransaction extends Component {
 
                                                     </Col>
                                                 </Row>
+                                                {this.state.isCreated && 
+                                                <>
+                                                    <Row className="mb-4"> 
+                                                        <div>
+                                                            <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.props.transaction.status}/>           
+                                                        </div>        
+                                                    </Row>
+                                                    <Row className="mb-4">
+                                                        <Col md={12} xs={12} style={{position: 'relative'}}>
+                                                            <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                                            <div style={{position: 'absolute', right: 0, top: 0}}>
+                                                                <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
+                                                                    <Button color="link">
+                                                                        <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg"/>
+                                                                    </Button>
+                                                                </CopyToClipboard>
+                                                            </div>
+                                                        
+                                                            {this.state.copied ? (
+                                                                <FormText color="success">Text has been copied.</FormText>
+                                                            ) : null}
+                                                        </Col>
+                                                    </Row>
+                                                </>}
+                                            </Col>
+                                            <Col md={6} xs={12}>
+                                                <Row>
+                                                    <Col md={6}>
+
+                                                    </Col>
+                                                    <Col md={6} xs={12}>
+                                                        <InputGroup>
+                                                            <Input value={this.state.linkQr} placeholder="Link QR" disabled/>
+                                                            <CopyToClipboard text={this.state.linkQr}>
+                                                                <Button color="primary">
+                                                                    <FontAwesomeIcon icon={faCopy} />
+                                                                </Button>
+                                                            </CopyToClipboard>
+                                                        </InputGroup>
+                                                    </Col>
+                                                </Row>
+                                                <Row>
+                                                    <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 6em'}}></img>
+                                                </Row>
                                             </Col>
                                         </Row>
                                         
                                         <Row>
                                             <div className="btn-actions-pane-right">
                                                 <div>
+                                                    {this.state.isCreated ? 
+                                                    <>
+                                                        <Button 
+                                                            className="btn-wide me-2 mt-2 btn-dashed" 
+                                                            color="secondary" 
+                                                            style={{width: 120}}
+    
+                                                        >
+                                                            Chi tiết box
+                                                        </Button>
+                                                        <Button 
+                                                            className="btn-wide me-2 mt-2 btn-dashed w-100" 
+                                                            color="primary"                                                                
+                                                        >
+                                                            Tạo lại QR
+                                                        </Button>
+                                                    </>
+                                                    : 
                                                     <Button 
                                                         className="btn-wide me-2 mt-2 btn-dashed w-100" 
                                                         color="primary" 
@@ -318,7 +418,7 @@ class CreateTransaction extends Component {
                                                         disabled={this.state.loading}    
                                                     >
                                                         {this.state.loading ? "Đang tạo..." : "Tạo QR"}
-                                                    </Button>
+                                                    </Button>}
                                                 </div>
                                             </div>
                                         </Row>
@@ -340,7 +440,22 @@ class CreateTransaction extends Component {
 }
 
 const mapStateToProps = (state) => ({
-   
+    transaction: state.transactions.transaction || {
+        _id: '',
+        amount: 0,
+        bankId: null,
+        bonus: 0,
+        boxId: '',
+        content: '',
+        fee:'',
+        status: 1,
+        messengerId: '',
+        linkQr: '',
+        totalAmount: '',
+        typeFee: '',
+        createdAt: '',
+        updatedAt: ''
+    },
     loading: state.transactions.loading  || false,
 });
   

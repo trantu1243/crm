@@ -215,16 +215,6 @@ const updateTransaction = async (req, res) => {
             });    
         }
 
-        const qrPayload = {
-            accountNo: bank.bankAccount,
-            accountName: bank.bankAccountName,
-            acqId: bank.binBank, 
-            addInfo: content,
-            amount: totalAmount.toString(),
-        };
-    
-        const qrLink = await generateQrCode(qrPayload);
-
         const transaction = await Transaction.findByIdAndUpdate(id, {
             boxId: box._id,
             bankId: bank._id,
@@ -232,7 +222,7 @@ const updateTransaction = async (req, res) => {
             content,
             fee,
             totalAmount,
-            linkQr: qrLink,
+            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
             messengerId,
             typeFee,
             bonus: Number(bonus)
