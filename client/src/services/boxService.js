@@ -14,14 +14,14 @@ export const fetchBoxTransactionById = async (id) => {
         console.log(response.data)
         return response.data;
     } catch (error) {
-        console.error("Error fetching box transaction", error);
+        console.error("Error fetching box", error);
 
         if (error.response?.status === 401 || error.response?.status === 403) {
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
 
-        throw error.response?.data?.message || "Failed to fetch box transaction!";
+        throw error.response?.data?.message || "Failed to fetch box!";
     }
 };
 
@@ -35,13 +35,13 @@ export const undoBoxService = async (id) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error creating transactions", error);
+        console.error("Error updating box", error);
 
         if (error.response?.status === 401 || error.response?.status === 403) {
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
 
-        throw error.response?.data?.message || "Failed to creating transaction!";
+        throw error.response?.data?.message || "Failed to update box!";
     }  
 };

@@ -12,7 +12,7 @@ import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import { faCheck, faCopy, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
-import { confirmTransaction, createTransaction } from "../../../services/transactionService";
+import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
@@ -227,6 +227,33 @@ class TransactionsTable extends Component {
         }
     };
 
+    handleUpdate = async (e) => {
+        try{
+            e.preventDefault();
+            this.setState({loading: true});
+            const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
+            await this.props.getTransactions(this.props.filters)
+            this.setState({loading: false});
+           
+        } catch(error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false})
+        }
+    }
+
+    hanldeCancel = async (e) => {
+        try {          
+            this.toggleCancel();          
+            const res = await cancelTransaction(this.state.cancelTransaction._id);
+            this.props.getTransactions(this.props.filters)
+        } catch (error) {
+
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -255,7 +282,7 @@ class TransactionsTable extends Component {
                     </Button>
                     <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
-                        <ModalBody className="p-4">
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
                             <Row className="mb-4">
                                 <Col md={3} xs={6}>
                                     <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
@@ -458,7 +485,7 @@ class TransactionsTable extends Component {
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
                                     <button 
-                                        className="btn btn-sm btn-success me-1 mb-1" 
+                                        className="btn btn-sm btn-info me-1 mb-1" 
                                         title="Chỉnh sửa giao dịch" 
                                         onClick={() => {
                                             this.setState({
@@ -585,7 +612,7 @@ class TransactionsTable extends Component {
                         <Button color="link" onClick={this.toggleCancel}>
                             Cancel
                         </Button>
-                        <Button color="danger" onClick={this.toggleCancel}>
+                        <Button color="danger" onClick={this.hanldeCancel}>
                             Hủy giao dịch
                         </Button>{" "}
                     </ModalFooter>
@@ -593,7 +620,7 @@ class TransactionsTable extends Component {
 
                 <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-xl">
                     <ModalHeader toggle={this.toggleUpdate}><span style={{fontWeight: 'bold'}}>Chỉnh sửa giao dịch</span></ModalHeader>
-                    <ModalBody>
+                    <ModalBody onKeyDown={(e) => e.key === "Enter" && this.handleUpdate(e)}>
                         <Row>
                             <Col md={6} xs={12}>
 
@@ -655,7 +682,7 @@ class TransactionsTable extends Component {
 
                                                 this.setState((prevState) => ({
                                                     update: {
-                                                        ...prevState.input,
+                                                        ...prevState.update,
                                                         fee: numericValue < 0 ? 0 : numericValue,
                                                     },
                                                 }));
@@ -712,7 +739,7 @@ class TransactionsTable extends Component {
                                 <Row className="mb-4">
                                     <Col md={12} xs={12} style={{position: 'relative'}}>
                                         <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
-                                        <div style={{position: 'absolute', right: 0, top: 0}}>
+                                        <div style={{position: 'absolute', right: 8, top: 0}}>
                                             <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
                                                 <Button color="link">
                                                     <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg"/>
@@ -758,8 +785,8 @@ class TransactionsTable extends Component {
                         <a href={`/box/${this.state.updateTransaction?.boxId}`} className="btn btn-secondary">
                             Chi tiết box
                         </a>
-                        <Button color="primary" onClick={this.toggleUpdate}>
-                            Cập nhật
+                        <Button color="primary" onClick={this.handleUpdate} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang cập nhật..." : "Cập nhật"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>

@@ -1,4 +1,4 @@
-import { Card, CardFooter, CardHeader, Col, Row, Table } from "reactstrap";
+import { Button, Card, CardFooter, CardHeader, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
 
 import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
@@ -10,8 +10,8 @@ import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import PaginationTable from "../../Transactions/Tables/PaginationTable";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { confirmBillService } from "../../../services/billService";
+import { faCheck, faInfoCircle, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { cancelBillService, confirmBillService } from "../../../services/billService";
 import { SERVER_URL } from "../../../services/url";
 
 class BillsTable extends Component {
@@ -20,11 +20,16 @@ class BillsTable extends Component {
         this.state = {
             confirmBillModal: false,
             confirmBill: null,
+            cancelBillModal: false,
             alert: false,
             errorMsg: '',
+            confirmBillModal: false,
+            confirmBill: null,
+            cancelBill: null,
         };
     
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
+        this.toggleCancelBill = this.toggleCancelBill.bind(this);
     }
 
     componentDidMount() {
@@ -37,6 +42,12 @@ class BillsTable extends Component {
         });
     }
 
+    toggleCancelBill() {
+        this.setState({
+            cancelBillModal: !this.state.cancelBillModal,
+        });
+    }
+
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
             this.props.getBills(this.props.filters);
@@ -46,13 +57,21 @@ class BillsTable extends Component {
         }
     }
 
-     handleConfirmBill = async () => {
-        try {                    
+    handleConfirmBill = async () => {
+        try {                  
+            this.toggleConfirmBill()  
             const res = await confirmBillService(this.state.confirmBill?._id);
-            this.toggleConfirmBill()
-            if (res.status) {
-                this.props.getBills(this.props.filters);
-            }
+            this.props.getBills(this.props.filters);
+        } catch (error) {
+            
+        }
+    }
+
+    handleCancelBill = async () => {
+        try {                    
+            this.toggleCancelBill();
+            const res = await cancelBillService(this.state.cancelBill?._id);
+            this.props.getBills(this.props.filters);
         } catch (error) {
             
         }
@@ -112,9 +131,22 @@ class BillsTable extends Component {
                             <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
                             <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
-                                <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light">
+                                {item.status === 1 && <>
+                                    <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
+                                        <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
+                                    </button>
+                                </>}
+                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" title="Xem chi tiết giao dịch">
+                                    <FontAwesomeIcon icon={faMoneyBill} color="#fff" size="3xs"/>
+                                </a>
+                                <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light me-1 mb-1" title="Xem chi tiết box">
                                     <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
                                 </a>
+                                {item.status === 1 && <>
+                                    <button className="btn btn-sm btn-danger me-1 mb-1" title="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
+                                        <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
+                                    </button>
+                                </>}
                             </td>
                         </tr>)}
                     </tbody>
@@ -152,6 +184,42 @@ class BillsTable extends Component {
                     
                 </CardFooter>
             </>)}
+            <Modal isOpen={this.state.confirmBillModal} toggle={this.toggleConfirmBill} className={this.props.className}>
+                <ModalHeader toggle={this.toggleConfirmBill}><span style={{fontWeight: 'bold'}}>Xác nhận bill</span></ModalHeader>
+                <ModalBody>
+                    Số tài khoản: {this.state.confirmBill?.stk} <br />
+                    Ngân hàng: {this.state.confirmBill?.bankCode} <br />
+                    Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
+                    Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button color="link" onClick={this.toggleConfirmBill}>
+                        Cancel
+                    </Button>
+                    <Button color="primary" onClick={this.handleConfirmBill}>
+                        Xác nhận
+                    </Button>{" "}
+                </ModalFooter>
+            </Modal>
+            <Modal isOpen={this.state.cancelBillModal} toggle={this.toggleCancelBill} className={this.props.className}>
+                <ModalHeader toggle={this.toggleCancelBill}><span style={{fontWeight: 'bold'}}>Huỷ bill</span></ModalHeader>
+                <ModalBody>
+                    Số tài khoản: {this.state.cancelBill?.stk} <br />
+                    Ngân hàng: {this.state.cancelBill?.bankCode} <br />
+                    Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                    Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button color="link" onClick={this.toggleCancelBill}>
+                        Cancel
+                    </Button>
+                    <Button color="primary" onClick={this.handleCancelBill}>
+                        Xác nhận
+                    </Button>{" "}
+                </ModalFooter>
+            </Modal>
         </Card>)
     }
 }

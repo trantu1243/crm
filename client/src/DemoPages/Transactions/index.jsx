@@ -126,7 +126,12 @@ class Transactions extends Component {
                                 <Row>
                                     <Col md="12">
                                         <Card className="main-card mb-3">
-                                            <CardBody>
+                                            <CardBody onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    this.props.setFilters({ ...this.props.filters, page: 1 });
+                                                    this.props.getTransactions(this.props.filters);
+                                                }}}
+                                            >
                                                 <Row>
                                                     <Col md={3} xs={12} className="pe-2 mb-2">
                                                         <Label>Nhân viên</Label>
@@ -296,11 +301,9 @@ class Transactions extends Component {
                             </Container>
 
                             <Container fluid>
-                            
-                                        <div className="mb-3">
+                                <div className="mb-3">
                                         <Tabs tabsWrapperClass="card-header" {...this.state} />
-                                        </div>
-                                 
+                                </div>
                             </Container>
                         </div>
                     </div>

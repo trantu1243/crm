@@ -238,7 +238,7 @@ class Box extends Component {
                                                         </Row>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
-                                                                <Label>Số giao dịch thaành công</Label>
+                                                                <Label>Số giao dịch thành công</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
                                                                 <p>0/1</p>
@@ -281,11 +281,9 @@ class Box extends Component {
                             </Container>
 
                             <Container fluid>
-                           
-                                        <div className="mb-3">
-                                            <Tabs tabsWrapperClass="card-header" {...this.state} />
-                                        </div>
-                                  
+                                <div className="mb-3">
+                                    <Tabs tabsWrapperClass="card-header" {...this.state} />
+                                </div>
                             </Container>
                         </>)}
                         </div>

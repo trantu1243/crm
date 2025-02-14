@@ -161,7 +161,7 @@ class Box extends Component {
                                                                 width: '100%',
                                                                 height: '100%',
                                                                 padding: '0 6em',
-                                                                filter: (bill.status === 2 || !showBuyerQR) ? 'blur(10px)' : 'none',
+                                                                filter: (bill.status !== 1 || !showBuyerQR) ? 'blur(10px)' : 'none',
                                                                 transition: 'filter 0.3s ease'
                                                             }}
                                                             onClick={() => this.toggleQR("buyer")}
@@ -195,7 +195,7 @@ class Box extends Component {
                                                                 width: '100%',
                                                                 height: '100%',
                                                                 padding: '0 6em',
-                                                                filter: (bill.billId.status === 2 || !showBuyerQR) ? 'blur(10px)' : 'none',
+                                                                filter: (bill.billId.status !== 1 || !showBuyerQR) ? 'blur(10px)' : 'none',
                                                                 transition: 'filter 0.3s ease'
                                                             }}
                                                             onClick={() => this.toggleQR("buyer")}
@@ -304,8 +304,8 @@ class Box extends Component {
                                             <Button color="success" style={{width: 150}} onClick={this.handleSwitch}>Đảo bill</Button>
                                         </div> 
                                         <div className="d-flex justify-content-center gap-3">
-                                            <a href={`/box/${bill.boxId?._id || ''}`} className="btn btn-secondary" style={{width: 150}}>Quay lại box</a>
-                                            <a href="/bills" className="btn btn-secondary" style={{width: 150}}>Quay lại quản lý bill</a>
+                                            <a href={`/box/${bill.boxId?._id || ''}`} className="btn btn-info" style={{width: 150}}>Quay lại box</a>
+                                            <a href="/bills" className="btn btn-primary" style={{width: 150}}>Quay lại quản lý bill</a>
                                         </div>
                                     </Card>
                                 </Container>

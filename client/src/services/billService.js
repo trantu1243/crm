@@ -95,7 +95,7 @@ export const switchBillService = async (id) => {
             window.location.href = "/login";
         }
 
-        throw error.response?.data?.message || "Failed to creating bill!";
+        throw error.response?.data?.message || "Failed to switching bill!";
     }  
 };
 
@@ -116,7 +116,28 @@ export const confirmBillService = async (id) => {
             window.location.href = "/login";
         }
 
-        throw error.response?.data?.message || "Failed to creating bill!";
+        throw error.response?.data?.message || "Failed to confirming bill!";
+    }  
+};
+
+export const cancelBillService = async (id) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/cancel`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating bill", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to canceling bill!";
     }  
 };
 

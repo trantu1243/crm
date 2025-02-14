@@ -223,7 +223,7 @@ const confirmBill = async (req, res) => {
         }
 
         // 🔍 Lấy box liên quan
-        const box = await BoxTransaction.findById(bill.boxId).session(session);
+        let box = await BoxTransaction.findById(bill.boxId).session(session);
         if (!box) {
             await session.abortTransaction();
             session.endSession();
@@ -252,7 +252,7 @@ const confirmBill = async (req, res) => {
             { session }
         );
 
-        let paidAmount = totalAmount - box.amount;
+        let paidAmount = totalAmount - ( box.amount - bill.amount);
 
         // 🔍 Kiểm tra bill có billId liên quan không
         if (bill.billId?.status === 1) {
@@ -265,8 +265,8 @@ const confirmBill = async (req, res) => {
         const transactions = await Transaction.find({ boxId: box._id, status: 7 })
             .sort({ createdAt: 1 })
             .session(session);
-
-        if (box.amount === 0) {
+        
+        if (box.amount - bill.amount === 0) {
             // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 }, { session });
         } else if (paidAmount > 0) {
@@ -378,6 +378,44 @@ const cancelBill = async (req, res) => {
 
         if (!bill || bill.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for cancellation' });
+        }
+        let box = await BoxTransaction.findById(bill.boxId);
+        // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
+        const result = await Transaction.aggregate([
+            { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
+            { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+        ]);
+        const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
+        let paidAmount = totalAmount - box.amount; // Số tiền đã thanh toán
+
+        // Lấy danh sách transaction có status = 7 theo thứ tự cũ nhất trước
+        const transactionsToUpdate = await Transaction.find({ boxId: box._id, status: 7 }).sort({ createdAt: 1 });
+
+        if (box.amount === 0) {
+            // Nếu số dư trong box là 0, tất cả giao dịch trạng thái 7 chuyển thành 2
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 });
+        } else if (paidAmount > 0) {
+            // Nếu đã thanh toán nhiều hơn số dư hiện tại, cập nhật trạng thái giao dịch
+            const bulkOps = [];
+            for (const transaction of transactionsToUpdate) {
+                paidAmount -= transaction.amount;
+                bulkOps.push({
+                    updateOne: {
+                        filter: { _id: transaction._id },
+                        update: { status: 8 },
+                    },
+                });
+                if (paidAmount <= 0) break; // Dừng khi số tiền còn lại không đủ để trừ tiếp
+            }
+
+            if (bulkOps.length > 0) {
+                await Transaction.bulkWrite(bulkOps);
+            }
+
+            // Đổi trạng thái tất cả các transaction còn lại từ 7 sang 6
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
+        } else if (paidAmount === 0) {
+            await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 });
         }
 
         bill.status = 3;

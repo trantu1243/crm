@@ -8,13 +8,13 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import BillStatusBadge from "../../Bills/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faCopy, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import cx from "classnames";
 import { fetchBankApi } from "../../../services/bankApiService";
 import Select from "react-select";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
-import { confirmBillService, createBill } from "../../../services/billService";
+import { cancelBillService, confirmBillService, createBill } from "../../../services/billService";
 import { getBoxById } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
 
@@ -24,10 +24,12 @@ class BillsTable extends Component {
         this.state = {
             modal: false,
             confirmBillModal: false,
+            cancelBillModal: false,
             isBuyerToggleOn: false,
             isSellerToggleOn: false,
             banks: [],
             confirmBill: null,
+            cancelBill: null,
             alert: false,
             errorMsg: '',
             buyer: {
@@ -48,6 +50,7 @@ class BillsTable extends Component {
     
         this.toggle = this.toggle.bind(this);
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
+        this.toggleCancelBill = this.toggleCancelBill.bind(this);
         this.handleBuyerClick = this.handleBuyerClick.bind(this);
     }
 
@@ -64,6 +67,12 @@ class BillsTable extends Component {
     toggleConfirmBill() {
         this.setState({
             confirmBillModal: !this.state.confirmBillModal,
+        });
+    }
+
+    toggleCancelBill() {
+        this.setState({
+            cancelBillModal: !this.state.cancelBillModal,
         });
     }
 
@@ -106,15 +115,23 @@ class BillsTable extends Component {
 
     handleConfirmBill = async () => {
          try {                    
+            this.toggleConfirmBill();
             const res = await confirmBillService(this.state.confirmBill?._id);
-            if (res.status) {
-                this.props.getBoxById(this.props.boxId)
-                this.toggleConfirmBill()
-            }
+            this.props.getBoxById(this.props.boxId)
         } catch (error) {
             
         }
     }
+
+    handleCancelBill = async () => {
+        try {                    
+            this.toggleCancelBill();
+            const res = await cancelBillService(this.state.cancelBill?._id);
+            this.props.getBoxById(this.props.boxId);
+       } catch (error) {
+           
+       }
+   }
 
     render() { 
 
@@ -466,13 +483,18 @@ class BillsTable extends Component {
                             <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-success me-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
+                                    <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
                                 </>}
-                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info m-1" title="Xem chi tiết giao dịch">
+                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" title="Xem chi tiết giao dịch">
                                     <FontAwesomeIcon icon={faMoneyBill} color="#fff" size="3xs"/>
                                 </a>
+                                {item.status === 1 && <>
+                                    <button className="btn btn-sm btn-danger me-1 mb-1" title="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
+                                        <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
+                                    </button>
+                                </>}
                             </td>
                         </tr>)}
                     </tbody>
@@ -495,6 +517,24 @@ class BillsTable extends Component {
                             Cancel
                         </Button>
                         <Button color="primary" onClick={this.handleConfirmBill}>
+                            Xác nhận
+                        </Button>{" "}
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.cancelBillModal} toggle={this.toggleCancelBill} className={this.props.className}>
+                    <ModalHeader toggle={this.toggleCancelBill}><span style={{fontWeight: 'bold'}}>Huỷ bill</span></ModalHeader>
+                    <ModalBody>
+                        Số tài khoản: {this.state.cancelBill?.stk} <br />
+                        Ngân hàng: {this.state.cancelBill?.bankCode} <br />
+                        Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                        Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button color="link" onClick={this.toggleCancelBill}>
+                            Cancel
+                        </Button>
+                        <Button color="primary" onClick={this.handleCancelBill}>
                             Xác nhận
                         </Button>{" "}
                     </ModalFooter>

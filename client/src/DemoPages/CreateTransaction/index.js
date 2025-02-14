@@ -35,6 +35,7 @@ class CreateTransaction extends Component {
             bankAccounts: [],
             fee: [],
             copied: false,
+            imageCopied: false,
             loading: false,
             alert: false,
             errorMsg: '',
@@ -129,6 +130,23 @@ class CreateTransaction extends Component {
         }));
     };
 
+    copyImageToClipboard = async () => {
+        try {
+            const response = await fetch(this.state.linkQr);
+            const blob = await response.blob();
+            const data = [new ClipboardItem({ [blob.type]: blob })];
+
+            await navigator.clipboard.write(data);
+            this.setState({imageCopied: true})
+        } catch (error) {
+            console.error(error);
+            this.setState({
+                alert: true,
+                errorMsg: "Lỗi khi sao chép hình ảnh"
+            })
+        }
+    };
+
     handleSubmit = async (e) => {
         try{
             e.preventDefault();
@@ -189,6 +207,7 @@ class CreateTransaction extends Component {
     handleRecreate = () => {
         this.setState({
             copied: false,
+            imageCopied: false,
             loading: false,
             alert: false,
             errorMsg: '',
@@ -219,7 +238,7 @@ class CreateTransaction extends Component {
                     <div className="app-main__outer">
                         <div className="app-main__inner">
                             <Container fluid>
-                                <Card className="main-card mb-3">
+                                <Card className="main-card mb-3" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
                                     <CardTitle></CardTitle>
                                     <CardBody>
                                         <Row>
@@ -412,7 +431,19 @@ class CreateTransaction extends Component {
                                                     </Col>
                                                 </Row>
                                                 {this.state.isCreated && <Row>
-                                                    <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 5em'}}></img>
+                                                    <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 5em', position: 'relative'}}>
+                                                        <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}}></img>
+                                                        <div style={{ position: "absolute", right: 0, top: 0 }}>
+                                                            <Button color="link" onClick={this.copyImageToClipboard}>
+                                                                <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                    {this.state.imageCopied ? (
+                                                        <div className="text-center" style={{width: '100%'}}>
+                                                            <FormText color="success">Image has been copied.</FormText>
+                                                        </div>
+                                                    ) : null}
                                                 </Row>}
                                             </Col>
                                         </Row>

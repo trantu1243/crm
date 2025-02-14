@@ -201,7 +201,7 @@ const updateTransaction = async (req, res) => {
             oriAmount -= fee / 2;
             totalAmount += fee / 2;
         }
-
+        const user = await Staff.findById(req.user.id);
         const bank = await BankAccount.findById(bankId);
 
         let box = await BoxTransaction.findOne({messengerId: messengerId});
@@ -226,7 +226,11 @@ const updateTransaction = async (req, res) => {
             messengerId,
             typeFee,
             bonus: Number(bonus)
-        }, { new: true });
+        }, { new: true })
+        .populate([
+            { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+            { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+        ]);
         
         return res.status(200).json({
             message: 'Transaction updated successfully',
