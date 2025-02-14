@@ -17,6 +17,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
 import StatusBadge from "../Transactions/Tables/StatusBadge";
+import { setTransaction } from "../../reducers/transactionsSlice";
 
 export const typeFee = [
     {name: 'Bên mua chịu phí', value: 'buyer'},
@@ -59,12 +60,6 @@ class CreateTransaction extends Component {
         window.addEventListener("resize", this.updateScreenSize);
         this.getBankAccounts();
         this.getFee();
-        const savedBankId = localStorage.getItem("selectedBankId");
-        if (savedBankId) {
-            this.setState((prevState) => ({
-                input: { ...prevState.input, bankId: savedBankId },
-            }));
-        }
     }
 
     componentWillUnmount() {
@@ -137,12 +132,19 @@ class CreateTransaction extends Component {
     handleSubmit = async (e) => {
         try{
             e.preventDefault();
+            this.setState({loading: true});
             if (this.state.input.isToggleOn) {
-                this.setState({loading: true});
                 const res = await createTransaction(this.state.input);
-                console.log(res.data);
+                console.log(res);
                 this.setState({loading: false});
-
+                this.props.setTransaction(res.transaction);
+                const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
+                this.setState({
+                    isCreated: true,
+                    loading: false,
+                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
+                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`
+                })
             } else {
                 const { amount, bankId, bonus, content, fee, typeFee } = this.state.input;
                 if (!amount || !bankId || !bonus || !content || !fee || !typeFee) {
@@ -170,6 +172,9 @@ class CreateTransaction extends Component {
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
                     textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${amount.toLocaleString()} vnd\nPhí: ${fee.toLocaleString()} vnd\nNội dung: ${content}`
                 })
+                setTimeout(() => {
+                    this.setState({loading: false});
+                }, 1000);
             }
             
         } catch(error) {
@@ -180,6 +185,29 @@ class CreateTransaction extends Component {
             this.setState({loading: false})
         }
     };
+
+    handleRecreate = () => {
+        this.setState({
+            copied: false,
+            loading: false,
+            alert: false,
+            errorMsg: '',
+            isCreated: false,
+            textCopy: '',
+            linkQr: '',
+            input: {
+                ...this.state.input,
+                amount: '',
+                bonus: '0',
+                content: '',
+                fee: '',
+                messengerId: '',
+                typeFee: 'buyer',
+                typeBox: 'facebook',
+                isToggleOn: true,
+            }
+        })
+    }
 
     render() {
         const input = this.state.input;
@@ -239,7 +267,6 @@ class CreateTransaction extends Component {
                                                                 .find(option => option.value === this.state.input.bankId) || null}
                                                             onChange={selected => {
                                                                     this.setState({ input: { ...this.state.input, bankId: selected.value } })
-                                                                    localStorage.setItem("selectedBankId", selected.value);
                                                                 }
                                                             }
                                                             options={this.state.bankAccounts.map(bank => ({
@@ -343,13 +370,13 @@ class CreateTransaction extends Component {
 
                                                     </Col>
                                                 </Row>
-                                                {this.state.isCreated && 
+                                                {this.state.isCreated &&
                                                 <>
-                                                    <Row className="mb-4"> 
+                                                    {this.state.input.isToggleOn && <Row className="mb-4"> 
                                                         <div>
                                                             <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.props.transaction.status}/>           
                                                         </div>        
-                                                    </Row>
+                                                    </Row>}
                                                     <Row className="mb-4">
                                                         <Col md={12} xs={12} style={{position: 'relative'}}>
                                                             <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
@@ -384,31 +411,38 @@ class CreateTransaction extends Component {
                                                         </InputGroup>
                                                     </Col>
                                                 </Row>
-                                                <Row>
-                                                    <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 6em'}}></img>
-                                                </Row>
+                                                {this.state.isCreated && <Row>
+                                                    <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 5em'}}></img>
+                                                </Row>}
                                             </Col>
                                         </Row>
                                         
                                         <Row>
                                             <div className="btn-actions-pane-right">
                                                 <div>
+                                                    
                                                     {this.state.isCreated ? 
                                                     <>
-                                                        <Button 
-                                                            className="btn-wide me-2 mt-2 btn-dashed" 
-                                                            color="secondary" 
-                                                            style={{width: 120}}
-    
-                                                        >
-                                                            Chi tiết box
-                                                        </Button>
-                                                        <Button 
-                                                            className="btn-wide me-2 mt-2 btn-dashed w-100" 
-                                                            color="primary"                                                                
-                                                        >
-                                                            Tạo lại QR
-                                                        </Button>
+                                                        {this.state.input.isToggleOn && <div style={{display: 'inline-block'}}>
+                                                            <a 
+                                                                href={`/box/${this.props.transaction.boxId}`}
+                                                                className="btn me-2 mt-2 btn-secondary" 
+                                                                style={{width: 120}}
+        
+                                                            >
+                                                                Chi tiết box
+                                                            </a>
+                                                        </div>}
+                                                        <div style={{display: 'inline-block'}}>
+                                                            <Button 
+                                                                className="btn-wide me-2 mt-2 btn-dashed w-100" 
+                                                                color="primary"  
+                                                                disabled={this.state.loading}   
+                                                                onClick={this.handleRecreate}                                                           
+                                                            >
+                                                                {this.state.loading ? "Đang tạo..." : "Tạo lại QR"}
+                                                            </Button>
+                                                        </div>
                                                     </>
                                                     : 
                                                     <Button 
@@ -460,7 +494,7 @@ const mapStateToProps = (state) => ({
 });
   
 const mapDispatchToProps = {
-
+    setTransaction
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(CreateTransaction);

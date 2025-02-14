@@ -76,12 +76,6 @@ class TransactionsTable extends Component {
         window.addEventListener("resize", this.updateScreenSize);
         this.getBankAccounts();
         this.getFee();
-        const savedBankId = localStorage.getItem("selectedBankId");
-        if (savedBankId) {
-            this.setState((prevState) => ({
-                input: { ...prevState.input, bankId: savedBankId },
-            }));
-        }
     }
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
@@ -305,7 +299,6 @@ class TransactionsTable extends Component {
                                             .find(option => option.value === this.state.input.bankId) || null}
                                         onChange={selected => {
                                                 this.setState({ input: { ...this.state.input, bankId: selected.value } })
-                                                localStorage.setItem("selectedBankId", selected.value);
                                             }
                                         }
                                         options={this.state.bankAccounts.map(bank => ({
