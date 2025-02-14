@@ -1,4 +1,4 @@
-const { Transaction, BoxTransaction, Bill } = require("../models");
+const { Transaction, BoxTransaction, Bill, Customer, Staff } = require("../models");
 
 const getBillsByBoxId = async (req, res) => {
     try {
@@ -299,10 +299,100 @@ const addNote = async (req, res) => {
     }
 }
 
+const updateBox = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const box = await BoxTransaction.findById(id);
+        if (!box) return res.status(404).json({ message: 'Box not found' });
+
+        const name = req.body.name ? req.body.name : '';
+        const messengerId = req.body.messengerId ? req.body.messengerId : '';
+        const buyerName = req.body.buyerName ? req.body.buyerName : '';
+        const buyerFb = req.body.buyerFb ? req.body.buyerFb : '';
+        const sellerName = req.body.sellerName ? req.body.sellerName : '';
+        const sellerFb = req.body.sellerFb ? req.body.sellerFb : '';
+        
+        const transaction = await Transaction.findOne({ boxId: id, status: { $in: [2, 6, 7, 8]}});
+        const user = await Staff.findById(req.user.id);
+
+        let buyerCustomer = await Customer.findOne({
+            boxId: { $in: [box._id] },
+            type: 'buyer',
+            isDeleted: false,
+        });
+
+        let sellerCustomer = await Customer.findOne({
+            boxId: { $in: [box._id] },
+            type: 'seller',
+            isDeleted: false,
+        });
+
+        if (buyerFb) {
+            const customer = await Customer.findOne({
+                facebookId: buyerFb
+            });
+            if (customer) buyerCustomer = customer;
+        }
+
+        if (sellerFb) {
+            const customer = await Customer.findOne({
+                facebookId: sellerFb
+            });
+            if (customer) sellerCustomer = customer;
+        }
+        
+        if (!transaction && messengerId) {
+            const oldBox = await BoxTransaction.findOne({ messengerId: messengerId });
+            if (!oldBox) {
+                const newbox = await BoxTransaction.create({
+                    name,
+                    messengerId,
+                    staffId: user._id,
+                    typeBox: box.typeBox
+                });
+                buyerCustomer.boxId.push(newbox._id);
+                sellerCustomer.boxId.push(newbox._id);
+                await buyerCustomer.save();
+                await sellerCustomer.save();
+                await Transaction.updateMany({boxId: box._id}, {boxId: newbox._id});
+                await BoxTransaction.findByIdAndDelete(box._id);
+            } else {
+                buyerCustomer.boxId.push(oldBox._id);
+                buyerCustomer.nameCustomer = buyerName;
+                sellerCustomer.boxId.push(oldBox._id);
+                sellerCustomer.nameCustomer = sellerName;
+                await buyerCustomer.save();
+                await sellerCustomer.save();
+                await Transaction.updateMany({boxId: box._id}, {boxId: oldBox._id});
+                await BoxTransaction.findByIdAndDelete(box._id);
+                oldBox.name = name;
+                await oldBox.save();
+                return res.json({ 
+                    status: true,
+                    message: 'Edit box success',
+                    box: oldBox
+                });
+            }
+        } else if (transaction && messengerId) {
+            res.status(400).json({ message: `Không thể sửa messenger ID` });
+        }
+
+        
+
+        
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     undoBox,
     getTransactionsByBoxId,
     getBillsByBoxId,
     getById,
-    addNote
+    addNote,
+    updateBox
 }
