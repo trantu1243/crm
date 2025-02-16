@@ -51,9 +51,22 @@ const getById = async (req, res) => {
         const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
         ]);
+        let buyerCustomer = await Customer.findOne({
+            boxId: { $in: [box._id] },
+            type: 'buyer',
+            isDeleted: false,
+        });
+
+        let sellerCustomer = await Customer.findOne({
+            boxId: { $in: [box._id] },
+            type: 'seller',
+            isDeleted: false,
+        });
         const boxObject = box.toObject();
         boxObject.transactions = transactions;
         boxObject.bills = bills;
+        boxObject.buyerCustomer = buyerCustomer ? buyerCustomer : null;
+        boxObject.sellerCustomer = sellerCustomer ? sellerCustomer : null;
         res.status(200).json({
             message: 'Transaction fetched successfully',
             data: boxObject,
@@ -71,7 +84,7 @@ const undoBox = async (req, res) => {
         
         // Tìm BoxTransaction theo ID
         const box = await BoxTransaction.findById(id);
-        if (!box) return res.status(404).json({ message: 'Box not found' });
+        if (!box || box.status === 'lock') return res.status(404).json({ message: 'Box not eligible' });
 
         // Lấy danh sách transactions (trừ những transaction có status = 3), sắp xếp theo thời gian mới nhất
         const transactions = await Transaction.find({ boxId: box._id, status: { $ne: 1 } }).sort({ createdAt: -1 });
@@ -285,14 +298,48 @@ const addNote = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Tìm BoxTransaction theo ID
         const box = await BoxTransaction.findById(id);
-        if (!box) return res.status(404).json({ message: 'Box not found' });
+        if (!box || box === 'lock') return res.status(404).json({ message: 'Box not eligible' });
 
         const { note } = req.body;
         if (!note) return res.status(400).json({ message: `Chưa nhập note` });
 
         box.notes.push(note);
+        await box.save();
+        return res.json({ 
+            status: true,
+            message: 'Add note success',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+const deleteNote = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const box = await BoxTransaction.findById(id);
+        if (!box || box === 'lock') return res.status(404).json({ message: 'Box not eligible' });
+
+        const { note } = req.body;
+        if (!note) return res.status(400).json({ message: `Chưa nhập note` });
+
+        if (!box.notes || !box.notes.includes(note)) {
+            return res.status(400).json({ message: 'Note không tồn tại' });
+        }
+
+        const index = box.notes.indexOf(note);
+        if (index !== -1) {
+            box.notes.splice(index, 1);
+        }
+
+        await box.save();
+        return res.json({ 
+            status: true,
+            message: 'Delete note success',
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -304,14 +351,16 @@ const updateBox = async (req, res) => {
         const { id } = req.params;
         
         const box = await BoxTransaction.findById(id);
-        if (!box) return res.status(404).json({ message: 'Box not found' });
+        if (!box || box.status === "lock") return res.status(404).json({ message: 'Box not eligible' });
 
         const name = req.body.name ? req.body.name : '';
-        const messengerId = req.body.messengerId ? req.body.messengerId : '';
+        let messengerId = req.body.messengerId ? req.body.messengerId : '';
         const buyerName = req.body.buyerName ? req.body.buyerName : '';
         const buyerFb = req.body.buyerFb ? req.body.buyerFb : '';
         const sellerName = req.body.sellerName ? req.body.sellerName : '';
         const sellerFb = req.body.sellerFb ? req.body.sellerFb : '';
+
+        if (box.messengerId === messengerId) messengerId = '';
         
         const transaction = await Transaction.findOne({ boxId: id, status: { $in: [2, 6, 7, 8]}});
         const user = await Staff.findById(req.user.id);
@@ -333,6 +382,9 @@ const updateBox = async (req, res) => {
                 facebookId: buyerFb
             });
             if (customer) buyerCustomer = customer;
+            else buyerCustomer.facebookId = buyerFb;
+            if (buyerName) buyerCustomer.nameCustomer = buyerName;
+            await buyerCustomer.save();
         }
 
         if (sellerFb) {
@@ -340,6 +392,9 @@ const updateBox = async (req, res) => {
                 facebookId: sellerFb
             });
             if (customer) sellerCustomer = customer;
+            else sellerCustomer.facebookId = sellerFb;
+            if (sellerName) sellerCustomer.nameCustomer = sellerName;
+            await sellerCustomer.await();
         }
         
         if (!transaction && messengerId) {
@@ -357,6 +412,11 @@ const updateBox = async (req, res) => {
                 await sellerCustomer.save();
                 await Transaction.updateMany({boxId: box._id}, {boxId: newbox._id});
                 await BoxTransaction.findByIdAndDelete(box._id);
+                return res.json({ 
+                    status: true,
+                    message: 'Edit box success',
+                    box: newbox
+                });
             } else {
                 buyerCustomer.boxId.push(oldBox._id);
                 buyerCustomer.nameCustomer = buyerName;
@@ -378,10 +438,35 @@ const updateBox = async (req, res) => {
             res.status(400).json({ message: `Không thể sửa messenger ID` });
         }
 
-        
+        if (name) box.name = name;
+        await box.save();
+        return res.json({ 
+            status: true,
+            message: 'Edit box success',
+            box: box
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
-        
 
+const switchLock = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Tìm BoxTransaction theo ID
+        const box = await BoxTransaction.findById(id);
+        if (!box) return res.status(404).json({ message: 'Box not found' });
+
+        if (box.status === 'lock') box.status = 'active';
+        else box.status = 'lock';
+        await box.save();
+        return res.json({ 
+            status: true,
+            message: 'Switch box success',
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -394,5 +479,7 @@ module.exports = {
     getBillsByBoxId,
     getById,
     addNote,
-    updateBox
+    updateBox,
+    switchLock,
+    deleteNote
 }

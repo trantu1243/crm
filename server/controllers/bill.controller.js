@@ -224,6 +224,12 @@ const confirmBill = async (req, res) => {
 
         // 🔍 Lấy box liên quan
         let box = await BoxTransaction.findById(bill.boxId).session(session);
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         if (!box) {
             await session.abortTransaction();
             session.endSession();
@@ -321,6 +327,12 @@ const updateBill = async (req, res) => {
             return res.status(404).json({ message: 'Bill not found' });
         }
 
+        const box = await BoxTransaction.findById(bill.boxId);
+        
+        if (box && box.status === 'lock') {
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         if (bill.status !== 1) {
             return res.status(400).json({ message: 'Bad request' });
         }
@@ -380,6 +392,10 @@ const cancelBill = async (req, res) => {
             return res.status(400).json({ message: 'Bill not eligible for cancellation' });
         }
         let box = await BoxTransaction.findById(bill.boxId);
+        
+        if (box && box.status === 'lock') {
+            return res.status(404).json({ message: 'Box is locked' })
+        }
         // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
         const result = await Transaction.aggregate([
             { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
@@ -459,10 +475,17 @@ const switchBills = async (req, res) => {
         const bill = await Bill.findById(id).populate([
             { path: 'billId'},
         ]);
-
+        
         if (!bill || !bill.billId || bill.status !== 1 || bill.billId.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for switch' });
         }
+
+        const box = await BoxTransaction.findById(bill.boxId);
+        
+        if (box && box.status === 'lock') {
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+        
         const typeTranfer = bill.typeTransfer;
         bill.typeTransfer = bill.billId.typeTransfer;
         const sideBill = await Bill.findById(bill.billId._id);

@@ -35,6 +35,27 @@ export const undoBoxService = async (id) => {
         });
         return response.data;
     } catch (error) {
+        console.error("Error undoing box", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to undoing box!";
+    }  
+};
+
+export const updateBoxService = async (id, data) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/update`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
         console.error("Error updating box", error);
 
         if (error.response?.status === 401 || error.response?.status === 403) {
@@ -43,5 +64,68 @@ export const undoBoxService = async (id) => {
         }
 
         throw error.response?.data?.message || "Failed to update box!";
+    }  
+};
+
+export const lockBoxService = async (id) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/lock`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating box", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to update box!";
+    }  
+};
+
+export const addNoteService = async (id, note) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/add-note`, {note}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error add note", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to add note!";
+    }  
+};
+
+export const deleteNoteService = async (id, note) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/delete-note`, {note}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error delete note", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to delete note!";
     }  
 };

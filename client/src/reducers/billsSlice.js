@@ -18,7 +18,7 @@ export const getBills = createAsyncThunk(
 );
 
 export const getBillById = createAsyncThunk(
-    "transactions/getTransactionById",
+    "transactions/getBillById",
     async (id, { rejectWithValue }) => {
         try {
             return await fetchBillById(id);

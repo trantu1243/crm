@@ -10,12 +10,13 @@ import AppHeader from "../../Layout/AppHeader";
 import { connect } from "react-redux";
 import TransactionBoxTable from "./Table/TransactionBoxTable";
 import BillBoxTable from "./Table/BillBoxTable";
-import { getBoxById } from "../../reducers/boxSlice";
+import { addNote, deleteNote, getBoxById, updateBox } from "../../reducers/boxSlice";
 import { withRouter } from "../../utils/withRouter";
 import { formatDate } from "../Transactions/Tables/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faLock, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import { addNoteService, lockBoxService } from "../../services/boxService";
 
 export const dummyData = [
     {
@@ -43,6 +44,15 @@ class Box extends Component {
             transformWidth: 400,
             loading: false,
             value: [],
+            note: '',
+            input: {
+                name: this.props.box.name,
+                messengerId: this.props.box.messengerId,
+                buyerName: this.props.box.buyerCustomer?.nameCustomer || '',
+                buyerFb: this.props.box.buyerCustomer?.facebookId || '',
+                sellerName: this.props.box.sellerCustomer?.nameCustomer || '',
+                sellerFb: this.props.box.sellerCustomer?.facebookId || ''
+            }
         };
     }
 
@@ -50,6 +60,22 @@ class Box extends Component {
         const { id } = this.props.params; 
         this.props.getBoxById(id);
     }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.box !== this.props.box && this.props.box._id) {
+            this.setState({
+                input: {
+                    name: this.props.box.name || '',
+                    messengerId: this.props.box.messengerId || '',
+                    buyerName: this.props.box.buyerCustomer?.nameCustomer || '',
+                    buyerFb: this.props.box.buyerCustomer?.facebookId || '',
+                    sellerName: this.props.box.sellerCustomer?.nameCustomer || '',
+                    sellerFb: this.props.box.sellerCustomer?.facebookId || ''
+                }
+            });
+        }
+    }
+    
 
     toggle(tab) {
         if (this.state.activeTab !== tab) {
@@ -65,15 +91,54 @@ class Box extends Component {
             title: name,
             getContent: () => content,
         }));
+    
+    handleInputChange = (e) => {
+        const { name, value } = e.target;
+        this.setState((prevState) => ({
+            input: {
+                ...prevState.input,
+                [name]: value,
+            },
+        }));
+    };
+
+    handleSave = async () => {
+        this.setState({loading: true});
+        await this.props.updateBox({ 
+            id: this.props.box._id, 
+            data: this.state.input 
+        });
+        await this.props.getBoxById(this.props.box._id);
+        this.setState({loading: false});
+    }
+
+    handleLock = async () => {
+        this.setState({loading: true});
+        await lockBoxService(this.props.box._id);
+        await this.props.getBoxById(this.props.box._id);
+        this.setState({loading: false});
+    }
+
+    handleAddNote = async () => {
+        await addNoteService(this.props.box._id, this.state.note);
+        this.props.addNote(this.state.note);
+    }
+
+    handleDeleteNote = async (note) => {
+        await addNoteService(this.props.box._id, note);
+        this.props.deleteNote(note);
+    }
 
     render() {       
         const box = this.props.box || {
+            status: '',
             messengerId: '',
             name: '',
             amount: '',
             createdAt: '',
             notes: [],
         };
+        const input = this.state.input;
         return (
             <Fragment>
                 <AppHeader />
@@ -81,17 +146,29 @@ class Box extends Component {
                     <AppSidebar />
                     <div className="app-main__outer">
                         <div className="app-main__inner">
-                        {this.props.loading ? (
+                        {this.state.loading ? (
                             <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                 <Loader type="ball-spin-fade-loader" />
                             </div>
-                        ) : ( <>
+                            ) : ( <>
                             <Container fluid>
                                 <Row>
                                     <Col md="12">
                                         <Card className="main-card mb-3">
                                             <CardHeader>
-                                                <CardTitle>Thông tin box giao dịch</CardTitle>
+                                                <CardTitle>Thông tin box giao - &nbsp;
+                                                    {box.status === "active" && <span className={`badge bg-primary`}>đang hoạt động</span>}
+                                                    {box.status === "complete" && <span className={`badge bg-success`}>hoàn thành</span>}
+                                                    {box.status === "lock" && <span className={`badge bg-danger`}>bị khóa</span>}
+                                                </CardTitle>
+                                                <div class="btn-actions-pane-right">
+                                                    <button class="btn btn-danger me-1" disabled={this.state.loading} onClick={this.handleLock}>
+                                                        <FontAwesomeIcon icon={faLock}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
+                                                    </button>
+                                                    <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading}>
+                                                        <FontAwesomeIcon icon={faSave} /> {this.state.loading ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
+                                                    </button>
+                                                </div>
                                             </CardHeader>
                                             <CardBody>
                                                 <Row>
@@ -105,7 +182,8 @@ class Box extends Component {
                                                                     type="text"
                                                                     name="name"
                                                                     id="name"
-                                                                    value={box.name}
+                                                                    value={input.name}
+                                                                    onChange={this.handleInputChange}
                                                                 />
                                                             </Col>
                                                         </Row>
@@ -116,17 +194,29 @@ class Box extends Component {
                                                             <Col md={4} xs={6} className="pe-2">
                                                                 <Input
                                                                     type="text"
-                                                
+                                                                    name="buyerName"
+                                                                    id="buyerName"
+                                                                    value={input.buyerName}
+                                                                    onChange={this.handleInputChange}
                                                                 />
                                                             </Col>
                                                             <Col md={4} xs={6} className="ps-2">
                                                                 <InputGroup>
                                                                     <Input
                                                                         type="text"
-                                                    
+                                                                        name="buyerFb"
+                                                                        id="buyerFb"
+                                                                        value={input.buyerFb}
+                                                                        onChange={(e) => {
+                                                                            const value = e.target.value;
+                                                                            if (/^\d*$/.test(value)) {
+                                                                                console.log(value)
+                                                                                this.handleInputChange(e);
+                                                                            }
+                                                                        }}
                                                                     />
                                                                     <div class="input-group-text">
-                                                                        <a href={`https://www.facebook.com/`} rel="noreferrer" target="_blank">
+                                                                        <a href={`https://www.facebook.com/${box.buyerCustomer?.facebookId}`} rel="noreferrer" target="_blank">
                                                                             <FontAwesomeIcon icon={faFacebook} size="lg"/>
                                                                         </a>
                                                                     </div>
@@ -141,9 +231,13 @@ class Box extends Component {
                                                                 <InputGroup>
                                                                     <Input
                                                                         type="text"
-                                                    
+                                                                        name="note"
+                                                                        id="note"
+                                                                        value={this.state.note}
+                                                                        onChange={(e)=>{this.setState({note: e.target.value})}}
+                                                                        onKeyDown={(e) => e.key === "Enter" && this.handleAddNote()}
                                                                     />
-                                                                    <button class="input-group-text">
+                                                                    <button class="input-group-text" onClick={this.handleAddNote}>
                                                                         <svg
                                                                             xmlns="http://www.w3.org/2000/svg"
                                                                             height={19}
@@ -165,24 +259,26 @@ class Box extends Component {
                                                             </Col>
                                                             <Col md={8} xs={12}>
                                                                 <ListGroup>
-                                                                    <ListGroupItem>
+                                                                    {box.notes.map((item, index)=> {
+                                                                        return <ListGroupItem key={index}>
                                                                         <div className="todo-indicator bg-warning" />
                                                                             <div className="widget-content p-0">
                                                                                 <div className="widget-content-wrapper">
                                                                                     
                                                                                     <div className="widget-content-left">
                                                                                         <div className="widget-heading">
-                                                                                            Note 1
+                                                                                            {item}
                                                                                         </div>
                                                                                     </div>
                                                                                     <div className="widget-content-right">
-                                                                                    <Button className="border-0 btn-transition" outline color="danger">
+                                                                                    <Button className="border-0 btn-transition" outline color="danger" onClick={()=>{this.handleDeleteNote(item)}}>
                                                                                         <FontAwesomeIcon icon={faTrashAlt} />
                                                                                     </Button>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </ListGroupItem>
+                                                                    })}
                                                                     
                                                                 </ListGroup>
                                                             </Col>
@@ -201,8 +297,13 @@ class Box extends Component {
                                                                         type="text"
                                                                         name="messengerId"
                                                                         id="messengerId"
-                                                                        value={box.messengerId}
-                                                                        disabled
+                                                                        value={input.messengerId}
+                                                                        onChange={(e) => {
+                                                                            const value = e.target.value;
+                                                                            if (/^\d*$/.test(value)) { 
+                                                                                this.handleInputChange(e);
+                                                                            }
+                                                                        }}
                                                                     />
                                                                     <div class="input-group-text">
                                                                         <a href={`https://www.messenger.com/t/${box.messengerId}`} rel="noreferrer" target="_blank">
@@ -219,17 +320,28 @@ class Box extends Component {
                                                             <Col md={4} xs={6} className="pe-2">
                                                                 <Input
                                                                     type="text"
-                                                
+                                                                    name="sellerName"
+                                                                    id="sellerName"
+                                                                    value={input.sellerName}
+                                                                    onChange={this.handleInputChange}
                                                                 />
                                                             </Col>
                                                             <Col md={4} xs={6} className="ps-2">
                                                                 <InputGroup>
                                                                     <Input
                                                                         type="text"
-                                                    
+                                                                        name="sellerFb"
+                                                                        id="sellerFb"
+                                                                        value={input.sellerFb}
+                                                                        onChange={(e) => {
+                                                                            const value = e.target.value;
+                                                                            if (/^\d*$/.test(value)) { 
+                                                                                this.handleInputChange(e);
+                                                                            }
+                                                                        }}
                                                                     />
                                                                     <div class="input-group-text">
-                                                                        <a href={`https://www.facebook.com/`} rel="noreferrer" target="_blank">
+                                                                        <a href={`https://www.facebook.com/${box.sellerCustomer?.facebookId}`} rel="noreferrer" target="_blank">
                                                                             <FontAwesomeIcon icon={faFacebook} size="lg"/>
                                                                         </a>
                                                                     </div>
@@ -241,7 +353,7 @@ class Box extends Component {
                                                                 <Label>Số giao dịch thành công</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p>0/1</p>
+                                                                <p>{this.props.box.transactions.filter(item => item.status === 2 || item.status === 8).length}/{this.props.box.transactions.length}</p>
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -257,7 +369,7 @@ class Box extends Component {
                                                                 <Label>Số tiền đã giao dịch</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p></p>
+                                                                <p className="fw-bold text-success">{this.props.box.bills.reduce((sum, item) => sum + item.amount, 0).toLocaleString()} vnd</p>
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -279,12 +391,17 @@ class Box extends Component {
                                     </Col>
                                 </Row>
                             </Container>
-
+                            {this.props.loading ? (
+                            <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
+                                <Loader type="ball-spin-fade-loader" />
+                            </div>
+                            ) : ( <>
                             <Container fluid>
                                 <div className="mb-3">
                                     <Tabs tabsWrapperClass="card-header" {...this.state} />
                                 </div>
                             </Container>
+                            </>)}
                         </>)}
                         </div>
                     </div>
@@ -296,16 +413,25 @@ class Box extends Component {
 
 const mapStateToProps = (state) => ({
     box: state.box.box || {
+        _id: '',
         name: '',
         messengerId: '',
         createdAt: '',
         amount: 0,
+        notes: [],
+        buyerCustomer: null,
+        sellerCustomer: null,
+        transactions: [],
+        bills: []
     },
     loading: state.box.loading  || false,
 });
   
 const mapDispatchToProps = {
-    getBoxById
+    getBoxById,
+    updateBox,
+    addNote,
+    deleteNote
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Box));

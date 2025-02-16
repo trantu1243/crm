@@ -205,7 +205,11 @@ const updateTransaction = async (req, res) => {
         const bank = await BankAccount.findById(bankId);
 
         let box = await BoxTransaction.findOne({messengerId: messengerId});
-    
+        
+        if (box && box.status === 'lock') {
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         if (!box) {
             box = await BoxTransaction.create({
                 name: '',
@@ -264,6 +268,13 @@ const confirmTransaction = async (req, res) => {
 
         // 🔍 Lấy box và cập nhật số tiền
         const box = await BoxTransaction.findById(transaction.boxId).session(session);
+        
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         if (!box) {
             await session.abortTransaction();
             session.endSession();
@@ -311,6 +322,12 @@ const cancelTransaction = async (req, res) => {
 
         if (!transaction || transaction.status !== 1) {
             return res.status(400).json({ message: 'Transaction not eligible for cancellation' });
+        }
+
+        const box = await BoxTransaction.findById(transaction.boxId);
+        
+        if (box && box.status === 'lock') {
+            return res.status(404).json({ message: 'Box is locked' })
         }
 
         transaction.status = 3;
