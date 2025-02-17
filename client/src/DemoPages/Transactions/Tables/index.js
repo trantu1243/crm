@@ -77,6 +77,7 @@ class TransactionsTable extends Component {
         this.getBankAccounts();
         this.getFee();
     }
+    
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
             this.props.getTransactions(this.props.filters);

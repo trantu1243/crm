@@ -11,12 +11,13 @@ const routes = require('./routes/index');
 const { importExcelToMongo } = require('./dump');
 const { resetPass } = require('./utils/resetPass');
 const path = require('path');
+const { seedPermissions } = require('./services/createrPermission.service');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
     importExcelToMongo();
+    // seedPermissions();
     // resetPass();
-
 });
 
 const app = express();

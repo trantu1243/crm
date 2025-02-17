@@ -5,4 +5,6 @@ module.exports.billController = require('./bill.controller');
 module.exports.boxTransactionController = require('./boxTransaction.controller');
 module.exports.bankAccountController = require('./bankAccount.controller');
 module.exports.bankApiController = require('./bankApi.controller');
-module.exports.feeController = require('./fee.controller')
+module.exports.feeController = require('./fee.controller');
+module.exports.permissionController = require('./permission.controller');
+module.exports.roleController = require('./role.controller');

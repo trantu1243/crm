@@ -17,10 +17,6 @@ async function importExcelToMongo() {
     // await bankAccountToMongo();
     // await bankApiToMongo();
     // await staffToMongo();
-    // await permissionToMongo();
-    // await roleToMongo();
-    // await rolePermissionToMongo();
-    // await staffRoleToMongo();
     // await boxTransactionToMongo();
     // await feeTransactionToMongo();
     // await billToMongo();

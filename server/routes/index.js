@@ -7,6 +7,8 @@ const boxTransactionRoute = require('./boxTransaction.route');
 const staffRoute = require('./staff.route');
 const bankApiRoute = require('./bankApi.route');
 const feeRoute = require('./fee.route');
+const roleRoute = require('./role.route');
+const permissionRoute = require('./permission.route');
 
 const router = express.Router();
 
@@ -42,6 +44,14 @@ const defaultRoutes = [
     {
         path: '/fee',
         route: feeRoute
+    },
+    {
+        path: '/permission',
+        route: permissionRoute
+    },
+    {
+        path: '/role',
+        route: roleRoute
     },
 ];
 

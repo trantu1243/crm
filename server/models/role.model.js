@@ -3,9 +3,8 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 
 const roleSchema = new mongoose.Schema({
     initialId: {type: Number},
-    name: { type: String, required: false },
-    slug: { type: String, required: false, unique: true },
-    status: { type: String, required: false },
+    name: { type: String, required: true },
+    status: { type: Boolean, required: false, default: true },
     permissions: {
         type: [{ type: mongoose.Types.ObjectId, ref: 'Permission' }],
         default: []

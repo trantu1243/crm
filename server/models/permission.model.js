@@ -5,7 +5,7 @@ const permissionSchema = new mongoose.Schema({
     initialId: {type: Number},
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    status: { type: String, required: true },
+    status: { type: String, required: true, default: 'active' },
 }, { 
     timestamps: true 
 });

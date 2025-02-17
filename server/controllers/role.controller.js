@@ -1,0 +1,119 @@
+
+const mongoose = require('mongoose');
+const { Role, Staff } = require('../models');
+  
+const getRoles = async (req, res) => {
+    try {
+        const roles = await Role.find({});
+
+        res.status(200).json({
+            message: 'Role fetched successfully',
+            data: roles,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// 📌 1. Tạo Role mới
+const createRole = async (req, res) => {
+    try {
+        const requiredFields = ['name'];
+        for (const field of requiredFields) {
+            if (!req.body[field]) {
+                return res.status(400).json({ message: `${field} is required` });
+            }
+        }
+        const { name, permissions = [], staffId = [] } = req.body;
+
+        if (!Array.isArray(permissions)) {
+            return res.status(400).json({ message: "Permissions phải là một mảng" });
+        }
+
+        if (!Array.isArray(staffId)) {
+            return res.status(400).json({ message: "staffId phải là một mảng" });
+        }
+
+        permissions = permissions.map(id => mongoose.Types.ObjectId(id));
+
+        const role = await Role.create({
+            name,
+            permissions
+        });
+
+        await Staff.updateMany(
+            { _id: { $in: staffId.map(id => mongoose.Types.ObjectId(id)) } },
+            { $addToSet: { roles: role._id } } 
+        );
+
+        return res.json({ status: true, message: "Tạo role thành công", role });
+    } catch (error) {
+        console.error("❌ Lỗi khi tạo role:", error);
+        return res.status(500).json({ message: "Lỗi server" });
+    }
+};
+
+// 📌 2. Chỉnh sửa Role (Cập nhật danh sách quyền và nhân viên)
+const updateRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, permissions = [], staffId = [] } = req.body;
+
+        if (!Array.isArray(permissions)) {
+            return res.status(400).json({ message: "Permissions phải là một mảng" });
+        }
+        permissions = permissions.map(id => mongoose.Types.ObjectId(id));
+
+        const role = await Role.findByIdAndUpdate(
+            id,
+            { name, permissions },
+            { new: true }
+        );
+
+        if (!role) {
+            return res.status(404).json({ status: false, message: "Không tìm thấy Role" });
+        }
+
+        await Staff.updateMany(
+            { _id: { $in: staffId.map(id => mongoose.Types.ObjectId(id))  } },
+            { $addToSet: { roles: id } } 
+        );
+
+        return res.json({ status: true, message: "Cập nhật Role thành công", role });
+    } catch (error) {
+        console.error("❌ Lỗi khi cập nhật Role:", error);
+        return res.status(500).json({ message: "Lỗi server" });
+    }
+};
+
+// 📌 3. Xóa Role
+const deleteRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Kiểm tra Role có tồn tại không
+        const role = await Role.findById(id);
+        if (!role) {
+            return res.status(404).json({ status: false, message: "Không tìm thấy Role" });
+        }
+
+        // Xóa Role khỏi danh sách roles của Staff
+        await Staff.updateMany({}, { $pull: { roles: id } });
+
+        // Xóa Role
+        await Role.findByIdAndDelete(id);
+
+        return res.json({ status: true, message: "Xóa Role thành công" });
+    } catch (error) {
+        console.error("❌ Lỗi khi xóa Role:", error);
+        return res.status(500).json({ message: "Lỗi server" });
+    }
+};
+
+module.exports = { 
+    createRole,
+    updateRole,
+    deleteRole,
+    getRoles,
+};

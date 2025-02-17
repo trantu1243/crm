@@ -36,7 +36,7 @@ export const MainNav = [
     },
     {
         icon: "pe-7s-browser",
-        label: "GDTG",
+        label: "Giao dịch trung gian",
         content: [
             {
                 label: "Tạo giao dịch trung gian",
@@ -52,6 +52,20 @@ export const MainNav = [
             },
         ],
     },
+    {
+      icon: "pe-7s-users",
+      label: "Phân quyền hệ thống",
+      content: [
+          {
+              label: "Quản lý nhóm quyền",
+              to: "/role",
+          },
+          {
+              label: "Quản lý quyền thao tác",
+              to: "/permission",
+          }
+      ],
+  },
     // {
     //   icon: "pe-7s-browser",
     //   label: "Pages",
