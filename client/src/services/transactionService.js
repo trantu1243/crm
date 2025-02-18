@@ -66,7 +66,7 @@ export const createTransaction = async (transactionData) => {
         });
         return response.data;
     } catch (error) {
-        console.error("Error creating transactions", error);
+        console.error("Error creating transaction", error);
 
         if (error.response?.status === 401 || error.response?.status === 403) {
             localStorage.removeItem("token");

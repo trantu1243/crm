@@ -4,7 +4,24 @@ const { Role, Staff } = require('../models');
   
 const getRoles = async (req, res) => {
     try {
-        const roles = await Role.find({});
+        const roles = await Role.aggregate([
+            {
+                $lookup: {
+                    from: "staffs",
+                    localField: "_id",
+                    foreignField: "roles",
+                    as: "staffs"
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    status: 1,
+                    permissions: 1,
+                    staffs: { $map: { input: "$staffs", as: "staff", in: "$$staff._id" } }
+                }
+            }
+        ]);
 
         res.status(200).json({
             message: 'Role fetched successfully',
@@ -25,7 +42,7 @@ const createRole = async (req, res) => {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
-        const { name, permissions = [], staffId = [] } = req.body;
+        let { name, permissions = [], staffId = [] } = req.body;
 
         if (!Array.isArray(permissions)) {
             return res.status(400).json({ message: "Permissions phải là một mảng" });
@@ -35,7 +52,7 @@ const createRole = async (req, res) => {
             return res.status(400).json({ message: "staffId phải là một mảng" });
         }
 
-        permissions = permissions.map(id => mongoose.Types.ObjectId(id));
+        permissions = permissions.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
 
         const role = await Role.create({
             name,
@@ -43,7 +60,7 @@ const createRole = async (req, res) => {
         });
 
         await Staff.updateMany(
-            { _id: { $in: staffId.map(id => mongoose.Types.ObjectId(id)) } },
+            { _id: { $in: staffId.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean) } },
             { $addToSet: { roles: role._id } } 
         );
 
@@ -58,12 +75,12 @@ const createRole = async (req, res) => {
 const updateRole = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, permissions = [], staffId = [] } = req.body;
+        let { name, permissions = [], staffId = [] } = req.body;
 
         if (!Array.isArray(permissions)) {
             return res.status(400).json({ message: "Permissions phải là một mảng" });
         }
-        permissions = permissions.map(id => mongoose.Types.ObjectId(id));
+        permissions = permissions.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
 
         const role = await Role.findByIdAndUpdate(
             id,
@@ -76,7 +93,7 @@ const updateRole = async (req, res) => {
         }
 
         await Staff.updateMany(
-            { _id: { $in: staffId.map(id => mongoose.Types.ObjectId(id))  } },
+            { _id: { $in: staffId.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean)  } },
             { $addToSet: { roles: id } } 
         );
 

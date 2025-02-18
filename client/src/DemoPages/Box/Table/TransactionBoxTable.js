@@ -230,7 +230,7 @@ class TransactionsTable extends Component {
         }
     }
 
-    hanldeCancel = async (e) => {
+    handleCancel = async (e) => {
         try {          
             this.toggleCancel();          
             const res = await cancelTransaction(this.state.cancelTransaction._id);
@@ -555,7 +555,7 @@ class TransactionsTable extends Component {
                             <Button color="link" onClick={this.toggleCancel}>
                                 Cancel
                             </Button>
-                            <Button color="danger" onClick={this.hanldeCancel}>
+                            <Button color="danger" onClick={this.handleCancel}>
                                 Hủy giao dịch
                             </Button>{" "}
                         </ModalFooter>
