@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Loader from "react-loaders";
 import { Combobox, Multiselect } from "react-widgets/cjs";
-import { createStaff, fetchAllStaffs } from "../../../services/staffService";
+import { createStaff, fetchAllStaffs, updateStaff } from "../../../services/staffService";
 import { formatDate } from "../../Transactions/Tables/data";
 import ToggleStatus from "./ToggleStatus";
 import { faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -128,6 +128,24 @@ class StaffTable extends Component {
             this.setState({createLoading: false})
         }
     };
+
+    handleUpdate = async (e) => {
+        try{
+            e.preventDefault();
+            this.setState({createLoading: true});
+            const res = await updateStaff(this.state.staffId, this.state.update);
+            this.setState({createLoading: false});
+            this.toggleUpdate();
+            this.getStaffs();
+        } catch(error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({createLoading: false})
+        }
+    };
+    
 
     render() { 
         

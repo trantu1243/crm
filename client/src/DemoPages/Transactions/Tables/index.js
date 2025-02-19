@@ -20,6 +20,7 @@ import { typeFee } from "../../CreateTransaction";
 import { undoBox } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
 import CopyToClipboard from "react-copy-to-clipboard";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -41,6 +42,8 @@ class TransactionsTable extends Component {
             loading: false,
             textCopy: '',
             copied: false,
+            alert: false,
+            errorMsg: '',
             input: {
                 amount: '',
                 bankId: '',
@@ -245,7 +248,10 @@ class TransactionsTable extends Component {
             const res = await cancelTransaction(this.state.cancelTransaction._id);
             this.props.getTransactions(this.props.filters)
         } catch (error) {
-
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
         }
     }
 
@@ -786,6 +792,8 @@ class TransactionsTable extends Component {
                     </ModalFooter>
                 </Modal>
             </>)}
+            <SweetAlert title={this.state.errorMsg} show={this.state.alert}
+                type="error" onConfirm={() => this.setState({alert: false})}/>
         </Card>)
     }
 }

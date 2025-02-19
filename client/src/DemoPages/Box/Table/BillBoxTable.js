@@ -31,6 +31,7 @@ class BillsTable extends Component {
             confirmBill: null,
             cancelBill: null,
             alert: false,
+            loading: false,
             errorMsg: '',
             buyer: {
                 bankCode: '', 
@@ -52,6 +53,7 @@ class BillsTable extends Component {
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
         this.toggleCancelBill = this.toggleCancelBill.bind(this);
         this.handleBuyerClick = this.handleBuyerClick.bind(this);
+        this.handleSellerClick = this.handleSellerClick.bind(this);
     }
 
     componentDidMount() {
@@ -96,21 +98,29 @@ class BillsTable extends Component {
     };
 
     handleSubmit = async (e) => {
-        e.preventDefault();
-        this.setState({loading: true});
-        let data = {
-            boxId: this.props.boxId,
-            buyer: null,
-            seller: null
-        };
-        if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
-        if (this.state.isSellerToggleOn) data.seller = this.state.seller;
-        if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
-            const res = await createBill(data);
-            if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
-            else window.location.href = `/bill/${res.sellerBill._id}`;
+        try{
+            e.preventDefault();
+            this.setState({loading: true});
+            let data = {
+                boxId: this.props.boxId,
+                buyer: null,
+                seller: null
+            };
+            if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
+            if (this.state.isSellerToggleOn) data.seller = this.state.seller;
+            if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
+                const res = await createBill(data);
+                if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
+                else window.location.href = `/bill/${res.sellerBill._id}`;
+            }
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
         }
-        this.setState({loading: false});
+        
     };
 
     handleConfirmBill = async () => {
@@ -119,7 +129,10 @@ class BillsTable extends Component {
             const res = await confirmBillService(this.state.confirmBill?._id);
             this.props.getBoxById(this.props.boxId)
         } catch (error) {
-            
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
         }
     }
 
@@ -129,7 +142,10 @@ class BillsTable extends Component {
             const res = await cancelBillService(this.state.cancelBill?._id);
             this.props.getBoxById(this.props.boxId);
        } catch (error) {
-           
+        this.setState({
+            alert: true,
+            errorMsg: error
+        })
        }
    }
 
@@ -151,7 +167,7 @@ class BillsTable extends Component {
                         </Button>
                         <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
                             <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
-                            <ModalBody className="p-4">
+                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
                                 <Row>
                                     <div className="card-border mb-3 card card-body border-primary">
                                         <h5>Số tiền thanh khoản còn lại:&nbsp;
@@ -445,8 +461,8 @@ class BillsTable extends Component {
                                 <Button color="link" onClick={this.toggle}>
                                     Hủy
                                 </Button>
-                                <Button color="primary" onClick={this.handleSubmit}>
-                                    Tạo
+                                <Button color="primary" onClick={this.handleSubmit} disabled={this.state.loading}>
+                                    {this.state.loading ? "Đang tạo..." : "Tạo"}
                                 </Button>{" "}
                             </ModalFooter>
                         </Modal>

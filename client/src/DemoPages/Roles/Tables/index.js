@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { fetchStaffs } from "../../../services/staffService";
 import { fetchPermissions } from "../../../services/permissionService";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 class RoleTable extends Component {
     constructor(props) {
@@ -366,6 +367,8 @@ class RoleTable extends Component {
                     </Button>{" "}
                 </ModalFooter>
             </Modal>
+            <SweetAlert title={this.state.errorMsg} show={this.state.alert}
+                type="error" onConfirm={() => this.setState({alert: false})}/>
         </Card>)
     }
 }

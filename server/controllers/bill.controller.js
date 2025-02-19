@@ -122,15 +122,6 @@ const createBill = async (req, res) => {
                 await customer.save();
             }
 
-            const qrPayload = {
-                accountNo: stk,
-                acqId: bank.binBank, 
-                addInfo: content,
-                amount: amount.toString(),
-            };
-        
-            const qrLink = await generateQrCode(qrPayload);
-        
             buyerBill = {
                 bankCode,
                 stk,
@@ -139,7 +130,7 @@ const createBill = async (req, res) => {
                 bonus: Number(bonus),
                 typeTransfer: 'buyer',
                 boxId: box._id,
-                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${amount}&addInfo=${content}&accountName=`,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`,
                 staffId: staff._id
             };
         }

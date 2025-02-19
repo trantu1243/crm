@@ -13,6 +13,7 @@ import { formatDate } from "../../Transactions/Tables/data";
 import { faCheck, faInfoCircle, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import { cancelBillService, confirmBillService } from "../../../services/billService";
 import { SERVER_URL } from "../../../services/url";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 class BillsTable extends Component {
     constructor(props) {
@@ -63,7 +64,10 @@ class BillsTable extends Component {
             const res = await confirmBillService(this.state.confirmBill?._id);
             this.props.getBills(this.props.filters);
         } catch (error) {
-            
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
         }
     }
 
@@ -73,7 +77,10 @@ class BillsTable extends Component {
             const res = await cancelBillService(this.state.cancelBill?._id);
             this.props.getBills(this.props.filters);
         } catch (error) {
-            
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
         }
     }
 
@@ -220,6 +227,8 @@ class BillsTable extends Component {
                     </Button>{" "}
                 </ModalFooter>
             </Modal>
+            <SweetAlert title={this.state.errorMsg} show={this.state.alert}
+                type="error" onConfirm={() => this.setState({alert: false})}/>
         </Card>)
     }
 }

@@ -148,7 +148,7 @@ const createTransaction = async (req, res) => {
             content,
             fee,
             totalAmount,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + Number(bonus)}&addInfo=${content}&accountName=${bank.bankAccountName}`,
             messengerId,
             staffId: user._id,
             typeFee,
@@ -337,7 +337,7 @@ const cancelTransaction = async (req, res) => {
         if (!permissions.some(permission => permission.slug === 'create-transaction')) {
             res.status(400).json({ message: `Không đủ quyền` });
         }
-        
+
         const { id } = req.params;
 
         const transaction = await Transaction.findById(id);

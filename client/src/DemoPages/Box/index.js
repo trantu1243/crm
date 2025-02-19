@@ -103,30 +103,58 @@ class Box extends Component {
     };
 
     handleSave = async () => {
-        this.setState({loading: true});
-        await this.props.updateBox({ 
-            id: this.props.box._id, 
-            data: this.state.input 
-        });
-        await this.props.getBoxById(this.props.box._id);
-        this.setState({loading: false});
+        try{
+            this.setState({loading: true});
+            await this.props.updateBox({ 
+                id: this.props.box._id, 
+                data: this.state.input 
+            });
+            await this.props.getBoxById(this.props.box._id);
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
     }
 
     handleLock = async () => {
-        this.setState({loading: true});
-        await lockBoxService(this.props.box._id);
-        await this.props.getBoxById(this.props.box._id);
-        this.setState({loading: false});
+        try{
+            this.setState({loading: true});
+            await lockBoxService(this.props.box._id);
+            await this.props.getBoxById(this.props.box._id);
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
     }
 
     handleAddNote = async () => {
-        await addNoteService(this.props.box._id, this.state.note);
-        this.props.addNote(this.state.note);
+        try{
+            await addNoteService(this.props.box._id, this.state.note);
+            this.props.addNote(this.state.note);
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
     }
 
     handleDeleteNote = async (note) => {
-        await deleteNoteService(this.props.box._id, note);
-        this.props.deleteNote(note);
+        try{
+            await deleteNoteService(this.props.box._id, note);
+            this.props.deleteNote(note);
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
     }
 
     render() {       
