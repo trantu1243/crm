@@ -1,4 +1,5 @@
 const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction } = require("../models");
+const { getPermissions } = require("../services/permission.service");
 const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
 
@@ -53,9 +54,6 @@ const getBills = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
-
-module.exports = { getBills };
-
 
 const createBill = async (req, res) => {
     try {
@@ -209,6 +207,11 @@ const createBill = async (req, res) => {
 
 
 const confirmBill = async (req, res) => {
+    const permissions = await getPermissions(req.user.id);
+
+    if (!permissions.some(permission => permission.slug === 'create-bill')) {
+        res.status(400).json({ message: `Không đủ quyền` });
+    }
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -318,6 +321,12 @@ const confirmBill = async (req, res) => {
 
 const updateBill = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-bill')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const requiredFields = ['bankCode', 'stk', 'content', 'amount', 'bonus'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
@@ -390,6 +399,12 @@ const updateBill = async (req, res) => {
 
 const cancelBill = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-bill')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const { id } = req.params;
 
         const bill = await Bill.findById(id);
@@ -476,6 +491,11 @@ const getById = async (req, res) => {
 
 const switchBills = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-bill')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
         const { id } = req.params;
 
         const bill = await Bill.findById(id).populate([

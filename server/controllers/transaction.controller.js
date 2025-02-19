@@ -1,6 +1,5 @@
 const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = require("../models");
 const { getPermissions } = require("../services/permission.service");
-const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
 
 const getTransactions = async (req, res) => {
@@ -168,6 +167,11 @@ const createTransaction = async (req, res) => {
 
 const updateTransaction = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-transaction')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
         const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
@@ -254,6 +258,11 @@ const updateTransaction = async (req, res) => {
 }
 
 const confirmTransaction = async (req, res) => {
+    const permissions = await getPermissions(req.user.id);
+
+    if (!permissions.some(permission => permission.slug === 'create-transaction')) {
+        res.status(400).json({ message: `Không đủ quyền` });
+    }
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -323,6 +332,12 @@ const confirmTransaction = async (req, res) => {
 
 const cancelTransaction = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-transaction')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
+        
         const { id } = req.params;
 
         const transaction = await Transaction.findById(id);
