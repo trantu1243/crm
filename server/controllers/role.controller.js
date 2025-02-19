@@ -52,15 +52,13 @@ const createRole = async (req, res) => {
             return res.status(400).json({ message: "staffId phải là một mảng" });
         }
 
-        permissions = permissions.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
-
         const role = await Role.create({
             name,
             permissions
         });
 
         await Staff.updateMany(
-            { _id: { $in: staffId.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean) } },
+            { _id: { $in: staffId } },
             { $addToSet: { roles: role._id } } 
         );
 
@@ -80,7 +78,6 @@ const updateRole = async (req, res) => {
         if (!Array.isArray(permissions)) {
             return res.status(400).json({ message: "Permissions phải là một mảng" });
         }
-        permissions = permissions.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
 
         const role = await Role.findByIdAndUpdate(
             id,
@@ -93,7 +90,7 @@ const updateRole = async (req, res) => {
         }
 
         await Staff.updateMany(
-            { _id: { $in: staffId.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean)  } },
+            { _id: { $in: staffId } },
             { $addToSet: { roles: id } } 
         );
 

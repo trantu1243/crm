@@ -12,7 +12,7 @@ const staffSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true},
     password: { type: String, required: true},
     uid_facebook: { type: String },
-    status: { type: String },
+    status: { type: String, default: 'active'},
     is_admin: { type: Number, default: 0 },
     avatar: { type: String },
     permission_bank: {

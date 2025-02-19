@@ -24,7 +24,7 @@ class TransactionsTable extends Component {
         super(props, context);
         this.state = {
             isMobile: window.innerWidth < 768,
-            bankAccounts: [],
+            bankAccounts: this.props.bankAccounts,
             fee: [],
             show: false,
             undoModal: false,
@@ -71,8 +71,13 @@ class TransactionsTable extends Component {
 
     componentDidMount() {
         window.addEventListener("resize", this.updateScreenSize);
-        this.getBankAccounts();
         this.getFee();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.bankAccounts !== this.props.bankAccounts) {
+            this.setState({bankAccounts: this.props.bankAccounts});
+        }
     }
 
     toggleUndo() {
@@ -123,14 +128,6 @@ class TransactionsTable extends Component {
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
     };
-
-    getBankAccounts = async () => {
-        const data = await fetchBankAccounts();
-        console.log(data)
-        this.setState({
-            bankAccounts: data.data
-        })
-    }
 
     getFee = async () => {
         const data = await fetchFee();
@@ -252,7 +249,7 @@ class TransactionsTable extends Component {
                     </div>
                 ) : ( <>
                     <CardHeader className="mt-2">
-                        <Button color="info" onClick={this.toggleCreate}>
+                        <Button color="info" onClick={() => {this.toggleCreate(); this.setState({input: {...this.state.input, content: transactions[0].content}})}}>
                             Tạo GDTG
                         </Button>
                         <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
@@ -737,9 +734,10 @@ class TransactionsTable extends Component {
 
 const mapStateToProps = (state) => ({
     transactions: state.box.box ? state.box.box.transactions : [],
-    loading: state.box.loading,
+    loading: false,
     boxId: state.box.box ? state.box.box._id : '',
     messengerId: state.box.box ? state.box.box.messengerId : '',
+    bankAccounts: state.user.user.permission_bank || [],
 });
   
 const mapDispatchToProps = {

@@ -14,6 +14,7 @@ import Box from "../../DemoPages/Box";
 import Bill from "../../DemoPages/Bill";
 import Permissions from "../../DemoPages/Permissions";
 import Roles from "../../DemoPages/Roles";
+import Staffs from "../../DemoPages/Staffs";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Applications = lazy(() => import("../../DemoPages/Applications"));
@@ -44,9 +45,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                // localStorage.removeItem("token");
-                // dispatch(logout());
-                // setIsAuth(false);
+                localStorage.removeItem("token");
+                dispatch(logout());
+                setIsAuth(false);
             }
         };
 
@@ -354,6 +355,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/role" render={() => isAuth ? <Roles /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/staff" render={() => isAuth ? <Staffs /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

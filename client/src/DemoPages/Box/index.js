@@ -16,7 +16,7 @@ import { formatDate } from "../Transactions/Tables/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faLock, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { addNoteService, lockBoxService } from "../../services/boxService";
+import { addNoteService, deleteNoteService, lockBoxService } from "../../services/boxService";
 
 export const dummyData = [
     {
@@ -125,7 +125,7 @@ class Box extends Component {
     }
 
     handleDeleteNote = async (note) => {
-        await addNoteService(this.props.box._id, note);
+        await deleteNoteService(this.props.box._id, note);
         this.props.deleteNote(note);
     }
 

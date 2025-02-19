@@ -1,4 +1,5 @@
 const { Transaction, BoxTransaction, Bill, Customer, Staff } = require("../models");
+const { getPermissions } = require("../services/permission.service");
 
 const getBillsByBoxId = async (req, res) => {
     try {
@@ -84,7 +85,7 @@ const undoBox = async (req, res) => {
         
         // Tìm BoxTransaction theo ID
         const box = await BoxTransaction.findById(id);
-        if (!box || box.status === 'lock') return res.status(404).json({ message: 'Box not eligible' });
+        if (!box || box.status === 'lock') return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         // Lấy danh sách transactions (trừ những transaction có status = 3), sắp xếp theo thời gian mới nhất
         const transactions = await Transaction.find({ boxId: box._id, status: { $ne: 1 } }).sort({ createdAt: -1 });
@@ -297,9 +298,15 @@ const undoBox = async (req, res) => {
 const addNote = async (req, res) => {
     try {
         const { id } = req.params;
+
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'note')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
         
         const box = await BoxTransaction.findById(id);
-        if (!box || box === 'lock') return res.status(404).json({ message: 'Box not eligible' });
+        if (!box || box === 'lock') return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         const { note } = req.body;
         if (!note) return res.status(400).json({ message: `Chưa nhập note` });
@@ -319,9 +326,14 @@ const addNote = async (req, res) => {
 const deleteNote = async (req, res) => {
     try {
         const { id } = req.params;
-        
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'note')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const box = await BoxTransaction.findById(id);
-        if (!box || box === 'lock') return res.status(404).json({ message: 'Box not eligible' });
+        if (!box || box === 'lock') return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         const { note } = req.body;
         if (!note) return res.status(400).json({ message: `Chưa nhập note` });
@@ -351,7 +363,7 @@ const updateBox = async (req, res) => {
         const { id } = req.params;
         
         const box = await BoxTransaction.findById(id);
-        if (!box || box.status === "lock") return res.status(404).json({ message: 'Box not eligible' });
+        if (!box || box.status === "lock") return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         const name = req.body.name ? req.body.name : '';
         let messengerId = req.body.messengerId ? req.body.messengerId : '';
@@ -454,14 +466,27 @@ const updateBox = async (req, res) => {
 
 const switchLock = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
         const { id } = req.params;
         
         // Tìm BoxTransaction theo ID
         const box = await BoxTransaction.findById(id);
         if (!box) return res.status(404).json({ message: 'Box not found' });
 
-        if (box.status === 'lock') box.status = 'active';
-        else box.status = 'lock';
+        if (box.status === 'lock') {
+            if (!permissions.some(permission => permission.slug === 'unlock-box')) {
+                res.status(400).json({ message: `Không đủ quyền` });
+            }
+            box.status = 'active';
+        }
+        else {
+            if (!permissions.some(permission => permission.slug === 'lock-box')) {
+                res.status(400).json({ message: `Không đủ quyền` });
+            }
+            box.status = 'lock';
+        }
+        
         await box.save();
         return res.json({ 
             status: true,

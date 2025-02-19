@@ -1,38 +1,38 @@
 export const MainNav = [
     {
-      icon: "pe-7s-rocket",
-      label: "Dashboards",
-      content: [
-        {
-          label: "Analytics",
-          to: "/dashboards/analytics",
-        },
-        {
-          label: "Commerce",
-          to: "/dashboards/commerce",
-        },
-        {
-          label: "Sales",
-          to: "/dashboards/sales",
-        },
-        {
-          label: "Minimal",
-          content: [
+        icon: "pe-7s-rocket",
+        label: "Dashboards",
+        content: [
             {
-              label: "Variation 1",
-              to: "/dashboards/minimal-dashboard-1",
+                label: "Analytics",
+                to: "/dashboards/analytics",
             },
             {
-              label: "Variation 2",
-              to: "/dashboards/minimal-dashboard-2",
+                label: "Commerce",
+                to: "/dashboards/commerce",
             },
-          ],
-        },
-        {
-          label: "CRM",
-          to: "/dashboards/crm",
-        },
-      ],
+            {
+                label: "Sales",
+                to: "/dashboards/sales",
+            },
+            {
+                label: "Minimal",
+                content: [
+                    {
+                        label: "Variation 1",
+                        to: "/dashboards/minimal-dashboard-1",
+                    },
+                    {
+                        label: "Variation 2",
+                        to: "/dashboards/minimal-dashboard-2",
+                    },
+                ],
+            },
+            {
+                label: "CRM",
+                to: "/dashboards/crm",
+            },
+        ],
     },
     {
         icon: "pe-7s-browser",
@@ -59,6 +59,10 @@ export const MainNav = [
           {
               label: "Quản lý nhóm quyền",
               to: "/role",
+          },
+          {
+              label: "Quản lý nhân viên",
+              to: "/staff",
           },
           {
               label: "Quản lý quyền thao tác",

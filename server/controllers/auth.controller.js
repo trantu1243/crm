@@ -42,7 +42,11 @@ const login = async (req, res) => {
 
 const authToken = async (req, res) => {
     try {
-        const user = await Staff.findById(req.user.id).select('name_staff email uid_facebook avatar is_admin permission_bank roles');
+        const user = await Staff.findById(req.user.id).select('name_staff email uid_facebook avatar is_admin permission_bank roles').populate(
+            [
+                { path: 'permission_bank', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+            ]
+        );
         res.json({ 
             message: 'Login successful', 
             user

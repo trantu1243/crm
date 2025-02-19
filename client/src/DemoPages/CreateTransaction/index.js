@@ -32,7 +32,7 @@ class CreateTransaction extends Component {
         this.state = {
             isMobile: window.innerWidth < 768,
             value: [],
-            bankAccounts: [],
+            bankAccounts: this.props.bankAccounts,
             fee: [],
             copied: false,
             imageCopied: false,
@@ -59,8 +59,13 @@ class CreateTransaction extends Component {
 
     componentDidMount() {
         window.addEventListener("resize", this.updateScreenSize);
-        this.getBankAccounts();
         this.getFee();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.bankAccounts !== this.props.bankAccounts) {
+            this.setState({bankAccounts: this.props.bankAccounts});
+        }
     }
 
     componentWillUnmount() {
@@ -71,14 +76,6 @@ class CreateTransaction extends Component {
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
     };
-
-    getBankAccounts = async () => {
-        const data = await fetchBankAccounts();
-        console.log(data)
-        this.setState({
-            bankAccounts: data.data
-        })
-    }
 
     getFee = async () => {
         const data = await fetchFee();
@@ -522,6 +519,7 @@ const mapStateToProps = (state) => ({
         updatedAt: ''
     },
     loading: state.transactions.loading  || false,
+    bankAccounts: state.user.user.permission_bank || [],
 });
   
 const mapDispatchToProps = {

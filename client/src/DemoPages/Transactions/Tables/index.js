@@ -26,7 +26,7 @@ class TransactionsTable extends Component {
         super(props, context);
         this.state = {
             isMobile: window.innerWidth < 768,
-            bankAccounts: [],
+            bankAccounts: this.props.bankAccounts,
             fee: [],
             show: false,
             undoModal: false,
@@ -74,7 +74,6 @@ class TransactionsTable extends Component {
     componentDidMount() {
         this.props.getTransactions({});
         window.addEventListener("resize", this.updateScreenSize);
-        this.getBankAccounts();
         this.getFee();
     }
     
@@ -84,6 +83,9 @@ class TransactionsTable extends Component {
         }
         if (prevProps.filters.limit !== this.props.filters.limit) {
             this.props.getTransactions(this.props.filters);
+        }
+        if (prevProps.bankAccounts !== this.props.bankAccounts) {
+            this.setState({bankAccounts: this.props.bankAccounts});
         }
     }
 
@@ -139,14 +141,6 @@ class TransactionsTable extends Component {
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
     };
-
-    getBankAccounts = async () => {
-        const data = await fetchBankAccounts();
-        console.log(data)
-        this.setState({
-            bankAccounts: data.data
-        })
-    }
 
     getFee = async () => {
         const data = await fetchFee();
@@ -800,6 +794,7 @@ const mapStateToProps = (state) => ({
     transactions: state.transactions.transactions,
     loading: state.transactions.loading,
     filters: state.transactions.filters,
+    bankAccounts: state.user.user.permission_bank || [],
 });
   
 const mapDispatchToProps = {

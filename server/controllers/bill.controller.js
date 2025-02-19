@@ -59,6 +59,12 @@ module.exports = { getBills };
 
 const createBill = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+
+        if (!permissions.some(permission => permission.slug === 'create-bill')) {
+            res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const requiredFields = ['boxId'];
         for (const field of requiredFields) {
             if (!req.body[field]) {

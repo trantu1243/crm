@@ -4,14 +4,16 @@ const { Staff } = require('../models');
 
 const createAccount = async (req, res) => {
     try {
-        const requiredFields = ['name_staff', 'phone_staff', 'email', 'uid_facebook', 'password'];
+        const requiredFields = ['name_staff', 'phone_staff', 'email', 'uid_facebook', 'password', 'cf_password'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
 
-        let { name_staff, phone_staff, email, uid_facebook, password, permission_bank = [] } = req.body;
+        let { name_staff, phone_staff, email, uid_facebook, password, cf_password, permission_bank = [] } = req.body;
+
+        if ( password !== cf_password ) return res.status(400).json({ message: "Mật khẩu không khớp!" });
 
         const existingStaff = await Staff.findOne({ email });
         if (existingStaff) {
@@ -21,8 +23,6 @@ const createAccount = async (req, res) => {
         if (!Array.isArray(permission_bank)) {
             return res.status(400).json({ message: "permission_bank phải là một mảng" });
         }
-
-        permission_bank = permission_bank.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -61,9 +61,6 @@ const updateAccount = async (req, res) => {
             return res.status(400).json({ message: "permission_bank phải là một mảng" });
         }
 
-        permission_bank = permission_bank.map(id => mongoose.isValidObjectId(id) ? mongoose.Types.ObjectId(id) : null).filter(Boolean);
-
-
         // Kiểm tra xem nhân viên có tồn tại không
         const staff = await Staff.findById(id);
         if (!staff) {
@@ -95,19 +92,20 @@ const updateAccount = async (req, res) => {
 const toggleAccountStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
-    
-        if (!['active', 'inactive'].includes(status)) {
-            return res.status(400).json({ message: 'Invalid status. Use "active" or "inactive".' });
-        }
-    
-        const updatedStaff = await Staff.findByIdAndUpdate(id, { status }, { new: true });
+        
+
+        const updatedStaff = await Staff.findById(id);
     
         if (!updatedStaff) {
             return res.status(404).json({ message: 'Account not found' });
         }
+
+        if (updatedStaff.status === 'active') updatedStaff.status = 'block';
+        else updatedStaff.status = 'active';
+
+        await updatedStaff.save();
     
-        res.status(200).json({ message: `Account ${status} successfully`, staff: updatedStaff });
+        res.status(200).json({ message: `Account toggle status successfully`, staff: updatedStaff });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
@@ -130,7 +128,7 @@ const getStaffs = async (req, res) => {
 
 const getAllStaffs = async (req, res) => {
     try {
-        const staffs = await Staff.find({ status: 'active' });
+        const staffs = await Staff.find();
 
         res.status(200).json({
             message: 'Staffs fetched successfully',

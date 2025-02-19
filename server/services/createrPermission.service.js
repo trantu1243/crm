@@ -4,7 +4,7 @@ const { Permission } = require("../models");
 const permissions = [
     { name: "Ghi chú", slug: "note", status: "active" },
     { name: "Tạo giao dịch", slug: "create-transaction", status: "active" },
-    { name: "Tạo thanh khoản", slug: "create-settlement", status: "active" },
+    { name: "Tạo thanh khoản", slug: "create-bill", status: "active" },
     { name: "Khoá box", slug: "lock-box", status: "active" },
     { name: "Mở box", slug: "unlock-box", status: "active" }
 ];

@@ -29,13 +29,13 @@ export const fetchStaffs = async () => {
 export const fetchAllStaffs = async () => {
     try {
 
-        const response = await axios.get(`API_URL/all`, {
+        const response = await axios.get(`${API_URL}/all`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         });
-
+        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Error fetching staffs", error);
