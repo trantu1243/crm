@@ -15,6 +15,7 @@ const staffSchema = new mongoose.Schema({
     status: { type: String, default: 'active'},
     is_admin: { type: Number, default: 0 },
     avatar: { type: String },
+    socketId: { type: String, default: ''},
     permission_bank: {
         type: [{ type: mongoose.Types.ObjectId, ref: 'BankAccount' }],
         default: []

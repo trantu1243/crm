@@ -24,8 +24,6 @@ class BillsTable extends Component {
             cancelBillModal: false,
             alert: false,
             errorMsg: '',
-            confirmBillModal: false,
-            confirmBill: null,
             cancelBill: null,
         };
     

@@ -284,6 +284,12 @@ const undoBox = async (req, res) => {
                 }
             }
         }
+        const io = getSocket();
+
+        io.emit('undo_box', {
+            box
+        });
+        
         return res.json({ 
             status: true,
             message: 'Undo box success',
@@ -313,6 +319,13 @@ const addNote = async (req, res) => {
 
         box.notes.push(note);
         await box.save();
+
+        const io = getSocket();
+
+        io.emit('add_note', {
+            box
+        });
+
         return res.json({ 
             status: true,
             message: 'Add note success',
@@ -348,6 +361,13 @@ const deleteNote = async (req, res) => {
         }
 
         await box.save();
+
+        const io = getSocket();
+
+        io.emit('deleta_note', {
+            box
+        });
+
         return res.json({ 
             status: true,
             message: 'Delete note success',
@@ -452,6 +472,13 @@ const updateBox = async (req, res) => {
 
         if (name) box.name = name;
         await box.save();
+
+        const io = getSocket();
+
+        io.emit('update_box', {
+            box
+        });
+
         return res.json({ 
             status: true,
             message: 'Edit box success',
@@ -486,8 +513,15 @@ const switchLock = async (req, res) => {
             }
             box.status = 'lock';
         }
-        
+
         await box.save();
+
+        const io = getSocket();
+
+        io.emit('switch_box', {
+            box
+        });
+
         return res.json({ 
             status: true,
             message: 'Switch box success',

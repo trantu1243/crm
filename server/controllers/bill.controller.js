@@ -2,6 +2,7 @@ const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction } = require(
 const { getPermissions } = require("../services/permission.service");
 const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
+const { getSocket } = require("../socket/socketHandler");
 
 const getBills = async (req, res) => {
     try {
@@ -185,6 +186,13 @@ const createBill = async (req, res) => {
 
         const bills = await Transaction.updateMany({ boxId: boxId, status: { $in: [2, 6, 8] }}, {status: 7});
         
+        const io = getSocket();
+
+        io.emit('create_bill', {
+            buyerBill,
+            sellerBill
+        });
+
         return res.status(201).json({
             message: 'Bill created successfully',
             buyerBill,
@@ -299,6 +307,13 @@ const confirmBill = async (req, res) => {
         // ✅ Commit transaction nếu mọi thứ thành công
         await session.commitTransaction();
         session.endSession();
+
+        const io = getSocket();
+
+        io.emit('confirm_bill', {
+            bill,
+            box
+        });
 
         return res.status(200).json({ status: true, message: "Bill confirmed successfully" });
     } catch (error) {
@@ -449,6 +464,12 @@ const cancelBill = async (req, res) => {
         bill.status = 3;
         await bill.save();
 
+        const io = getSocket();
+
+        io.emit('cancel_bill', {
+            bill
+        });
+
         return res.status(200).json({
             status: true,
             message: 'Bill canceled successfully',
@@ -509,6 +530,12 @@ const switchBills = async (req, res) => {
         sideBill.typeTransfer = typeTranfer;
         await sideBill.save();
         await bill.save();
+
+        const io = getSocket();
+
+        io.emit('switch_bill', {
+            bill
+        });
 
         return res.status(200).json({
             status: true,

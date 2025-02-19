@@ -17,6 +17,21 @@ export const getBills = createAsyncThunk(
     }
 );
 
+export const getBillsNoLoad = createAsyncThunk(
+    "bills/getBillsNoLoad",
+    async (filters, { rejectWithValue }) => {
+        try {
+            const response = await fetchBills(filters);
+            return response.data;
+        } catch (error) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                window.location.href = "/login"; 
+            }
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const getBillById = createAsyncThunk(
     "transactions/getBillById",
     async (id, { rejectWithValue }) => {
@@ -27,6 +42,18 @@ export const getBillById = createAsyncThunk(
         }
     }
 );
+
+export const getBillByIdNoLoad = createAsyncThunk(
+    "transactions/getBillByIdNoLoad",
+    async (id, { rejectWithValue }) => {
+        try {
+            return await fetchBillById(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 
 export const switchBill = createAsyncThunk(
     "bills/switchBill",
@@ -98,6 +125,15 @@ const billsSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            .addCase(getBillByIdNoLoad.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getBillByIdNoLoad.fulfilled, (state, action) => {
+                state.bill = action.payload.data;
+            })
+            .addCase(getBillByIdNoLoad.rejected, (state, action) => {
+                state.error = action.payload;
+            })
             .addCase(getBills.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -119,6 +155,15 @@ const billsSlice = createSlice({
             })
             .addCase(switchBill.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(getBillsNoLoad.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getBillsNoLoad.fulfilled, (state, action) => {
+                state.bills = action.payload;
+            })
+            .addCase(getBillsNoLoad.rejected, (state, action) => {
                 state.error = action.payload;
             });
     },

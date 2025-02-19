@@ -35,8 +35,6 @@ const createAccount = async (req, res) => {
             permission_bank
         });
 
-        await newStaff.save();
-
         res.status(201).json({ message: "Tạo nhân viên thành công!", staff: newStaff });
     } catch (error) {
         console.error("Lỗi khi tạo nhân viên:", error);

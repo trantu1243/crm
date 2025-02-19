@@ -9,7 +9,7 @@ import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
 import { faCheck, faCopy, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
-import { getBoxById, undoBox } from "../../../reducers/boxSlice";
+import { getBoxById, getBoxByIdNoLoad, undoBox } from "../../../reducers/boxSlice";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
 import cx from "classnames";
@@ -162,7 +162,7 @@ class TransactionsTable extends Component {
     handleUndo = async () => {
         this.toggleUndo()    
         await this.props.undoBox(this.props.boxId)
-        await this.props.getBoxById(this.props.boxId)
+        await this.props.getBoxByIdNoLoad(this.props.boxId)
     }
 
     componentWillUnmount() {
@@ -239,7 +239,7 @@ class TransactionsTable extends Component {
             this.setState({loading: true});
             const res = await createTransaction(this.state.input);
             this.setState({loading: false});
-            await this.props.getBoxById(this.props.boxId);
+            await this.props.getBoxByIdNoLoad(this.props.boxId);
             this.toggleCreate();
         } catch(error) {
             this.setState({
@@ -281,7 +281,7 @@ class TransactionsTable extends Component {
             this.toggleConfirmTransaction();          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
-                this.props.getBoxById(this.props.boxId)
+                this.props.getBoxByIdNoLoad(this.props.boxId)
             }
         } catch (error) {
             this.setState({
@@ -296,7 +296,7 @@ class TransactionsTable extends Component {
             e.preventDefault();
             this.setState({loading: true});
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
-            await this.props.getBoxById(this.props.boxId)
+            await this.props.getBoxByIdNoLoad(this.props.boxId)
             this.setState({loading: false});
             if (this.props.boxId !== res.transaction.boxId) window.location.href = `/box/${res.transaction.boxId}`;
         } catch(error) {
@@ -312,7 +312,7 @@ class TransactionsTable extends Component {
         try {          
             this.toggleCancel();          
             const res = await cancelTransaction(this.state.cancelTransaction._id);
-            this.props.getBoxById(this.props.boxId)
+            this.props.getBoxByIdNoLoad(this.props.boxId)
         } catch (error) {
             this.setState({
                 alert: true,
@@ -1130,6 +1130,7 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBoxById,
+    getBoxByIdNoLoad,
     undoBox
 };
   

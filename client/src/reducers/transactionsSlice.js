@@ -17,6 +17,21 @@ export const getTransactions = createAsyncThunk(
     }
 );
 
+export const getTransactionsNoLoad = createAsyncThunk(
+    "transactions/getTransactionsNoLoad",
+    async (filters, { rejectWithValue }) => {
+        try {
+            const response = await fetchTransactions(filters);
+            return response.data;
+        } catch (error) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                window.location.href = "/login"; 
+            }
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const getTransactionById = createAsyncThunk(
     "transactions/getTransactionById",
     async (id, { rejectWithValue }) => {
@@ -102,6 +117,15 @@ const transactionsSlice = createSlice({
             })
             .addCase(getTransactions.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(getTransactionsNoLoad.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getTransactionsNoLoad.fulfilled, (state, action) => {
+                state.transactions = action.payload;
+            })
+            .addCase(getTransactionsNoLoad.rejected, (state, action) => {
                 state.error = action.payload;
             });
     },

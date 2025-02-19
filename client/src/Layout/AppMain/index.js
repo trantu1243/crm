@@ -15,6 +15,7 @@ import Bill from "../../DemoPages/Bill";
 import Permissions from "../../DemoPages/Permissions";
 import Roles from "../../DemoPages/Roles";
 import Staffs from "../../DemoPages/Staffs";
+import { closeSocket, getSocket } from "../../services/socketService";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Applications = lazy(() => import("../../DemoPages/Applications"));
@@ -53,6 +54,27 @@ const AppMain = () => {
 
         checkAuth();
     }, [dispatch, tokenState]);
+
+    useEffect(() => {
+        if (isAuth) {
+            const initData = {
+                token: `Bearer ${localStorage.getItem("token")}`
+            };
+    
+            const socket = getSocket(initData);
+    
+            if (socket) {
+                socket.on('create_transaction', (data) => {
+                    console.log(data)
+                })
+            }
+    
+            return () => {
+                closeSocket();
+            };
+        }
+        
+    }, [isAuth]);
 
     if (isAuth === null) return <div className="loader-container">
         <div className="loader-container-inner">

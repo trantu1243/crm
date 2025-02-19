@@ -15,7 +15,7 @@ import Select from "react-select";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
 import { cancelBillService, confirmBillService, createBill } from "../../../services/billService";
-import { getBoxById } from "../../../reducers/boxSlice";
+import { getBoxById, getBoxByIdNoLoad } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
 
 class BillsTable extends Component {
@@ -127,7 +127,7 @@ class BillsTable extends Component {
          try {                    
             this.toggleConfirmBill();
             const res = await confirmBillService(this.state.confirmBill?._id);
-            this.props.getBoxById(this.props.boxId)
+            this.props.getBoxByIdNoLoad(this.props.boxId)
         } catch (error) {
             this.setState({
                 alert: true,
@@ -140,7 +140,7 @@ class BillsTable extends Component {
         try {                    
             this.toggleCancelBill();
             const res = await cancelBillService(this.state.cancelBill?._id);
-            this.props.getBoxById(this.props.boxId);
+            this.props.getBoxByIdNoLoad(this.props.boxId);
        } catch (error) {
         this.setState({
             alert: true,
@@ -571,7 +571,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
     getBills,
     setFilters,
-    getBoxById
+    getBoxById,
+    getBoxByIdNoLoad
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(BillsTable);

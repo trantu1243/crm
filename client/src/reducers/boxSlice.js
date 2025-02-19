@@ -12,6 +12,17 @@ export const getBoxById = createAsyncThunk(
     }
 );
 
+export const getBoxByIdNoLoad = createAsyncThunk(
+    "boxs/getBoxByIdNoLoad",
+    async (id, { rejectWithValue }) => {
+        try {
+            return await fetchBoxTransactionById(id);
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const undoBox = createAsyncThunk(
     "boxs/undoBox",
     async (id, { rejectWithValue }) => {
@@ -79,6 +90,15 @@ const boxSlice = createSlice({
             })
             .addCase(getBoxById.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(getBoxByIdNoLoad.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getBoxByIdNoLoad.fulfilled, (state, action) => {
+                state.box = action.payload.data;
+            })
+            .addCase(getBoxByIdNoLoad.rejected, (state, action) => {
                 state.error = action.payload;
             })
             .addCase(undoBox.pending, (state) => {

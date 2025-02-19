@@ -10,7 +10,7 @@ import AppHeader from "../../Layout/AppHeader";
 import { connect } from "react-redux";
 import TransactionBoxTable from "./Table/TransactionBoxTable";
 import BillBoxTable from "./Table/BillBoxTable";
-import { addNote, deleteNote, getBoxById, updateBox } from "../../reducers/boxSlice";
+import { addNote, deleteNote, getBoxById, getBoxByIdNoLoad, updateBox } from "../../reducers/boxSlice";
 import { withRouter } from "../../utils/withRouter";
 import { formatDate } from "../Transactions/Tables/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -109,7 +109,7 @@ class Box extends Component {
                 id: this.props.box._id, 
                 data: this.state.input 
             });
-            await this.props.getBoxById(this.props.box._id);
+            await this.props.getBoxByIdNoLoad(this.props.box._id);
             this.setState({loading: false});
         } catch (error) {
             this.setState({
@@ -123,7 +123,7 @@ class Box extends Component {
         try{
             this.setState({loading: true});
             await lockBoxService(this.props.box._id);
-            await this.props.getBoxById(this.props.box._id);
+            await this.props.getBoxByIdNoLoad(this.props.box._id);
             this.setState({loading: false});
         } catch (error) {
             this.setState({
@@ -457,6 +457,7 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBoxById,
+    getBoxByIdNoLoad,
     updateBox,
     addNote,
     deleteNote

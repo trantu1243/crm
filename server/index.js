@@ -12,6 +12,8 @@ const { importExcelToMongo } = require('./dump');
 const { resetPass } = require('./utils/resetPass');
 const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
+const { verifySocketConnection } = require('./middlewares/validateSocket');
+const { initSocket } = require('./socket/socketHandler');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -29,6 +31,8 @@ const io = new Server(server, {
         allowedHeaders: ['Content-Type', 'Authorization']
     }
 });
+
+io.use(verifySocketConnection);
 
 app.use(cors({
 	origin: ['https://thantai.tathanhan.com', 'http://localhost:3001'], 
@@ -48,6 +52,8 @@ app.use("/images", express.static(path.join(__dirname, "imgs")));
 
 app.use(mongoSanitize());
 app.use('/v1', routes);
+
+initSocket(io);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

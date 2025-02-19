@@ -1,6 +1,7 @@
 const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = require("../models");
 const { getPermissions } = require("../services/permission.service");
 const mongoose = require('mongoose');
+const { getSocket } = require("../socket/socketHandler");
 
 const getTransactions = async (req, res) => {
     try {
@@ -154,6 +155,12 @@ const createTransaction = async (req, res) => {
             typeFee,
             bonus: Number(bonus)
         });
+
+        const io = getSocket();
+
+        io.emit('create_transaction', {
+            transaction: newTransaction
+        });
         
         return res.status(201).json({
             message: 'Transaction created successfully',
@@ -246,6 +253,12 @@ const updateTransaction = async (req, res) => {
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
         ]);
+
+        const io = getSocket();
+
+        io.emit('update_transaction', {
+            transaction
+        });
         
         return res.status(200).json({
             message: 'Transaction updated successfully',
@@ -283,7 +296,7 @@ const confirmTransaction = async (req, res) => {
         }
 
         // 🔍 Lấy box và cập nhật số tiền
-        const box = await BoxTransaction.findById(transaction.boxId).session(session);
+        let box = await BoxTransaction.findById(transaction.boxId).session(session);
         
         if (box && box.status === 'lock') {
             await session.abortTransaction();
@@ -316,6 +329,12 @@ const confirmTransaction = async (req, res) => {
         // ✅ Commit transaction (lưu tất cả thay đổi)
         await session.commitTransaction();
         session.endSession();
+
+        const io = getSocket();
+
+        io.emit('confirm_transaction', {
+            transaction,
+        });
 
         return res.status(200).json({
             status: true,
@@ -354,6 +373,12 @@ const cancelTransaction = async (req, res) => {
 
         transaction.status = 3;
         await transaction.save();
+
+        const io = getSocket();
+
+        io.emit('cancel_transaction', {
+            transaction
+        });
 
         return res.status(200).json({
             message: 'Transaction canceled successfully',

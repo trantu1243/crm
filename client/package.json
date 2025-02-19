@@ -121,6 +121,7 @@
     "redux-thunk": "^2.4.1",
     "sass": "^1.48.0",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.8.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "styled-components": "^5.3.3",
