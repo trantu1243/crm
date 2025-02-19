@@ -55,7 +55,7 @@ const updateAccount = async (req, res) => {
             }
         }
 
-        let { name_staff, phone_staff, email, uid_facebook, permission_bank = [], password } = req.body;
+        let { name_staff, phone_staff, email, uid_facebook, permission_bank = [], password, cf_password } = req.body;
 
         if (!Array.isArray(permission_bank)) {
             return res.status(400).json({ message: "permission_bank phải là một mảng" });
@@ -75,6 +75,8 @@ const updateAccount = async (req, res) => {
         staff.permission_bank = permission_bank || staff.permission_bank;
 
         if (password) {
+            if ( password !== cf_password ) return res.status(400).json({ message: "Mật khẩu không khớp!" });
+            
             const hashedPassword = await bcrypt.hash(password, 10);
             staff.password = hashedPassword;
         }
