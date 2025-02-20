@@ -67,7 +67,7 @@ const getById = async (req, res) => {
         if (!transaction) {
             return res.status(404).json({ message: 'Transaction not found' });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Transaction fetched successfully',
             data: transaction,
         });
@@ -82,7 +82,7 @@ const createTransaction = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-transaction')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
@@ -177,7 +177,7 @@ const updateTransaction = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-transaction')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
         const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
         for (const field of requiredFields) {
@@ -274,7 +274,7 @@ const confirmTransaction = async (req, res) => {
     const permissions = await getPermissions(req.user.id);
 
     if (!permissions.some(permission => permission.slug === 'create-transaction')) {
-        res.status(400).json({ message: `Không đủ quyền` });
+        return res.status(400).json({ message: `Không đủ quyền` });
     }
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -354,7 +354,7 @@ const cancelTransaction = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-transaction')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const { id } = req.params;

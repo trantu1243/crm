@@ -308,7 +308,7 @@ const addNote = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'note')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
         
         const box = await BoxTransaction.findById(id);
@@ -342,7 +342,7 @@ const deleteNote = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'note')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const box = await BoxTransaction.findById(id);
@@ -467,7 +467,7 @@ const updateBox = async (req, res) => {
                 });
             }
         } else if (transaction && messengerId) {
-            res.status(400).json({ message: `Không thể sửa messenger ID` });
+            return res.status(400).json({ message: `Không thể sửa messenger ID` });
         }
 
         if (name) box.name = name;
@@ -503,13 +503,13 @@ const switchLock = async (req, res) => {
 
         if (box.status === 'lock') {
             if (!permissions.some(permission => permission.slug === 'unlock-box')) {
-                res.status(400).json({ message: `Không đủ quyền` });
+                return res.status(400).json({ message: `Không đủ quyền` });
             }
             box.status = 'active';
         }
         else {
             if (!permissions.some(permission => permission.slug === 'lock-box')) {
-                res.status(400).json({ message: `Không đủ quyền` });
+                return res.status(400).json({ message: `Không đủ quyền` });
             }
             box.status = 'lock';
         }

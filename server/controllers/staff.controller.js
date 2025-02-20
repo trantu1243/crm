@@ -35,10 +35,10 @@ const createAccount = async (req, res) => {
             permission_bank
         });
 
-        res.status(201).json({ message: "Tạo nhân viên thành công!", staff: newStaff });
+        return res.status(201).json({ message: "Tạo nhân viên thành công!", staff: newStaff });
     } catch (error) {
         console.error("Lỗi khi tạo nhân viên:", error);
-        res.status(500).json({ message: "Lỗi server!" });
+        return res.status(500).json({ message: "Lỗi server!" });
     }
 };
 
@@ -81,10 +81,10 @@ const updateAccount = async (req, res) => {
 
         await staff.save();
 
-        res.status(200).json({ message: "Cập nhật nhân viên thành công!", staff });
+        return res.status(200).json({ message: "Cập nhật nhân viên thành công!", staff });
     } catch (error) {
         console.error("Lỗi khi cập nhật nhân viên:", error);
-        res.status(500).json({ message: "Lỗi server!" });
+        return res.status(500).json({ message: "Lỗi server!" });
     }
 };
 
@@ -105,10 +105,10 @@ const toggleAccountStatus = async (req, res) => {
 
         await updatedStaff.save();
     
-        res.status(200).json({ message: `Account toggle status successfully`, staff: updatedStaff });
+        return res.status(200).json({ message: `Account toggle status successfully`, staff: updatedStaff });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
   
@@ -116,13 +116,13 @@ const getStaffs = async (req, res) => {
     try {
         const staffs = await Staff.find({ status: 'active' }).select('name_staff email');
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Staffs fetched successfully',
             data: staffs,
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -130,13 +130,13 @@ const getAllStaffs = async (req, res) => {
     try {
         const staffs = await Staff.find();
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Staffs fetched successfully',
             data: staffs,
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
 
@@ -147,13 +147,13 @@ const getById = async (req, res) => {
         if (!staff) {
             return res.status(404).json({ message: 'Staff not found' });
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Staff fetched successfully',
             data: staff,
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }
 

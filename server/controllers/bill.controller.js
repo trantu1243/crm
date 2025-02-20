@@ -61,7 +61,7 @@ const createBill = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const requiredFields = ['boxId'];
@@ -209,7 +209,7 @@ const confirmBill = async (req, res) => {
     const permissions = await getPermissions(req.user.id);
 
     if (!permissions.some(permission => permission.slug === 'create-bill')) {
-        res.status(400).json({ message: `Không đủ quyền` });
+        return res.status(400).json({ message: `Không đủ quyền` });
     }
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -330,7 +330,7 @@ const updateBill = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const requiredFields = ['bankCode', 'stk', 'content', 'amount', 'bonus'];
@@ -408,7 +408,7 @@ const cancelBill = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
 
         const { id } = req.params;
@@ -506,7 +506,7 @@ const switchBills = async (req, res) => {
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
-            res.status(400).json({ message: `Không đủ quyền` });
+            return res.status(400).json({ message: `Không đủ quyền` });
         }
         const { id } = req.params;
 
