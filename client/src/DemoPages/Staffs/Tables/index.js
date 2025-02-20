@@ -74,7 +74,6 @@ class StaffTable extends Component {
 
     getBankAccounts = async () => {
         const data = await fetchBankAccounts();
-        console.log(data)
         this.setState({
             bankAccounts: data.data
         })
@@ -94,7 +93,7 @@ class StaffTable extends Component {
         const { name, value } = e.target;
         this.setState((prevState) => ({
             update: {
-                ...prevState.input,
+                ...prevState.update,
                 [name]: value,
             },
         }));

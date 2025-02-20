@@ -364,7 +364,7 @@ const deleteNote = async (req, res) => {
 
         const io = getSocket();
 
-        io.emit('deleta_note', {
+        io.emit('delete_note', {
             box
         });
 

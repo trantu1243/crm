@@ -25,7 +25,6 @@ export const verifyToken = async (token) => {
         const response = await axios.post(`${API_URL}/auth/verify-token`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });        
-        console.log(response.data)
         return response.data;
     } catch (error) {
         localStorage.removeItem("token");

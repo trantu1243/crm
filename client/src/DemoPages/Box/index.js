@@ -238,7 +238,6 @@ class Box extends Component {
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
                                                                             if (/^\d*$/.test(value)) {
-                                                                                console.log(value)
                                                                                 this.handleInputChange(e);
                                                                             }
                                                                         }}
