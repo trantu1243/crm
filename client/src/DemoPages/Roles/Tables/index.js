@@ -94,6 +94,11 @@ class RoleTable extends Component {
             const res = await createRole(this.state.input);
             this.setState({createLoading: false});
             this.toggleCreate();
+            this.setState({input: {
+                name: '',
+                staffId: [],
+                permissions: []
+            },})
             this.getRoles();
         } catch(error) {
             this.setState({

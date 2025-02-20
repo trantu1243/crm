@@ -150,7 +150,6 @@ class CreateTransaction extends Component {
             if (this.state.input.isToggleOn) {
                 const res = await createTransaction(this.state.input);
                 console.log(res);
-                this.setState({loading: false});
                 this.props.setTransaction(res.transaction);
                 const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
                 this.setState({
@@ -159,6 +158,7 @@ class CreateTransaction extends Component {
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
                     textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`
                 })
+                this.setState({loading: false});
             } else {
                 const { amount, bankId, bonus, content, fee, typeFee } = this.state.input;
                 if (!amount || !bankId || !bonus || !content || !fee || !typeFee) {

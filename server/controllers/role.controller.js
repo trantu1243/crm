@@ -90,9 +90,16 @@ const updateRole = async (req, res) => {
         }
 
         await Staff.updateMany(
-            { _id: { $in: staffId } },
-            { $addToSet: { roles: id } } 
+            { roles: id },
+            { $pull: { roles: id } }
         );
+
+        if (staffId.length > 0) {
+            await Staff.updateMany(
+                { _id: { $in: staffId } },
+                { $addToSet: { roles: id } } 
+            );
+        }
 
         return res.json({ status: true, message: "Cập nhật Role thành công", role });
     } catch (error) {
