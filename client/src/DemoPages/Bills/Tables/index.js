@@ -1,10 +1,10 @@
-import { Button, Card, CardFooter, CardHeader, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import { Button, Card, CardFooter, CardHeader, Col, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
 
 import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getBills, setFilters } from "../../../reducers/billsSlice";
+import { getBills, searchBills, setFilters } from "../../../reducers/billsSlice";
 import { connect } from "react-redux";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
@@ -25,6 +25,7 @@ class BillsTable extends Component {
             alert: false,
             errorMsg: '',
             cancelBill: null,
+            search: ''
         };
     
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
@@ -82,6 +83,21 @@ class BillsTable extends Component {
         }
     }
 
+    handleSearch = async (e) => {
+        try {
+            await this.props.searchBills({
+                search: this.state.search, 
+                page: this.props.filters.page, 
+                limit: this.props.filters.limit
+            })
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -105,7 +121,15 @@ class BillsTable extends Component {
             ) : ( <>
                 <CardHeader className="mt-2">
                     <h3 className="text-center w-100">Tổng bill: <span className="text-danger fw-bold">{bills.totalDocs}</span></h3>
-                    
+                    <div>
+                        <Input
+                            name="search"
+                            value={this.state.search}
+                            placeholder="Tìm kiếm"
+                            onChange={(e) => this.setState({search: e.target.value})}
+                            onKeyDown={(e) => e.key === "Enter" && this.handleSearch(e)}
+                        />
+                    </div>
                 </CardHeader>
                 <Table responsive hover striped borderless className="align-middle mb-0">
                     <thead>
@@ -239,7 +263,8 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBills,
-    setFilters
+    setFilters,
+    searchBills
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(BillsTable);

@@ -17,6 +17,21 @@ export const getBills = createAsyncThunk(
     }
 );
 
+export const searchBills = createAsyncThunk(
+    "bills/searchBills",
+    async (search, { rejectWithValue }) => {
+        try {
+            const response = await fetchBills(search);
+            return response.data;
+        } catch (error) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                window.location.href = "/login"; 
+            }
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const getBillsNoLoad = createAsyncThunk(
     "bills/getBillsNoLoad",
     async (filters, { rejectWithValue }) => {
@@ -143,6 +158,18 @@ const billsSlice = createSlice({
                 state.bills = action.payload;
             })
             .addCase(getBills.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            .addCase(searchBills.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(searchBills.fulfilled, (state, action) => {
+                state.loading = false;
+                state.bills = action.payload;
+            })
+            .addCase(searchBills.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             })

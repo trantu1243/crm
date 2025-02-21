@@ -6,6 +6,7 @@ const { getSocket } = require("../socket/socketHandler");
 const getTransactions = async (req, res) => {
     try {
         const {
+            search,
             staffId,
             status,
             bankId,
@@ -34,6 +35,13 @@ const getTransactions = async (req, res) => {
             if (endDate) filter.createdAt.$lte = new Date(endDate);
         }
         if (content) filter.content = { $regex: content, $options: 'i' };
+
+        if (search) {
+            filter.$or = [
+                { messengerId: { $regex: search, $options: 'i' } },
+                { content: { $regex: search, $options: 'i' } }
+            ];
+        }
 
         const transactions = await Transaction.paginate(filter, {
             page: Number(page),
@@ -204,7 +212,7 @@ const updateTransaction = async (req, res) => {
         }
 
         const tran = await Transaction.findById(id);
-        if (tran.status !== 1) {
+        if (tran.status !== 1 && tran.status !== 6) {
             return res.status(400).json({ message: 'Bad request' });
         }
 
@@ -237,6 +245,11 @@ const updateTransaction = async (req, res) => {
             });    
         }
 
+        if (tran.status === 6 && tran.amount !== oriAmount) {
+            if (box.amount > 0) box.amount -= tran.amount;
+            box.amount += oriAmount;
+            await box.save();
+        }
         const transaction = await Transaction.findByIdAndUpdate(id, {
             boxId: box._id,
             bankId: bank._id,

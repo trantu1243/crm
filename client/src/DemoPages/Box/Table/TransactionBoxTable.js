@@ -540,32 +540,32 @@ class TransactionsTable extends Component {
                                         <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
                                             <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                         </button>
-    
-                                        <button 
-                                            className="btn btn-sm btn-info me-1 mb-1" 
-                                            title="Chỉnh sửa giao dịch" 
-                                            onClick={() => {
-                                                this.setState({
-                                                    updateTransaction: item,
-                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
-                                                    update: {
-                                                        amount: String(item.amount),
-                                                        bankId: item.bankId._id,
-                                                        bonus: String(item.bonus),
-                                                        content: item.content,
-                                                        fee: String(item.fee),
-                                                        messengerId: item.messengerId,
-                                                        typeFee: item.typeFee,
-                                                        typeBox: 'facebook',
-
-                                                    }
-                                                });
-                                                this.toggleUpdate()
-                                            }}
-                                        >
-                                            <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
-                                        </button>
                                     </>}
+
+                                    {(item.status === 1 || item.status === 6) && <button 
+                                        className="btn btn-sm btn-info me-1 mb-1" 
+                                        title="Chỉnh sửa giao dịch" 
+                                        onClick={() => {
+                                            this.setState({
+                                                updateTransaction: item,
+                                                textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
+                                                update: {
+                                                    amount: String(item.amount),
+                                                    bankId: item.bankId._id,
+                                                    bonus: String(item.bonus),
+                                                    content: item.content,
+                                                    fee: String(item.fee),
+                                                    messengerId: item.messengerId,
+                                                    typeFee: item.typeFee,
+                                                    typeBox: 'facebook',
+
+                                                }
+                                            });
+                                            this.toggleUpdate()
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
+                                    </button>}
                                 
                                     {item.status === 1 && <>
                                         <button className="btn btn-sm btn-danger me-1 mb-1" title="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>

@@ -6,7 +6,7 @@ import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getTransactions, setFilters } from "../../../reducers/transactionsSlice";
+import { getTransactions, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
@@ -43,6 +43,7 @@ class TransactionsTable extends Component {
             textCopy: '',
             copied: false,
             alert: false,
+            search: '',
             errorMsg: '',
             input: {
                 amount: '',
@@ -255,6 +256,21 @@ class TransactionsTable extends Component {
         }
     }
 
+    handleSearch = async (e) => {
+        try {
+            await this.props.searchTransactions({
+                search: this.state.search, 
+                page: this.props.filters.page, 
+                limit: this.props.filters.limit
+            })
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -441,6 +457,15 @@ class TransactionsTable extends Component {
                         </ModalFooter>
                     </Modal>
                     <h3 className="text-center w-100">Tổng số GD: <span className="text-danger fw-bold">{transactions.totalDocs}</span></h3>
+                    <div>
+                        <Input 
+                            name="search"
+                            value={this.state.search}
+                            placeholder="Tìm kiếm"
+                            onChange={(e) => this.setState({search: e.target.value})}
+                            onKeyDown={(e) => e.key === "Enter" && this.handleSearch(e)}
+                        />
+                    </div>
                     
                 </CardHeader>
                 <Table responsive hover striped borderless className="align-middle mb-0">
@@ -485,31 +510,32 @@ class TransactionsTable extends Component {
                                     <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
-                                    <button 
-                                        className="btn btn-sm btn-info me-1 mb-1" 
-                                        title="Chỉnh sửa giao dịch" 
-                                        onClick={() => {
-                                            this.setState({
-                                                updateTransaction: item,
-                                                textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
-                                                update: {
-                                                    amount: String(item.amount),
-                                                    bankId: item.bankId._id,
-                                                    bonus: String(item.bonus),
-                                                    content: item.content,
-                                                    fee: String(item.fee),
-                                                    messengerId: item.messengerId,
-                                                    typeFee: item.typeFee,
-                                                    typeBox: 'facebook',
-
-                                                }
-                                            });
-                                            this.toggleUpdate()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
-                                    </button>
                                 </>}
+
+                                {(item.status === 1 || item.status === 6) && <button 
+                                    className="btn btn-sm btn-info me-1 mb-1" 
+                                    title="Chỉnh sửa giao dịch" 
+                                    onClick={() => {
+                                        this.setState({
+                                            updateTransaction: item,
+                                            textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
+                                            update: {
+                                                amount: String(item.amount),
+                                                bankId: item.bankId._id,
+                                                bonus: String(item.bonus),
+                                                content: item.content,
+                                                fee: String(item.fee),
+                                                messengerId: item.messengerId,
+                                                typeFee: item.typeFee,
+                                                typeBox: 'facebook',
+
+                                            }
+                                        });
+                                        this.toggleUpdate()
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
+                                </button>}
                                 <a href={`/box/${item.boxId}`} className="btn btn-sm btn-light me-1 mb-1" title="Xem chi tiết box">
                                     <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
                                 </a>
@@ -808,7 +834,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
     getTransactions,
     setFilters,
-    undoBox
+    undoBox,
+    searchTransactions
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionsTable);

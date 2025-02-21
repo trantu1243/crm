@@ -7,6 +7,7 @@ const { getSocket } = require("../socket/socketHandler");
 const getBills = async (req, res) => {
     try {
         const {
+            search,
             staffId,
             status,
             bankCode,
@@ -36,6 +37,19 @@ const getBills = async (req, res) => {
             if (endDate) filter.createdAt.$lte = new Date(endDate);
         }
         if (content) filter.content = { $regex: content, $options: 'i' };
+
+        if (search) {
+            const boxMatches = await BoxTransaction.find({
+                messengerId: { $regex: search, $options: "i" }
+            }).select("_id");
+
+            const boxIds = boxMatches.map(box => box._id);
+
+            filter.$or = [
+                { content: { $regex: search, $options: "i" } },
+                { boxId: { $in: boxIds } }
+            ];
+        }
 
         const bills = await Bill.paginate(filter, {
             page: Number(page),
@@ -283,6 +297,7 @@ const confirmBill = async (req, res) => {
         if (box.amount - bill.amount === 0) {
             // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 }, { session });
+            await BoxTransaction.updateOne({ _id: box._id }, { status: "complete" }, { session });
         } else if (paidAmount > 0) {
             // ✅ Dùng bulkWrite để tối ưu cập nhật trạng thái giao dịch
             const bulkOps = [];
