@@ -107,19 +107,6 @@ export default class MinimalDashboard2 extends Component {
             stops: [0, 100, 100, 100],
           },
         },
-        labels: [
-          "01/01/2003",
-          "02/01/2003",
-          "03/01/2003",
-          "04/01/2003",
-          "05/01/2003",
-          "06/01/2003",
-          "07/01/2003",
-          "08/01/2003",
-          "09/01/2003",
-          "10/01/2003",
-          "11/01/2003",
-        ],
         markers: {
           size: 0,
         },
@@ -137,10 +124,7 @@ export default class MinimalDashboard2 extends Component {
           intersect: false,
           y: {
             formatter: function (y) {
-              if (typeof y !== "undefined") {
-                return y.toFixed(0) + " points";
-              }
-              return y;
+              return typeof y !== "undefined" ? y.toFixed(0) + " points" : y;
             },
           },
         },
@@ -149,20 +133,56 @@ export default class MinimalDashboard2 extends Component {
         {
           name: "TEAM A",
           type: "column",
-          data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+          data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30, 23, 11, 22, 27, 13, 22, 37, 21],
         },
         {
           name: "TEAM B",
           type: "bar",
-          data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-        },
-        {
-          name: "TEAM C",
-          type: "line",
-          data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-        },
+          data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43, 44, 55, 41, 67, 22, 43, 21, 41],
+        }
       ],
     };
+  }
+
+  getDaysInMonth(year, month) {
+    const days = [];
+    const date = new Date(year, month - 1, 1);
+    while (date.getMonth() === month - 1) {
+      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+      days.push(formattedDate);
+      date.setDate(date.getDate() + 1);
+    }
+    return days;
+  }
+
+  // Hàm tạo dữ liệu thống kê cho 3 team
+  generateChartData() {
+    const days = this.getDaysInMonth(2024, 2); // Ví dụ: Tháng 2 năm 2024
+    return {
+      labels: days, // Trục X là danh sách ngày trong tháng
+      series: [
+        {
+          name: "TEAM A",
+          type: "column",
+          data: days.map(() => Math.floor(Math.random() * 100)), // Dữ liệu ngẫu nhiên
+        },
+        {
+          name: "TEAM B",
+          type: "bar",
+          data: days.map(() => Math.floor(Math.random() * 100)),
+        }
+      ],
+    };
+  }
+
+  componentDidMount() {
+    const chartData = this.generateChartData();
+    this.setState({
+      optionsMixedChart: { ...this.state.optionsMixedChart, labels: chartData.labels },
+      seriesMixedChart: chartData.series,
+    });
   }
 
   togglePop1() {
@@ -259,8 +279,13 @@ export default class MinimalDashboard2 extends Component {
                     </CardBody>
                   </TabPane>
                   <TabPane tabId="2">
-                    <Chart options={this.state.optionsMixedChart} series={this.state.seriesMixedChart}
-                      type="line" width="100%" height="330px"/>
+                    <Chart
+                      options={this.state.optionsMixedChart}
+                      series={this.state.seriesMixedChart}
+                      type="line"
+                      width="100%"
+                      height="330px"
+                    />
                   </TabPane>
                   <TabPane tabId="3">
                     <IncomeReport2 />

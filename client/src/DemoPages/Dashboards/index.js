@@ -18,6 +18,7 @@ import AppFooter from "../../Layout/AppFooter/";
 
 // Theme Options
 import ThemeOptions from "../../Layout/ThemeOptions/";
+import General from "./General/";
 
 const Dashboards = ({ url }) => (
   <Fragment>
@@ -27,6 +28,7 @@ const Dashboards = ({ url }) => (
       <AppSidebar />
       <div className="app-main__outer">
         <div className="app-main__inner">
+          <Route exact path={`${url}/general`} component={General}/>
           <Route exact path={`${url}/analytics`} component={AnalyticsDashboard}/>
           <Route exact path={`${url}/sales`} component={SalesDashboard} />
           <Route exact path={`${url}/commerce`} component={CommerceDashboard} />
