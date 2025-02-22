@@ -34,7 +34,7 @@ class Nav extends Component {
                 <MetisMenu content={filteredNav} onSelected={this.toggleMobileSidebar} activeLinkFromLocation
                     className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
 
-                <h5 className="app-sidebar__heading">UI Components</h5>
+                {/* <h5 className="app-sidebar__heading">UI Components</h5>
                 <MetisMenu content={ComponentsNav} onSelected={this.toggleMobileSidebar} activeLinkFromLocation
                     className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
 
@@ -48,7 +48,7 @@ class Nav extends Component {
 
                 <h5 className="app-sidebar__heading">Charts</h5>
                 <MetisMenu content={ChartsNav} onSelected={this.toggleMobileSidebar} activeLinkFromLocation
-                    className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/>
+                    className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down"/> */}
             </Fragment>
         );
     }

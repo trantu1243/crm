@@ -8,3 +8,4 @@ module.exports.bankApiController = require('./bankApi.controller');
 module.exports.feeController = require('./fee.controller');
 module.exports.permissionController = require('./permission.controller');
 module.exports.roleController = require('./role.controller');
+module.exports.statisticController = require('./statistic.controller');

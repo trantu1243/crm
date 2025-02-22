@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getBills, searchBills, setFilters } from "../../../reducers/billsSlice";
+import { getBills, getBillsNoLoad, searchBills, setFilters } from "../../../reducers/billsSlice";
 import { connect } from "react-redux";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
@@ -61,7 +61,7 @@ class BillsTable extends Component {
         try {                  
             this.toggleConfirmBill()  
             const res = await confirmBillService(this.state.confirmBill?._id);
-            this.props.getBills(this.props.filters);
+            this.props.getBillsNoLoad(this.props.filters);
         } catch (error) {
             this.setState({
                 alert: true,
@@ -74,7 +74,7 @@ class BillsTable extends Component {
         try {                    
             this.toggleCancelBill();
             const res = await cancelBillService(this.state.cancelBill?._id);
-            this.props.getBills(this.props.filters);
+            this.props.getBillsNoLoad(this.props.filters);
         } catch (error) {
             this.setState({
                 alert: true,
@@ -263,6 +263,7 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBills,
+    getBillsNoLoad,
     setFilters,
     searchBills
 };

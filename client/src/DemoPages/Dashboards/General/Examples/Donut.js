@@ -1,32 +1,72 @@
-import React, { Component } from 'react';
-import Chart from 'react-apexcharts'
+import React, { useState, useEffect } from "react";
+import Chart from "react-apexcharts";
 
-class Donut extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      options: {
-        labels: ['A', 'B', 'C', 'D', 'E'],
-        chart: {
-          sparkline: {
-            enabled: false,
+const DonutChart = ({ bankStats }) => {
+  const [options, setOptions] = useState({
+    chart: {
+      sparkline: { enabled: false }
+    },
+    labels: [], // Mảng tên ngân hàng
+    tooltip: {
+      y: {
+        formatter: function (val, opts) {
+          if (!opts || !opts.w || !opts.w.config) {
+            // Nếu "opts" hoặc "opts.w" chưa sẵn sàng
+            return val; // Trả về giá trị gốc
           }
-        }
+          
+          // Ví dụ logic:
+          // Lấy bankName = w.config.labels[seriesIndex]
+          const label = opts.w.config.labels[opts.seriesIndex];
+          return `${label}: ${new Intl.NumberFormat("en-US").format(val)}`;
+        },
       },
-      series: [44, 55, 41, 17, 15],
-    }
-  }
+    },
+    // Bật hiển thị % trên lát bánh, kèm theo label
+    dataLabels: {
+      enabled: true,
+      formatter: (val, { seriesIndex, w }) => {
+        // val là % lát bánh, seriesIndex là index
+        // Lấy bankName
+        const label = w.config.labels[seriesIndex];
+        return `${label} (${val.toFixed(1)}%)`;
+      },
+    },
+    legend: {
+      position: "bottom",
+    },
+  });
 
-  render() {
+  const [series, setSeries] = useState([]);
 
-    return (
-      <div className="apexcharts-donut">
-        <Chart options={this.state.options} series={this.state.series} type="donut" width="100%" />
-      </div>
-    );
-  }
-}
+  useEffect(() => {
+    if (!bankStats) return;
 
-export default Donut;
+    // Tạo labels = danh sách tên ngân hàng
+    // (Có thể kèm totalAmount, nhưng ta sẽ format cẩn thận)
+    const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
+
+    // Tạo series = mảng totalAmount
+    const newSeries = bankStats.map((b) => b.totalAmount || 0);
+
+    setOptions((prev) => ({
+      ...prev,
+      labels: newLabels,
+    }));
+
+    setSeries(newSeries);
+  }, [bankStats]);
+
+  return (
+    <div className="apexcharts-donut">
+      <Chart
+        options={options}
+        series={series}
+        type="donut"
+        width="100%"
+      />
+    </div>
+  );
+};
+
+export default DonutChart;

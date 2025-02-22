@@ -6,7 +6,7 @@ import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getTransactions, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
+import { getTransactions, getTransactionsNoLoad, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
@@ -131,7 +131,7 @@ class TransactionsTable extends Component {
         try{
             this.toggleUndo()    
             await this.props.undoBox(this.state.undoTransaction?.boxId);
-            await this.props.getTransactions(this.props.filters);
+            await this.props.getTransactionsNoLoad(this.props.filters);
         } catch (error) {
 
         }
@@ -193,7 +193,7 @@ class TransactionsTable extends Component {
             this.toggleConfirmTransaction();          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
-                this.props.getTransactions(this.props.filters)
+                this.props.getTransactionsNoLoad(this.props.filters)
             }
         } catch (error) {
 
@@ -231,7 +231,7 @@ class TransactionsTable extends Component {
             e.preventDefault();
             this.setState({loading: true});
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
-            await this.props.getTransactions(this.props.filters)
+            await this.props.getTransactionsNoLoad(this.props.filters)
             this.setState({loading: false});
            
         } catch(error) {
@@ -247,7 +247,7 @@ class TransactionsTable extends Component {
         try {          
             this.toggleCancel();          
             const res = await cancelTransaction(this.state.cancelTransaction._id);
-            this.props.getTransactions(this.props.filters)
+            this.props.getTransactionsNoLoad(this.props.filters)
         } catch (error) {
             this.setState({
                 alert: true,
@@ -294,9 +294,9 @@ class TransactionsTable extends Component {
                 </div>
             ) : ( <>
                 <CardHeader className="mt-2">
-                    <Button color="info" className="me-1 al-min-width-max-content" style={{minWidth: 'max-content', textTransform: 'none'}} onClick={this.toggleCreate}>
+                    <a href="/create-transaction" className="btn btn-info me-1 al-min-width-max-content" style={{minWidth: 'max-content', textTransform: 'none'}} onClick={this.toggleCreate}>
                         Tạo GDTG
-                    </Button>
+                    </a>
                     <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
                         <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
@@ -833,6 +833,7 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getTransactions,
+    getTransactionsNoLoad,
     setFilters,
     undoBox,
     searchTransactions

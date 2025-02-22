@@ -37,6 +37,7 @@ class Transactions extends Component {
     
         this.toggle = this.toggle.bind(this);
         this.state = {
+            isMobile: window.innerWidth < 768,
             activeTab: "1",
             showMore: true,
             transform: true,
@@ -50,6 +51,14 @@ class Transactions extends Component {
             bankAccounts: []
         };
     }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+    
+    updateScreenSize = () => {
+        this.setState({ isMobile: window.innerWidth < 768 });
+    };
 
     componentDidMount() {
         this.getStaffs()
@@ -121,7 +130,7 @@ class Transactions extends Component {
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
-                        <div className="app-main__inner">
+                        <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>
                                 <Row>
                                     <Col md="12">

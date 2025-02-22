@@ -35,6 +35,7 @@ class Box extends Component {
     
         this.toggle = this.toggle.bind(this);
         this.state = {
+            isMobile: window.innerWidth < 768,
             activeTab: "1",
             showMore: false,
             transform: true,
@@ -60,6 +61,14 @@ class Box extends Component {
         const { id } = this.props.params; 
         this.props.getBoxById(id);
     }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+    
+    updateScreenSize = () => {
+        this.setState({ isMobile: window.innerWidth < 768 });
+    };
 
     componentDidUpdate(prevProps) {
         if (prevProps.box !== this.props.box && this.props.box._id) {
@@ -173,7 +182,7 @@ class Box extends Component {
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
-                        <div className="app-main__inner">
+                        <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                         {this.state.loading ? (
                             <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                 <Loader type="ball-spin-fade-loader" />

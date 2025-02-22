@@ -36,7 +36,6 @@ const Dashboards = ({ url }) => (
           <Route exact path={`${url}/minimal-dashboard-1`} component={MinimalDashboard1}/>
           <Route exact path={`${url}/minimal-dashboard-2`} component={MinimalDashboard2}/>
         </div>
-        <AppFooter />
       </div>
     </div>
   </Fragment>

@@ -9,6 +9,7 @@ const bankApiRoute = require('./bankApi.route');
 const feeRoute = require('./fee.route');
 const roleRoute = require('./role.route');
 const permissionRoute = require('./permission.route');
+const statisticRoutes = require('./statistic.route');
 
 const router = express.Router();
 
@@ -52,6 +53,10 @@ const defaultRoutes = [
     {
         path: '/role',
         route: roleRoute
+    },
+    {
+        path: '/statistic',
+        route: statisticRoutes
     },
 ];
 

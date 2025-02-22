@@ -149,7 +149,7 @@ class Transaction extends Component {
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
-                        <div className="app-main__inner">
+                        <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>
                                 <Card className="main-card mb-3">
                                     <CardTitle></CardTitle>

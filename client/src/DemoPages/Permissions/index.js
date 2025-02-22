@@ -29,8 +29,17 @@ class Permissions extends Component {
             items: this.getSimpleTabs() || [],
             selectedTabKey: 0,
             transformWidth: 400,
+            isMobile: window.innerWidth < 768,
         };
     }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+    
+    updateScreenSize = () => {
+        this.setState({ isMobile: window.innerWidth < 768 });
+    };
   
     toggle(tab) {
         if (this.state.activeTab !== tab) {
@@ -55,7 +64,7 @@ class Permissions extends Component {
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
-                        <div className="app-main__inner">
+                        <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>
                                 <div className="mb-3">
                                         <Tabs tabsWrapperClass="card-header" {...this.state} />
