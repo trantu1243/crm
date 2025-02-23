@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.get('/monthly', authenticateToken, isAdmin, statisticController.getMonthlyStats);
 router.get('/daily', authenticateToken, isAdmin, statisticController.getDailyStats);
+router.get('/balance', authenticateToken, isAdmin, statisticController.getBalance);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 
-const DonutChart = ({ bankStats }) => {
+const DonutTransactionChart = ({ bankStats }) => {
   const [options, setOptions] = useState({
     chart: {
       sparkline: { enabled: false }
@@ -39,7 +39,7 @@ const DonutChart = ({ bankStats }) => {
       // Nếu muốn hiển thị series dạng 1,000 trong legend, có thể thêm formatter:
       formatter: function (label, opts) {
         const seriesVal = opts.w.globals.series[opts.seriesIndex];
-        return `${label}: ${new Intl.NumberFormat("en-US").format(seriesVal)} vnd`;
+        return `${label}: ${new Intl.NumberFormat("en-US").format(seriesVal)}`;
       },
     },
   });
@@ -51,8 +51,8 @@ const DonutChart = ({ bankStats }) => {
 
     // Tạo labels = danh sách tên ngân hàng
     const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
-    // Tạo series = mảng totalAmount, là số (không format chuỗi)
-    const newSeries = bankStats.map((b) => b.totalAmount || 0);
+    // Tạo series = mảng totalTransactions, là số (không format chuỗi)
+    const newSeries = bankStats.map((b) => b.totalTransactions || 0);
 
     setOptions((prev) => ({
       ...prev,
@@ -72,4 +72,4 @@ const DonutChart = ({ bankStats }) => {
   );
 };
 
-export default DonutChart;
+export default DonutTransactionChart;

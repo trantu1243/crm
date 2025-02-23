@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 
-const DonutChart = ({ bankStats }) => {
+const DonutFeeChart = ({ bankStats }) => {
   const [options, setOptions] = useState({
     chart: {
       sparkline: { enabled: false }
@@ -51,8 +51,8 @@ const DonutChart = ({ bankStats }) => {
 
     // Tạo labels = danh sách tên ngân hàng
     const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
-    // Tạo series = mảng totalAmount, là số (không format chuỗi)
-    const newSeries = bankStats.map((b) => b.totalAmount || 0);
+    // Tạo series = mảng totalFee, là số (không format chuỗi)
+    const newSeries = bankStats.map((b) => b.totalFee || 0);
 
     setOptions((prev) => ({
       ...prev,
@@ -72,4 +72,4 @@ const DonutChart = ({ bankStats }) => {
   );
 };
 
-export default DonutChart;
+export default DonutFeeChart;

@@ -255,9 +255,22 @@ const getDailyStats = async (req, res) => {
     }
 };
 
+const getBalance = async (req, res) => {
+    try {
+        const bankAccounts = await BankAccount.find({ isDeleted: false });
 
+        res.status(200).json({
+            message: 'Bank Accounts fetched successfully',
+            data: bankAccounts,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 module.exports = {
     getMonthlyStats,
-    getDailyStats
+    getDailyStats,
+    getBalance
 }

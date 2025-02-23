@@ -541,18 +541,18 @@ class TransactionsTable extends Component {
                                     rowClass = "";
                                 }
                                 return <tr className={rowClass}>
-                                    <td className="text-center text-muted">{item._id.slice(-8)}</td>
-                                    <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
-                                    <td className="text-center text-muted">{item.bankId.bankCode}</td>
-                                    <td className="text-center text-muted">{item.amount.toLocaleString()}</td>
-                                    <td className="text-center text-muted">{item.fee.toLocaleString()}</td>
-                                    <td className="text-center text-muted">{item.totalAmount.toLocaleString()}</td>
-                                    <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
-                                    <td className="text-center text-muted">{item.content}</td>
-                                    <td className="text-center text-muted"> <StatusBadge status={item.status} /></td>
-                                    <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                    <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
-                                    <td className="text-center text-muted">
+                                    <td className="text-center ">{item._id.slice(-8)}</td>
+                                    <td className="text-center ">{formatDate(item.createdAt)}</td>
+                                    <td className="text-center ">{item.bankId.bankCode}</td>
+                                    <td className="text-center ">{item.amount.toLocaleString()}</td>
+                                    <td className="text-center ">{item.fee.toLocaleString()}</td>
+                                    <td className="text-center ">{item.totalAmount.toLocaleString()}</td>
+                                    <td className="text-center ">{item.bonus.toLocaleString()}</td>
+                                    <td className="text-center ">{item.content}</td>
+                                    <td className="text-center "> <StatusBadge status={item.status} /></td>
+                                    <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                    <td className="text-center "><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                    <td className="text-center ">
                                         {item.status === 6 && <>
                                             <button 
                                                 className="btn btn-sm btn-primary me-1 mb-1" 

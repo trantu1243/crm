@@ -473,7 +473,7 @@ class BillsTable extends Component {
                     </span>
                     
                 </CardHeader>
-                <Table responsive hover striped bordered className="align-middle mb-0">
+                <Table responsive hover striped bo className="align-middle mb-0">
                     <thead>
                         <tr>
                             <th className="text-center">ID</th>
@@ -492,16 +492,16 @@ class BillsTable extends Component {
                     <tbody>
                     
                         {bills.map((item) => <tr>
-                            <td className="text-center text-muted">{item._id.slice(-8)}</td>
-                            <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
-                            <td className="text-center text-muted">{item.bankCode}</td>
-                            <td className="text-center text-muted">{item.amount.toLocaleString()}</td>
-                            <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
-                            <td className="text-center text-muted">{item.content}</td>
+                            <td className="text-center ">{item._id.slice(-8)}</td>
+                            <td className="text-center ">{formatDate(item.createdAt)}</td>
+                            <td className="text-center ">{item.bankCode}</td>
+                            <td className="text-center ">{item.amount.toLocaleString()}</td>
+                            <td className="text-center ">{item.bonus.toLocaleString()}</td>
+                            <td className="text-center ">{item.content}</td>
                             <BillStatusBadge status={item.status} />
-                            <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
-                            <td className="text-center text-muted">
+                            <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                            <td className="text-center "><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                            <td className="text-center ">
                                 {item.status === 1 && <>
                                     <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>

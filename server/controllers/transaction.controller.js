@@ -182,19 +182,26 @@ const createTransaction = async (req, res) => {
 };
 
 const updateTransaction = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const permissions = await getPermissions(req.user.id);
-
         if (!permissions.some(permission => permission.slug === 'create-transaction')) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: `Không đủ quyền` });
         }
+
         const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
+                await session.abortTransaction();
+                session.endSession();
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
-    
+
         const {
             bankId,
             typeBox,
@@ -205,21 +212,29 @@ const updateTransaction = async (req, res) => {
             fee,
             bonus
         } = req.body;
-
         const { id } = req.params;
 
         if (!id) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: 'ID is required' });
         }
 
-        const tran = await Transaction.findById(id);
+        const tran = await Transaction.findById(id).session(session);
+        if (!tran) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Transaction not found' });
+        }
+
         if (tran.status !== 1 && tran.status !== 6) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ message: 'Bad request' });
         }
 
         let oriAmount = Number(amount);
         let totalAmount = Number(amount);
-
         if (typeFee === "buyer") {
             totalAmount += Number(fee);
         } else if (typeFee === "seller") {
@@ -228,72 +243,107 @@ const updateTransaction = async (req, res) => {
             oriAmount -= Number(fee) / 2;
             totalAmount += Number(fee) / 2;
         }
-        const user = await Staff.findById(req.user.id);
-        const bank = await BankAccount.findById(bankId);
 
-        let box = await BoxTransaction.findOne({messengerId: messengerId});
-        
-        if (box && box.status === 'lock') {
-            return res.status(404).json({ message: 'Box is locked' })
+        const user = await Staff.findById(req.user.id).session(session);
+        const bank = await BankAccount.findById(bankId).session(session);
+        if (!bank) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: 'Bank not found' });
         }
 
+        // 6. Lấy (hoặc tạo) box
+        let box = await BoxTransaction.findOne({ messengerId }).session(session);
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' });
+        }
         if (!box) {
-            box = await BoxTransaction.create({
+            box = await BoxTransaction.create([{
                 name: '',
                 messengerId: messengerId,
                 staffId: user._id,
                 typeBox: typeBox
-            });    
+            }], { session });
+            // Khi dùng .create() với session, cần truyền mảng + object session
+            // Kết quả trả về cũng là mảng, ta destruct để lấy doc
+            box = box[0];
         }
 
         if (tran.status === 6 && tran.amount !== oriAmount) {
-            if (box.amount > 0) box.amount -= tran.amount;
+            if (box.amount > 0) {
+                box.amount -= tran.amount;
+            }
             box.amount += oriAmount;
-            await box.save();
+            await box.save({ session });
+
+            const oldBank = await BankAccount.findById(tran.bankId).session(session);
+            if (oldBank) {
+                oldBank.totalAmount -= tran.amount;
+                oldBank.totalAmount += oriAmount;
+                await oldBank.save({ session });
+            }
         }
-        const transaction = await Transaction.findByIdAndUpdate(id, {
-            boxId: box._id,
-            bankId: bank._id,
-            amount: oriAmount,
-            content,
-            fee,
-            totalAmount,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
-            messengerId,
-            typeFee,
-            bonus: Number(bonus)
-        }, { new: true })
-        .populate([
+
+        // 8. Update transaction
+        const updatedTran = await Transaction.findByIdAndUpdate(
+            id,
+            {
+                boxId: box._id,
+                bankId: bank._id,
+                amount: oriAmount,
+                content,
+                fee,
+                totalAmount,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+                messengerId,
+                typeFee,
+                bonus: Number(bonus)
+            },
+            { new: true, session }
+        ).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
         ]);
 
-        const io = getSocket();
+        // 9. Commit transaction
+        await session.commitTransaction();
+        session.endSession();
 
+        // 10. Socket thông báo
+        const io = getSocket();
         io.emit('update_transaction', {
-            transaction
+            transaction: updatedTran
         });
-        
+
         return res.status(200).json({
             message: 'Transaction updated successfully',
-            transaction: transaction,
+            transaction: updatedTran,
         });
+
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error(error);
         return res.status(500).json({ message: 'Internal server error' });
     }
-}
+};
+
 
 const confirmTransaction = async (req, res) => {
-    const permissions = await getPermissions(req.user.id);
-
-    if (!permissions.some(permission => permission.slug === 'create-transaction')) {
-        return res.status(400).json({ message: `Không đủ quyền` });
-    }
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+
+        const permissions = await getPermissions(req.user.id);
+        if (!permissions.some(permission => permission.slug === 'create-transaction')) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const { id } = req.params;
 
         // 🔍 Tìm và cập nhật transaction (chỉ cập nhật nếu status === 1)
@@ -330,6 +380,21 @@ const confirmTransaction = async (req, res) => {
             { $inc: { amount: transaction.amount } },
             { session }
         );
+
+        //
+        const bank = await BankAccount.findById(transaction.bankId).session(session);
+
+        if (!bank) {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(400).json({ message: "Bank not found" });
+        }
+        
+        await BankAccount.updateOne(
+            { _id: bank._id },
+            { $inc: { totalAmount: transaction.totalAmount } },
+            { session }
+        )
 
         // 🔍 Kiểm tra xem đã có Bill chưa
         const existingBill = await Bill.findOne({ boxId: box._id, status: 1 }).session(session);
