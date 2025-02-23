@@ -381,6 +381,15 @@ const confirmTransaction = async (req, res) => {
             { session }
         );
 
+        // 🔍 Kiểm tra xem đã có Bill chưa
+        const existingBill = await Bill.findOne({ boxId: box._id, status: 1 }).session(session);
+        if (existingBill) {
+            await Transaction.updateOne({ _id: transaction._id }, { status: 7 }, { session });
+        }
+
+        // 🔥 Cập nhật tất cả giao dịch có status = 2 thành status = 8
+        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 }, { session });
+
         //
         const bank = await BankAccount.findById(transaction.bankId).session(session);
 
@@ -395,16 +404,7 @@ const confirmTransaction = async (req, res) => {
             { $inc: { totalAmount: transaction.totalAmount } },
             { session }
         )
-
-        // 🔍 Kiểm tra xem đã có Bill chưa
-        const existingBill = await Bill.findOne({ boxId: box._id, status: 1 }).session(session);
-        if (existingBill) {
-            await Transaction.updateOne({ _id: transaction._id }, { status: 7 }, { session });
-        }
-
-        // 🔥 Cập nhật tất cả giao dịch có status = 2 thành status = 8
-        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 }, { session });
-
+        
         // ✅ Commit transaction (lưu tất cả thay đổi)
         await session.commitTransaction();
         session.endSession();

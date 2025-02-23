@@ -483,7 +483,6 @@ class CreateTransaction extends Component {
                                                 </div>
                                             </div>
                                         </Row>
-                                        
                                     </CardBody>
                                 </Card>
       

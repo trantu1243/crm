@@ -99,7 +99,25 @@ class TransactionsTable extends Component {
         window.addEventListener("resize", this.updateScreenSize);
         this.getFee();
         this.getBanks();
+        document.addEventListener("keydown", this.handleKeyDown);
     }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.handleKeyDown);
+        window.removeEventListener("resize", this.updateScreenSize);
+    }
+
+    handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (this.state.confirmTransactionModal) {
+                this.handleConfirmTransaction();
+            } else if (this.state.cancelModal) {
+                this.handleCancel();
+            } else if (this.state.undoModal) {
+                this.handleUndo();
+            }
+        }
+    };
 
     componentDidUpdate(prevProps) {
         if (prevProps.bankAccounts !== this.props.bankAccounts) {
@@ -158,17 +176,6 @@ class TransactionsTable extends Component {
     onCopy = () => {
         this.setState({ copied: true });
     };
-
-    handleUndo = async () => {
-        this.toggleUndo()    
-        await this.props.undoBox(this.props.boxId)
-        await this.props.getBoxByIdNoLoad(this.props.boxId)
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.updateScreenSize);
-    }
-
 
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
@@ -237,7 +244,7 @@ class TransactionsTable extends Component {
         try{
             e.preventDefault();
             this.setState({loading: true});
-            const res = await createTransaction(this.state.input);
+            await createTransaction(this.state.input);
             this.setState({loading: false});
             await this.props.getBoxByIdNoLoad(this.props.boxId);
             this.toggleCreate();
@@ -249,6 +256,14 @@ class TransactionsTable extends Component {
             this.setState({loading: false})
         }
     };
+
+    handleUndo = async () => {
+        this.setState({loading: true});
+        await this.props.undoBox(this.props.boxId);
+        await this.props.getBoxByIdNoLoad(this.props.boxId);
+        this.toggleUndo();
+        this.setState({loading: false});
+    }
 
     handleCreateBill = async (e) => {
         try{
@@ -277,17 +292,21 @@ class TransactionsTable extends Component {
     };
 
     handleConfirmTransaction = async () => {
-        try {          
-            this.toggleConfirmTransaction();          
+        try { 
+            this.setState({loading: true});          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
                 this.props.getBoxByIdNoLoad(this.props.boxId)
-            }
+            }         
+            this.toggleConfirmTransaction();
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
-            })
+            })         
+            this.toggleConfirmTransaction();
+            this.setState({loading: false});
         }
     }
 
@@ -313,15 +332,19 @@ class TransactionsTable extends Component {
     }
 
     handleCancel = async (e) => {
-        try {          
+        try {         
+            this.setState({loading: true}); 
+            await cancelTransaction(this.state.cancelTransaction._id);
+            this.props.getBoxByIdNoLoad(this.props.boxId);
             this.toggleCancel();          
-            const res = await cancelTransaction(this.state.cancelTransaction._id);
-            this.props.getBoxByIdNoLoad(this.props.boxId)
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
+            this.toggleCancel();          
+            this.setState({loading: false});
         }
     }
     
@@ -634,8 +657,8 @@ class TransactionsTable extends Component {
                             <Button color="link" onClick={this.toggleUndo}>
                                 Cancel
                             </Button>
-                            <Button color="primary" onClick={this.handleUndo}>
-                                Xác nhận
+                            <Button color="primary" onClick={this.handleUndo} disabled={this.state.loading}>
+                                {this.state.loading ? "Đang hoàn tác..." : "Xác nhận"}
                             </Button>{" "}
                         </ModalFooter>
                     </Modal>
@@ -655,8 +678,8 @@ class TransactionsTable extends Component {
                             <Button color="link" onClick={this.toggleConfirmTransaction}>
                                 Cancel
                             </Button>
-                            <Button color="primary" onClick={this.handleConfirmTransaction}>
-                                Xác nhận
+                            <Button color="primary" onClick={this.handleConfirmTransaction} disabled={this.state.loading}>
+                                {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                             </Button>{" "}
                         </ModalFooter>
                     </Modal>
@@ -676,8 +699,8 @@ class TransactionsTable extends Component {
                             <Button color="link" onClick={this.toggleCancel}>
                                 Cancel
                             </Button>
-                            <Button color="danger" onClick={this.handleCancel}>
-                                Hủy giao dịch
+                            <Button color="danger" onClick={this.handleCancel} disabled={this.state.loading}>
+                                {this.state.loading ? "Đang hủy..." : "Hủy giao dịch"}
                             </Button>{" "}
                         </ModalFooter>
                     </Modal>

@@ -22,7 +22,6 @@ import General from "./General/";
 
 const Dashboards = ({ url }) => (
   <Fragment>
-    <ThemeOptions />
     <AppHeader />
     <div className="app-main">
       <AppSidebar />

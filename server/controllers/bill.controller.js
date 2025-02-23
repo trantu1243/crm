@@ -1,4 +1,4 @@
-const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction } = require("../models");
+const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction, BankAccount } = require("../models");
 const { getPermissions } = require("../services/permission.service");
 const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
@@ -267,7 +267,7 @@ const confirmBill = async (req, res) => {
         const totalAmount = result.length > 0 ? result[0].totalAmount : 0;
 
         // ❌ Kiểm tra số dư trước khi trừ tiền
-        if (box.amount < bill.amount) {
+        if (box.amount < (bill.amount + bill.bonus)) {
             await session.abortTransaction();
             session.endSession();
             return res.status(400).json({ message: "Insufficient balance in box" });
@@ -276,11 +276,11 @@ const confirmBill = async (req, res) => {
         // ✅ Cập nhật số dư trong BoxTransaction
         await BoxTransaction.updateOne(
             { _id: box._id },
-            { $inc: { amount: -bill.amount } },
+            { $inc: { amount: - (bill.amount + bill.bonus) } },
             { session }
         );
 
-        let paidAmount = totalAmount - ( box.amount - bill.amount);
+        let paidAmount = totalAmount - ( box.amount - (bill.amount + bill.bonus));
 
         // 🔍 Kiểm tra bill có billId liên quan không
         if (bill.billId?.status === 1) {
@@ -304,13 +304,7 @@ const confirmBill = async (req, res) => {
             return res.status(400).json({ message: "Bank not found" });
         }
         
-        await BankAccount.updateOne(
-            { _id: bank._id },
-            { $inc: { totalAmount: -bill.amount } },
-            { session }
-        )
-        
-        if (box.amount - bill.amount === 0) {
+        if (box.amount - (bill.amount + bill.bonus) === 0) {
             // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 }, { session });
             await BoxTransaction.updateOne({ _id: box._id }, { status: "complete" }, { session });
@@ -335,6 +329,12 @@ const confirmBill = async (req, res) => {
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 }, { session });
         }
 
+        await BankAccount.updateOne(
+            { _id: bank._id },
+            { $inc: { totalAmount: - (bill.amount + bill.bonus) } },
+            { session }
+        )
+        
         // ✅ Commit transaction nếu mọi thứ thành công
         await session.commitTransaction();
         session.endSession();
@@ -498,7 +498,8 @@ const cancelBill = async (req, res) => {
         const io = getSocket();
 
         io.emit('cancel_bill', {
-            bill
+            bill,
+            box
         });
 
         return res.status(200).json({

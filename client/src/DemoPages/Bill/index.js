@@ -47,11 +47,23 @@ class Box extends Component {
         }
     };
 
-    toggleConfirmBill() {
-        this.setState({
-            confirmBillModal: !this.state.confirmBillModal,
+    toggleConfirmBill = () => {
+        this.setState((prevState) => ({
+            confirmBillModal: !prevState.confirmBillModal
+        }), () => {
+            if (this.state.confirmBillModal) {
+                document.addEventListener("keydown", this.handleKeyDown);
+            } else {
+                document.removeEventListener("keydown", this.handleKeyDown);
+            }
         });
-    }
+    };
+
+    handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+          this.handleConfirmBill();
+        }
+    };
 
     // componentDidUpdate(prevProps) {
     //     if (prevProps.bill !== this.props.bill) {
@@ -67,9 +79,11 @@ class Box extends Component {
     }
 
     handleConfirmBill = async () => {
-        this.toggleConfirmBill()
+        this.setState({loading: true});
         await this.props.confirmBill(this.state.confirmBill._id);
         this.props.getBillById(this.props.bill._id);
+        this.toggleConfirmBill()
+        this.setState({loading: false});
     }
 
     render() {       
@@ -323,7 +337,12 @@ class Box extends Component {
                     </div>
                 </div>
 
-                <Modal isOpen={this.state.confirmBillModal} toggle={this.toggleConfirmBill} className={this.props.className}>
+                <Modal 
+                    isOpen={this.state.confirmBillModal} 
+                    toggle={this.toggleConfirmBill} 
+                    className={this.props.className} 
+                    
+                >
                     <ModalHeader toggle={this.toggleConfirmBill}><span style={{fontWeight: 'bold'}}>Xác nhận bill</span></ModalHeader>
                     <ModalBody>
                         Số tài khoản: {this.state.confirmBill?.stk} <br />
@@ -336,8 +355,8 @@ class Box extends Component {
                         <Button color="link" onClick={this.toggleConfirmBill}>
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={this.handleConfirmBill}>
-                            Xác nhận
+                        <Button color="primary" onClick={this.handleConfirmBill} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>

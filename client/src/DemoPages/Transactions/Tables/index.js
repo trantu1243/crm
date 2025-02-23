@@ -13,7 +13,6 @@ import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import { faCheck, faCopy, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
-import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
 import { typeFee } from "../../CreateTransaction";
@@ -22,6 +21,7 @@ import { SERVER_URL } from "../../../services/url";
 import CopyToClipboard from "react-copy-to-clipboard";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { fetchBankApi } from "../../../services/bankApiService";
+import { createBill } from "../../../services/billService";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -51,6 +51,7 @@ class TransactionsTable extends Component {
             isBuyerToggleOn: false,
             isSellerToggleOn: false,
             boxAmount: 0,
+            boxId: '',
             input: {
                 amount: '',
                 bankId: '',
@@ -103,6 +104,12 @@ class TransactionsTable extends Component {
         window.addEventListener("resize", this.updateScreenSize);
         this.getFee();
         this.getBanks();
+        document.addEventListener("keydown", this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateScreenSize);
+        document.removeEventListener("keydown", this.handleKeyDown);
     }
     
     componentDidUpdate(prevProps) {
@@ -116,6 +123,18 @@ class TransactionsTable extends Component {
             this.setState({bankAccounts: this.props.bankAccounts});
         }
     }
+
+    handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (this.state.confirmTransactionModal) {
+                this.handleConfirmTransaction();
+            } else if (this.state.cancelModal) {
+                this.handleCancel();
+            } else if (this.state.undoModal) {
+                this.handleUndo();
+            }
+        }
+    };
 
     toggle() {
         this.setState({
@@ -168,21 +187,6 @@ class TransactionsTable extends Component {
     onCopy = () => {
         this.setState({ copied: true });
     };
-
-    handleUndo = async () => {
-        try{
-            this.toggleUndo()    
-            await this.props.undoBox(this.state.undoTransaction?.boxId._id);
-            await this.props.getTransactionsNoLoad(this.props.filters);
-        } catch (error) {
-
-        }
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.updateScreenSize);
-    }
-
 
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
@@ -238,14 +242,21 @@ class TransactionsTable extends Component {
     };
 
     handleConfirmTransaction = async () => {
-        try {          
-            this.toggleConfirmTransaction();          
+        try {        
+            this.setState({loading: true});          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
                 this.props.getTransactionsNoLoad(this.props.filters)
             }
+            this.toggleConfirmTransaction();  
+            this.setState({loading: false});
         } catch (error) {
-
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.toggleConfirmTransaction();  
+            this.setState({loading: false});
         }
     }
 
@@ -296,16 +307,37 @@ class TransactionsTable extends Component {
         }
     }
 
-    handleCancel = async (e) => {
-        try {          
-            this.toggleCancel();          
-            const res = await cancelTransaction(this.state.cancelTransaction._id);
-            this.props.getTransactionsNoLoad(this.props.filters)
+    handleUndo = async () => {
+        try{
+            this.setState({loading: true});
+            await this.props.undoBox(this.state.undoTransaction?.boxId._id);
+            await this.props.getTransactionsNoLoad(this.props.filters);
+            this.toggleUndo()    
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
+            this.toggleUndo()    
+            this.setState({loading: false});
+        }
+    }
+
+    handleCancel = async (e) => {
+        try {          
+            this.setState({loading: true});
+            await cancelTransaction(this.state.cancelTransaction._id);
+            this.props.getTransactionsNoLoad(this.props.filters);
+            this.toggleCancel();          
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.toggleCancel();          
+            this.setState({loading: false});
         }
     }
 
@@ -323,6 +355,32 @@ class TransactionsTable extends Component {
             })
         }
     }
+
+    handleCreateBill = async (e) => {
+        try{
+            e.preventDefault();
+            this.setState({loading: true});
+            let data = {
+                boxId: this.state.boxId,
+                buyer: null,
+                seller: null
+            };
+            if (this.state.isBuyerToggleOn) data.buyer = this.state.buyer;
+            if (this.state.isSellerToggleOn) data.seller = this.state.seller;
+            if (this.state.isBuyerToggleOn || this.state.isSellerToggleOn) {
+                const res = await createBill(data);
+                if (res.buyerBill) window.location.href = `/bill/${res.buyerBill._id}`;
+                else window.location.href = `/bill/${res.sellerBill._id}`;
+            }
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
+        
+    };
 
     render() { 
         let filters = this.props.filters || {
@@ -571,7 +629,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center">{item.content}</td>
                                 <td className="text-center"> <StatusBadge status={item.status} /></td>
                                 <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                <td className="text-center"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                <td className="text-center"><a href="https://www.messenger.com/t/8681198405321843" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center">
                                     {item.status === 6 && <>
                                         <button 
@@ -580,6 +638,7 @@ class TransactionsTable extends Component {
                                             onClick={() => {
                                                 this.setState({
                                                     boxAmount: item.boxId.amount,
+                                                    boxId: item.boxId._id,
                                                     buyer: {
                                                         ...this.state.buyer, 
                                                         content: `Refund GDTG ${item.boxId._id.slice(-8)}`
@@ -688,8 +747,8 @@ class TransactionsTable extends Component {
                         <Button color="link" onClick={this.toggleUndo}>
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={this.handleUndo}>
-                            Xác nhận
+                        <Button color="primary" onClick={this.handleUndo} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>
@@ -709,8 +768,8 @@ class TransactionsTable extends Component {
                         <Button color="link" onClick={this.toggleConfirmTransaction}>
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={this.handleConfirmTransaction}>
-                            Xác nhận
+                        <Button color="primary" onClick={this.handleConfirmTransaction} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>
@@ -730,8 +789,8 @@ class TransactionsTable extends Component {
                         <Button color="link" onClick={this.toggleCancel}>
                             Cancel
                         </Button>
-                        <Button color="danger" onClick={this.handleCancel}>
-                            Hủy giao dịch
+                        <Button color="danger" onClick={this.handleCancel} disabled={this.state.loading}>
+                        {this.state.loading ? "Đang hủy..." : "Hủy giao dịch"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>

@@ -25,7 +25,8 @@ class BillsTable extends Component {
             alert: false,
             errorMsg: '',
             cancelBill: null,
-            search: ''
+            search: '',
+            loading: false,
         };
     
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
@@ -36,17 +37,39 @@ class BillsTable extends Component {
         this.props.getBills({});
     }
 
-    toggleConfirmBill() {
-        this.setState({
-            confirmBillModal: !this.state.confirmBillModal,
+    toggleConfirmBill = () => {
+        this.setState((prevState) => ({
+            confirmBillModal: !prevState.confirmBillModal
+        }), () => {
+            if (this.state.confirmBillModal) {
+                document.addEventListener("keydown", this.handleKeyDown);
+            } else {
+                document.removeEventListener("keydown", this.handleKeyDown);
+            }
         });
-    }
+    };
 
-    toggleCancelBill() {
-        this.setState({
-            cancelBillModal: !this.state.cancelBillModal,
+    toggleCancelBill = () => {
+        this.setState((prevState) => ({
+            cancelBillModal: !prevState.cancelBillModal
+        }), () => {
+            if (this.state.cancelBillModal) {
+                document.addEventListener("keydown", this.handleKeyDown);
+            } else {
+                document.removeEventListener("keydown", this.handleKeyDown);
+            }
         });
-    }
+    };
+
+    handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (this.state.confirmBillModal) {
+                this.handleConfirmBill();
+            } else if (this.state.cancelBillModal) {
+                this.handleCancelBill();
+            }
+        }
+    };
 
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
@@ -58,28 +81,34 @@ class BillsTable extends Component {
     }
 
     handleConfirmBill = async () => {
-        try {                  
-            this.toggleConfirmBill()  
+        try {    
+            this.setState({loading: true});              
             const res = await confirmBillService(this.state.confirmBill?._id);
             this.props.getBillsNoLoad(this.props.filters);
+            this.toggleConfirmBill()  
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false});
         }
     }
 
     handleCancelBill = async () => {
-        try {                    
-            this.toggleCancelBill();
+        try {     
+            this.setState({loading: true}); 
             const res = await cancelBillService(this.state.cancelBill?._id);
             this.props.getBillsNoLoad(this.props.filters);
+            this.toggleCancelBill();
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false});
         }
     }
 
@@ -226,8 +255,8 @@ class BillsTable extends Component {
                     <Button color="link" onClick={this.toggleConfirmBill}>
                         Cancel
                     </Button>
-                    <Button color="primary" onClick={this.handleConfirmBill}>
-                        Xác nhận
+                    <Button color="primary" onClick={this.handleConfirmBill} disabled={this.state.loading}>
+                        {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                     </Button>{" "}
                 </ModalFooter>
             </Modal>
@@ -244,8 +273,8 @@ class BillsTable extends Component {
                     <Button color="link" onClick={this.toggleCancelBill}>
                         Cancel
                     </Button>
-                    <Button color="primary" onClick={this.handleCancelBill}>
-                        Xác nhận
+                    <Button color="primary" onClick={this.handleCancelBill} disabled={this.state.loading}>
+                        {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                     </Button>{" "}
                 </ModalFooter>
             </Modal>

@@ -132,7 +132,7 @@ class Bills extends Component {
                                 <Row>
                                     <Col md="12">
                                         <Card className="main-card mb-3">
-                                            <CardBody   onKeyDown={(e) => {
+                                            <CardBody onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
                                                     this.props.setFilters({...filters, page: 1});
                                                     this.props.getBills(filters);

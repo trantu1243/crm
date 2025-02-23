@@ -102,7 +102,7 @@ const undoBox = async (req, res) => {
 
             if (lastestBill) {
                 lastestBill.status = 1;
-                box.amount += lastestBill.amount;
+                box.amount += (lastestBill.amount + lastestBill.bonus);
                 await lastestBill.save();
 
                 // Nếu bill có liên kết với một bill khác, cập nhật bill đó
@@ -110,7 +110,7 @@ const undoBox = async (req, res) => {
                     const includedBill = await Bill.findById(lastestBill.billId);
                     if (includedBill) {
                         includedBill.status = 1;
-                        box.amount += includedBill.amount;
+                        box.amount += (includedBill.amount + includedBill.bonus);
                         await includedBill.save();
                     }
                 }

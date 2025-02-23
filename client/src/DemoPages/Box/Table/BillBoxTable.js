@@ -59,25 +59,40 @@ class BillsTable extends Component {
 
     componentDidMount() {
         this.getBanks()
+        document.addEventListener("keydown", this.handleKeyDown);
     }
     
-    toggle() {
-        this.setState({
-            modal: !this.state.modal,
-        });
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.handleKeyDown);
     }
-
-    toggleConfirmBill() {
-        this.setState({
-            confirmBillModal: !this.state.confirmBillModal,
-        });
-    }
-
-    toggleCancelBill() {
-        this.setState({
-            cancelBillModal: !this.state.cancelBillModal,
-        });
-    }
+    
+    handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (this.state.confirmBillModal) {
+                this.handleConfirmBill();
+            } else if (this.state.cancelBillModal) {
+                this.handleCancelBill();
+            }
+        }
+    };
+    
+    toggle = () => {
+        this.setState((prevState) => ({
+            modal: !prevState.modal
+        }));
+    };
+    
+    toggleConfirmBill = () => {
+        this.setState((prevState) => ({
+            confirmBillModal: !prevState.confirmBillModal
+        }));
+    };
+    
+    toggleCancelBill = () => {
+        this.setState((prevState) => ({
+            cancelBillModal: !prevState.cancelBillModal
+        }));
+    };
 
     getBanks = async () => {
         const data = await fetchBankApi();
@@ -120,34 +135,43 @@ class BillsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false});
         }
         
     };
 
     handleConfirmBill = async () => {
-         try {                    
-            this.toggleConfirmBill();
+         try {
+            this.setState({loading: true});
             const res = await confirmBillService(this.state.confirmBill?._id);
-            this.props.getBoxByIdNoLoad(this.props.boxId)
+            this.props.getBoxByIdNoLoad(this.props.boxId)                    
+            this.toggleConfirmBill();
+            this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error
-            })
+            })                    
+            this.toggleConfirmBill();
+            this.setState({loading: false});
         }
     }
 
     handleCancelBill = async () => {
-        try {                    
-            this.toggleCancelBill();
+        try {           
+            this.setState({loading: true});  
             const res = await cancelBillService(this.state.cancelBill?._id);
-            this.props.getBoxByIdNoLoad(this.props.boxId);
-       } catch (error) {
-        this.setState({
-            alert: true,
-            errorMsg: error
-        })
-       }
+            this.props.getBoxByIdNoLoad(this.props.boxId);       
+            this.toggleCancelBill();
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })       
+            this.toggleCancelBill();
+            this.setState({loading: false});
+        }
    }
 
     render() { 
@@ -536,8 +560,8 @@ class BillsTable extends Component {
                         <Button color="link" onClick={this.toggleConfirmBill}>
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={this.handleConfirmBill}>
-                            Xác nhận
+                        <Button color="primary" onClick={this.handleConfirmBill} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>
@@ -554,8 +578,8 @@ class BillsTable extends Component {
                         <Button color="link" onClick={this.toggleCancelBill}>
                             Cancel
                         </Button>
-                        <Button color="primary" onClick={this.handleCancelBill}>
-                            Xác nhận
+                        <Button color="primary" onClick={this.handleCancelBill} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"} 
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>

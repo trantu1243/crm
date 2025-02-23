@@ -1,62 +1,21 @@
 import React, { Component, Fragment } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-import PageTitleAlt3 from "../../../Layout/AppMain/PageTitleAlt3";
-
-import Chart from "react-apexcharts";
-
-import bg1 from "../../../assets/utils/images/dropdown-header/abstract1.jpg";
-
-import avatar1 from "../../../assets/utils/images/avatars/1.jpg";
-import avatar2 from "../../../assets/utils/images/avatars/2.jpg";
-import avatar3 from "../../../assets/utils/images/avatars/3.jpg";
-import avatar4 from "../../../assets/utils/images/avatars/4.jpg";
-
-import classnames from "classnames";
-
 import {
   Row,
   Col,
-  Alert,
-  Button,
   CardHeader,
-  Table,
-  ButtonGroup,
-  Nav,
-  NavItem,
-  NavLink,
-  Popover,
-  PopoverBody,
-  Progress,
   Card,
   CardBody,
-  DropdownItem,
-  DropdownToggle,
-  DropdownMenu,
-  UncontrolledButtonDropdown,
-  CardFooter,
 } from "reactstrap";
 
-import Column from "./Examples/Column";
-import Bar2 from "./Examples/Bar";
-import Area from "./Examples/Area";
-import Mixed from "./Examples/Mixed";
-
-import {
-  faAngleUp,
-  faAngleDown,
-  faQuestionCircle,
-  faBusinessTime,
-  faCog,
-} from "@fortawesome/free-solid-svg-icons";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Donut from "./Examples/Donut";
 import { getBalanceService, getDailyStatsService, getMonthlyStatsService } from "../../../services/statisticService";
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
 import DonutTransactionChart from "./Examples/DonutTransaction";
+import { DatePicker } from "react-widgets/cjs";
 
 export default class General extends Component {
     constructor(props) {
@@ -67,7 +26,7 @@ export default class General extends Component {
         this.state = {
             visible: true,
             popoverOpen1: false,
-
+            date: new Date(),
             optionsRadial: {
                 chart: {
                     height: 350,
@@ -171,22 +130,26 @@ export default class General extends Component {
         }
     }
 
-    async loadStatistics() {
+    handleDateChange = async (date) => {
+        this.setState({ date });
+        this.loadStatistics(date); 
+    };
+
+    async loadStatistics(selectedDate) {
         try {
             this.setState({ loading: true });
-
-            const today = new Date();
+        
+            const today = selectedDate || new Date();
             const currentMonth = today.getMonth() + 1;
             const currentYear = today.getFullYear();
             const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
             const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
             const currentDay = today.getDate();
-
-            // Gọi API lấy dữ liệu từ server (đã tính % trên backend)
+        
             const currentMonthStats = await getMonthlyStatsService({ month: currentMonth, year: currentYear });
             const lastMonthStats = await getMonthlyStatsService({ month: lastMonth, year: lastYear });
             const todayStats = await getDailyStatsService({ day: currentDay, month: currentMonth, year: currentYear });
-            // Cập nhật state với dữ liệu từ API
+        
             this.setState({
                 currentMonthStats,
                 lastMonthStats,
@@ -215,19 +178,46 @@ export default class General extends Component {
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
 
-        // Tương tự với lastMonth, lastYear
-        const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-        const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-
-        // Lúc này bạn mới được dùng ở line 199, 200
         const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
-        const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();
         return (
             <Fragment>
                 <TransitionGroup>
                     <CSSTransition component="div" classNames="TabsAnimation" appear={true}
                         timeout={1500} enter={false} exit={false}>
                         <div>
+                        <Fragment>
+                            <div className="app-page-title app-page-title-simple">
+                                <div className="page-title-wrapper">
+                                    <div className="page-title-heading">
+                                        <div>
+                                            <div className="page-title-head center-elem">
+                                            <span className={"d-inline-block pe-2"}>
+                                                <i className="lnr-apartment icon-gradient bg-mean-fruit" />
+                                            </span>
+                                            <span className="d-inline-block">Thống kê chung</span>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                    <div className="page-title-actions">
+                                        <Fragment>
+                                            <div className="d-inline-block pe-3">
+                                            <Fragment>
+                                                <div className="d-inline-block pe-3">
+                                                    <DatePicker
+                                                        value={this.state.date}
+                                                        onChange={this.handleDateChange}
+                                                        format="YYYY-MM-DD"
+                                                        max={new Date()}
+                                                    />
+                                                </div>
+                                            </Fragment>    
+                                            </div>
+                                        </Fragment>
+                                    </div>
+                                </div>
+                            </div>
+                        </Fragment>
                             {loading ? (
                                 <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                     <Loader type="ball-spin-fade-loader" />

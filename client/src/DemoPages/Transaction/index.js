@@ -67,25 +67,25 @@ class Transaction extends Component {
     };
 
     componentDidUpdate(prevProps) {
-            if (prevProps.transaction !== this.props.transaction) {
-                this.setState((prevState) => ({
-                    input: {
-                        ...prevState.input,
-                        amount: this.props.transaction.amount ? this.props.transaction.amount : '',
-                        bankId: this.props.transaction.bankId ? this.props.transaction.bankId._id : '',
-                        bonus: this.props.transaction.bonus,
-                        content: this.props.transaction.content,
-                        fee: this.props.transaction.fee ? this.props.transaction.fee : '',
-                        messengerId: this.props.transaction.messengerId,
-                        typeFee: this.props.transaction.typeFee,
-                    }
-                }));
-                this.setState({
-                    linkQr: this.props.transaction.linkQr,
-                    textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`: "",
-                })
-            }
+        if (prevProps.transaction !== this.props.transaction) {
+            this.setState((prevState) => ({
+                input: {
+                    ...prevState.input,
+                    amount: this.props.transaction.amount ? this.props.transaction.amount : '',
+                    bankId: this.props.transaction.bankId ? this.props.transaction.bankId._id : '',
+                    bonus: this.props.transaction.bonus,
+                    content: this.props.transaction.content,
+                    fee: this.props.transaction.fee ? this.props.transaction.fee : '',
+                    messengerId: this.props.transaction.messengerId,
+                    typeFee: this.props.transaction.typeFee,
+                }
+            }));
+            this.setState({
+                linkQr: this.props.transaction.linkQr,
+                textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`: "",
+            })
         }
+    }
 
     getBankAccounts = async () => {
         const data = await fetchBankAccounts();
