@@ -115,12 +115,12 @@ const createTransaction = async (req, res) => {
         let totalAmount = Number(amount);
 
         if (typeFee === "buyer") {
-            totalAmount += fee;
+            totalAmount += Number(fee);
         } else if (typeFee === "seller") {
-            oriAmount -= fee;
+            oriAmount -= Number(fee);
         } else if (typeFee === "split") {
-            oriAmount -= fee / 2;
-            totalAmount += fee / 2;
+            oriAmount -= Number(fee) / 2;
+            totalAmount += Number(fee) / 2;
         }
 
         const user = await Staff.findById(req.user.id);
@@ -220,12 +220,12 @@ const updateTransaction = async (req, res) => {
         let totalAmount = Number(amount);
 
         if (typeFee === "buyer") {
-            totalAmount += fee;
+            totalAmount += Number(fee);
         } else if (typeFee === "seller") {
-            oriAmount -= fee;
+            oriAmount -= Number(fee);
         } else if (typeFee === "split") {
-            oriAmount -= fee / 2;
-            totalAmount += fee / 2;
+            oriAmount -= Number(fee) / 2;
+            totalAmount += Number(fee) / 2;
         }
         const user = await Staff.findById(req.user.id);
         const bank = await BankAccount.findById(bankId);
