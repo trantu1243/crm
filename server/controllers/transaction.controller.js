@@ -48,7 +48,8 @@ const getTransactions = async (req, res) => {
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
+                { path: 'boxId', select: 'amount' }
             ],
             sort: { createdAt: -1 },
         });

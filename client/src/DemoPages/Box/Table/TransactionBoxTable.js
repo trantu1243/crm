@@ -296,7 +296,11 @@ class TransactionsTable extends Component {
             e.preventDefault();
             this.setState({loading: true});
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
-            await this.props.getBoxByIdNoLoad(this.props.boxId)
+            this.setState({
+                updateTransaction: res.transaction,
+                textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${res.transaction.amount.toLocaleString()} vnd\nPhí: ${res.transaction.fee.toLocaleString()} vnd\nNội dung: ${res.transaction.content}`,
+            });
+            await this.props.getBoxByIdNoLoad(this.props.boxId);
             this.setState({loading: false});
             if (this.props.boxId !== res.transaction.boxId) window.location.href = `/box/${res.transaction.boxId}`;
         } catch(error) {
@@ -498,7 +502,7 @@ class TransactionsTable extends Component {
                         </Modal>
                     </CardHeader>
 
-                    <Table responsive hover striped borderless className="align-middle mb-0">
+                    <Table responsive hover striped bordered className="align-middle mb-0">
                         <thead>
                             <tr>
                                 <th className="text-center">ID</th>
@@ -518,79 +522,113 @@ class TransactionsTable extends Component {
                         </thead>
                         <tbody>
                         
-                            {transactions.map((item) => <tr>
-                                <td className="text-center text-muted">{item._id.slice(-8)}</td>
-                                <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
-                                <td className="text-center text-muted">{item.bankId.bankCode}</td>
-                                <td className="text-center text-muted">{item.amount.toLocaleString()}</td>
-                                <td className="text-center text-muted">{item.fee.toLocaleString()}</td>
-                                <td className="text-center text-muted">{item.totalAmount.toLocaleString()}</td>
-                                <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
-                                <td className="text-center text-muted">{item.content}</td>
-                                <td className="text-center text-muted"> <StatusBadge status={item.status} /></td>
-                                <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
-                                <td className="text-center text-muted">
-                                    {item.status === 6 && <>
-                                        <button className="btn btn-sm btn-primary me-1 mb-1" title="Tạo bill thanh khoản" onClick={this.toggle}>
-                                            <FontAwesomeIcon icon={faPlus} color="#fff" size="3xs"/>
-                                        </button>
-                                    </>}
-                                    {item.status === 1 && <>
-                                        <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
-                                            <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
-                                        </button>
-                                    </>}
+                            {transactions.map((item) => {
+                                let rowClass = "";
+                                switch (item.status) {
+                                    case 1:
+                                    rowClass = "fst-italic"; 
+                                    break;
+                                    case 2:
+                                    rowClass = "text-success";
+                                    break;
+                                    case 3:
+                                    rowClass = "al-text-decoration-line-through";
+                                    break;
+                                    case 6:
+                                    rowClass = "fw-bold";
+                                    break;
+                                    default:
+                                    rowClass = "";
+                                }
+                                return <tr className={rowClass}>
+                                    <td className="text-center text-muted">{item._id.slice(-8)}</td>
+                                    <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
+                                    <td className="text-center text-muted">{item.bankId.bankCode}</td>
+                                    <td className="text-center text-muted">{item.amount.toLocaleString()}</td>
+                                    <td className="text-center text-muted">{item.fee.toLocaleString()}</td>
+                                    <td className="text-center text-muted">{item.totalAmount.toLocaleString()}</td>
+                                    <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
+                                    <td className="text-center text-muted">{item.content}</td>
+                                    <td className="text-center text-muted"> <StatusBadge status={item.status} /></td>
+                                    <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                    <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                    <td className="text-center text-muted">
+                                        {item.status === 6 && <>
+                                            <button 
+                                                className="btn btn-sm btn-primary me-1 mb-1" 
+                                                title="Tạo bill thanh khoản" 
+                                                onClick={() => {
+                                                    this.setState({
+                                                        buyer: {
+                                                            ...this.state.buyer, 
+                                                            content: `Refund GDTG ${item.boxId.slice(-8)}`
+                                                        },
+                                                        seller: {
+                                                            ...this.state.seller, 
+                                                            content: `Thanh khoản GDTG ${item.boxId.slice(-8)}`
+                                                        }
+                                                    });
+                                                    this.toggle();
+                                                }}
+                                            >
+                                                <FontAwesomeIcon icon={faPlus} color="#fff" size="3xs"/>
+                                            </button>
+                                        </>}
+                                        {item.status === 1 && <>
+                                            <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
+                                                <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
+                                            </button>
+                                        </>}
 
-                                    {(item.status === 1 || item.status === 6) && <button 
-                                        className="btn btn-sm btn-info me-1 mb-1" 
-                                        title="Chỉnh sửa giao dịch" 
-                                        onClick={() => {
-                                            this.setState({
-                                                updateTransaction: item,
-                                                textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
-                                                update: {
-                                                    amount: String(item.amount),
-                                                    bankId: item.bankId._id,
-                                                    bonus: String(item.bonus),
-                                                    content: item.content,
-                                                    fee: String(item.fee),
-                                                    messengerId: item.messengerId,
-                                                    typeFee: item.typeFee,
-                                                    typeBox: 'facebook',
+                                        {(item.status === 1 || item.status === 6) && <button 
+                                            className="btn btn-sm btn-info me-1 mb-1" 
+                                            title="Chỉnh sửa giao dịch" 
+                                            onClick={() => {
+                                                this.setState({
+                                                    updateTransaction: item,
+                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
+                                                    update: {
+                                                        amount: String(item.amount),
+                                                        bankId: item.bankId._id,
+                                                        bonus: String(item.bonus),
+                                                        content: item.content,
+                                                        fee: String(item.fee),
+                                                        messengerId: item.messengerId,
+                                                        typeFee: item.typeFee,
+                                                        typeBox: 'facebook',
 
-                                                }
-                                            });
-                                            this.toggleUpdate()
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
-                                    </button>}
-                                
-                                    {item.status === 1 && <>
-                                        <button className="btn btn-sm btn-danger me-1 mb-1" title="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>
-                                            <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
-                                        </button>
-                                    </>}
-                                    {(item.status !== 1) && <>
-                                        <button className="btn btn-sm btn-warning me-1 mb-1" title="Hoàn tác" onClick={()=> {this.setState({undoTransaction: item});this.toggleUndo()}}>
-                                            <FontAwesomeIcon icon={faUndoAlt} color="#fff" size="3xs"/>
-                                        </button>
-                                    </>}
-                                </td>
-                            </tr>)}
+                                                    }
+                                                });
+                                                this.toggleUpdate()
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
+                                        </button>}
+                                    
+                                        {item.status === 1 && <>
+                                            <button className="btn btn-sm btn-danger me-1 mb-1" title="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>
+                                                <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
+                                            </button>
+                                        </>}
+                                        {(item.status !== 1) && <>
+                                            <button className="btn btn-sm btn-warning me-1 mb-1" title="Hoàn tác" onClick={()=> {this.setState({undoTransaction: item});this.toggleUndo()}}>
+                                                <FontAwesomeIcon icon={faUndoAlt} color="#fff" size="3xs"/>
+                                            </button>
+                                        </>}
+                                    </td>
+                                </tr>})}
                         </tbody>
                     </Table>
 
                     <Modal isOpen={this.state.undoModal} toggle={this.toggleUndo} className={this.props.className}>
                         <ModalHeader toggle={this.toggleUndo}><span style={{fontWeight: 'bold'}}>Xác nhận hoàn tác box</span></ModalHeader>
                         <ModalBody>
-                            
+                            ID: {this.state.undoTransaction?._id.slice(-8)} <br />
                             Số tài khoản: {this.state.undoTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.undoTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.undoTransaction?.bankId.bankAccountName} <br />
                             Tổng tiền: <span className="fw-bold text-danger">{this.state.undoTransaction?.totalAmount.toLocaleString()} vnd</span><br />
-            
+                            Nội dung: {this.state.undoTransaction?.content} <br />            
                         </ModalBody>
                         <ModalFooter>
                             <Button color="link" onClick={this.toggleUndo}>
@@ -605,11 +643,12 @@ class TransactionsTable extends Component {
                     <Modal isOpen={this.state.confirmTransactionModal} toggle={this.toggleConfirmTransaction} className={this.props.className}>
                         <ModalHeader toggle={this.toggleConfirmTransaction}><span style={{fontWeight: 'bold'}}>Xác nhận đã nhận được tiền</span></ModalHeader>
                         <ModalBody>
+                            ID: {this.state.confirmTransaction?._id.slice(-8)} <br />
                             Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.confirmTransaction?.bankId.bankAccountName} <br />
                             Tổng tiền: <span className="fw-bold text-danger">{this.state.confirmTransaction?.totalAmount.toLocaleString()} vnd</span><br />
-            
+                            Nội dung: {this.state.confirmTransaction?.content} <br />
                         </ModalBody>
 
                         <ModalFooter>
@@ -625,11 +664,12 @@ class TransactionsTable extends Component {
                     <Modal isOpen={this.state.cancelModal} toggle={this.toggleCancel} className={this.props.className}>
                         <ModalHeader toggle={this.toggleCancel}><span style={{fontWeight: 'bold'}}>Xác nhận hủy giao dịch</span></ModalHeader>
                         <ModalBody>
+                            ID: {this.state.cancelTransaction?._id.slice(-8)} <br />            
                             Số tài khoản: {this.state.cancelTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.cancelTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.cancelTransaction?.bankId.bankAccountName} <br />
                             Tổng tiền: <span className="fw-bold text-danger">{this.state.cancelTransaction?.totalAmount.toLocaleString()} vnd</span><br />
-            
+                            Nội dung: {this.state.cancelTransaction?.content} <br />            
                         </ModalBody>
     
                         <ModalFooter>
@@ -795,7 +835,11 @@ class TransactionsTable extends Component {
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>
+                                        {this.state.loading ? 
+                                        <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
+                                            <Loader type="ball-spin-fade-loader" />
+                                        </div> 
+                                        : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>} 
                                     </Row>
                                 </Col>
                             
@@ -812,65 +856,205 @@ class TransactionsTable extends Component {
                         </ModalFooter>
                     </Modal>
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
-                            <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
-                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleCreateBill(e)}>
-                                <Row>
-                                    <div className="card-border mb-3 card card-body border-primary">
-                                        <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                            <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnđ</span></span>
-                                            <button class="btn btn-success ms-1">
+                        <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleCreateBill(e)}>
+                            <Row>
+                                <div className="card-border mb-3 card card-body border-primary">
+                                    <h5>Số tiền thanh khoản còn lại:&nbsp;
+                                        <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnđ</span></span>
+                                        <CopyToClipboard text={this.props.totalAmount.toLocaleString()}>
+                                            <button type="button" class="btn btn-success ms-1">
                                                 <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                             </button>
-                                        </h5>
-                                    </div>
-                                
-                                </Row>
-                                <Row>
-                                    <Col md={6} xs={12} className="pe-2">
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Tạo cho <span className="fw-bold text-danger">BÊN MUA</span>?</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <div className="switch has-switch me-2" data-on-label="ON"
-                                                    data-off-label="OFF" onClick={this.handleBuyerClick}>
-                                                    <div className={cx("switch-animate", {
-                                                        "switch-on": isBuyerToggleOn,
-                                                        "switch-off": !isBuyerToggleOn,
-                                                        })}>
-                                                        <input type="checkbox" />
-                                                        <span className="switch-left bg-info">ON</span>
-                                                        <label>&nbsp;</label>
-                                                        <span className="switch-right bg-info">OFF</span>
-                                                    </div>
+                                        </CopyToClipboard>
+                                    </h5>
+                                </div>
+                            
+                            </Row>
+                            <Row>
+                                <Col md={6} xs={12} className="pe-2">
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Tạo cho <span className="fw-bold text-danger">BÊN MUA</span>?</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <div className="switch has-switch me-2" data-on-label="ON"
+                                                data-off-label="OFF" onClick={this.handleBuyerClick}>
+                                                <div className={cx("switch-animate", {
+                                                    "switch-on": isBuyerToggleOn,
+                                                    "switch-off": !isBuyerToggleOn,
+                                                    })}>
+                                                    <input type="checkbox" />
+                                                    <span className="switch-left bg-info">ON</span>
+                                                    <label>&nbsp;</label>
+                                                    <span className="switch-right bg-info">OFF</span>
                                                 </div>
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Khách mua</Label>      
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="buyer"
-                                                    id="buyer"
-                                                    value={""}
-                                                    disabled
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Ngân hàng khách mua</Label>
-                                            </Col>
-                                            <Col md={8}>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Khách mua</Label>      
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="buyer"
+                                                id="buyer"
+                                                value={""}
+                                                disabled
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Ngân hàng khách mua</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                        <Select
+                                            value={this.state.banks
+                                                .map(bank => ({ value: bank.bankCode, label: bank.bankName }))
+                                                .find(option => option.value === this.state.buyer.bankCode) || null}
+                                            onChange={selected => this.setState(prevState => ({
+                                                buyer: { ...prevState.buyer, bankCode: selected.value }
+                                            }))}
+                                            options={this.state.banks.map(bank => ({
+                                                value: bank.bankCode,
+                                                label: bank.bankName
+                                            }))}
+                                            placeholder="Chọn ngân hàng"
+                                        />
+
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Số tài khoản khách mua</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="buyerStk"
+                                                id="buyerStk"
+                                                value={buyer.stk}
+                                                onChange={(e)=>{this.setState((prevState) => ({
+                                                    buyer: { ...prevState.buyer, stk: e.target.value }
+                                                }));}}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Nội dung chuyển khoản</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="buyerContent"
+                                                id="buyerContent"
+                                                value={buyer.content}
+                                                onChange={(e)=>{this.setState((prevState) => ({
+                                                    buyer: { ...prevState.buyer, content: e.target.value }
+                                                }));}}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Số tiền giao dịch</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="buyerAmount"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.buyer.amount)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                    let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                    
+                                                    this.setState((prevState) => ({
+                                                        buyer: {
+                                                            ...prevState.buyer,
+                                                            amount: numericValue < 0 ? 0 : numericValue,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
+
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Tiền tip</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="buyerBonus"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.buyer.bonus)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, ''); 
+                                                    let numericValue = parseInt(rawValue, 10) || 0;
+                                                    
+                                                    this.setState((prevState) => ({
+                                                        buyer: {
+                                                            ...prevState.buyer,
+                                                            bonus: numericValue < 0 ? 0 : numericValue,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
+
+                                </Col>
+                                <Col md={6} xs={12} className="ps-2">
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Tạo cho <span className="fw-bold text-danger">BÊN BÁN</span>?</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <div className="switch has-switch me-2" data-on-label="ON"
+                                                data-off-label="OFF" onClick={this.handleSellerClick}>
+                                                <div className={cx("switch-animate", {
+                                                    "switch-on": isSellerToggleOn,
+                                                    "switch-off": !isSellerToggleOn,
+                                                    })}>
+                                                    <input type="checkbox" />
+                                                    <span className="switch-left bg-info">ON</span>
+                                                    <label>&nbsp;</label>
+                                                    <span className="switch-right bg-info">OFF</span>
+                                                </div>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Khách bán</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="seller"
+                                                id="sellers"
+                                                value={""}
+                                                disabled
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Ngân hàng khách bán</Label>
+                                        </Col>
+                                        <Col md={8}>
                                             <Select
                                                 value={this.state.banks
                                                     .map(bank => ({ value: bank.bankCode, label: bank.bankName }))
-                                                    .find(option => option.value === this.state.buyer.bankCode) || null}
+                                                    .find(option => option.value === this.state.seller.bankCode) || null}
                                                 onChange={selected => this.setState(prevState => ({
-                                                    buyer: { ...prevState.buyer, bankCode: selected.value }
+                                                    seller: { ...prevState.seller, bankCode: selected.value }
                                                 }))}
                                                 options={this.state.banks.map(bank => ({
                                                     value: bank.bankCode,
@@ -878,240 +1062,102 @@ class TransactionsTable extends Component {
                                                 }))}
                                                 placeholder="Chọn ngân hàng"
                                             />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Số tài khoản khách bán</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="sellerStk"
+                                                id="sellerStk"
+                                                value={seller.stk}
+                                                onChange={(e)=>{this.setState((prevState) => ({
+                                                    seller: { ...prevState.seller, stk: e.target.value }
+                                                }));}}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Nội dung chuyển khoản</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <Input
+                                                type="text"
+                                                name="sellerContent"
+                                                id="sellerContent"
+                                                value={seller.content}
+                                                onChange={(e)=>{this.setState((prevState) => ({
+                                                    seller: { ...prevState.seller, content: e.target.value }
+                                                }));}}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Số tiền giao dịch</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="sellerAmount"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.seller.amount)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                    let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
 
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Số tài khoản khách mua</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="buyerStk"
-                                                    id="buyerStk"
-                                                    value={buyer.stk}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        buyer: { ...prevState.buyer, stk: e.target.value }
-                                                    }));}}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Nội dung chuyển khoản</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="buyerContent"
-                                                    id="buyerContent"
-                                                    value={buyer.content}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        buyer: { ...prevState.buyer, content: e.target.value }
-                                                    }));}}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Số tiền giao dịch</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    name="buyerAmount"
-                                                    value={new Intl.NumberFormat('en-US').format(this.state.buyer.amount)}
-                                                    onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
-                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
-                                                        
-                                                        this.setState((prevState) => ({
-                                                            buyer: {
-                                                                ...prevState.buyer,
-                                                                amount: numericValue < 0 ? 0 : numericValue,
-                                                            },
-                                                        }));
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
+                                                    this.setState((prevState) => ({
+                                                        seller: {
+                                                            ...prevState.seller,
+                                                            amount: numericValue < 0 ? 0 : numericValue,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
 
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Tiền tip</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    name="buyerBonus"
-                                                    value={new Intl.NumberFormat('en-US').format(this.state.buyer.bonus)}
-                                                    onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); 
-                                                        let numericValue = parseInt(rawValue, 10) || 0;
-                                                        
-                                                        this.setState((prevState) => ({
-                                                            buyer: {
-                                                                ...prevState.buyer,
-                                                                bonus: numericValue < 0 ? 0 : numericValue,
-                                                            },
-                                                        }));
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Label>Tiền tip</Label>
+                                        </Col>
+                                        <Col md={8}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                name="sellerBonus"
+                                                value={new Intl.NumberFormat('en-US').format(this.state.seller.bonus)}
+                                                onChange={(e) => {
+                                                    let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
+                                                    let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
 
-                                    </Col>
-                                    <Col md={6} xs={12} className="ps-2">
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Tạo cho <span className="fw-bold text-danger">BÊN BÁN</span>?</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <div className="switch has-switch me-2" data-on-label="ON"
-                                                    data-off-label="OFF" onClick={this.handleSellerClick}>
-                                                    <div className={cx("switch-animate", {
-                                                        "switch-on": isSellerToggleOn,
-                                                        "switch-off": !isSellerToggleOn,
-                                                        })}>
-                                                        <input type="checkbox" />
-                                                        <span className="switch-left bg-info">ON</span>
-                                                        <label>&nbsp;</label>
-                                                        <span className="switch-right bg-info">OFF</span>
-                                                    </div>
-                                                </div>
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Khách bán</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="seller"
-                                                    id="sellers"
-                                                    value={""}
-                                                    disabled
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Ngân hàng khách bán</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Select
-                                                    value={this.state.banks
-                                                        .map(bank => ({ value: bank.bankCode, label: bank.bankName }))
-                                                        .find(option => option.value === this.state.seller.bankCode) || null}
-                                                    onChange={selected => this.setState(prevState => ({
-                                                        seller: { ...prevState.seller, bankCode: selected.value }
-                                                    }))}
-                                                    options={this.state.banks.map(bank => ({
-                                                        value: bank.bankCode,
-                                                        label: bank.bankName
-                                                    }))}
-                                                    placeholder="Chọn ngân hàng"
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Số tài khoản khách bán</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="sellerStk"
-                                                    id="sellerStk"
-                                                    value={seller.stk}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        seller: { ...prevState.seller, stk: e.target.value }
-                                                    }));}}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Nội dung chuyển khoản</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="sellerContent"
-                                                    id="sellerContent"
-                                                    value={seller.content}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        seller: { ...prevState.seller, content: e.target.value }
-                                                    }));}}
-                                                />
-                                            </Col>
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Số tiền giao dịch</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    name="sellerAmount"
-                                                    value={new Intl.NumberFormat('en-US').format(this.state.seller.amount)}
-                                                    onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
-                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                    this.setState((prevState) => ({
+                                                        seller: {
+                                                            ...prevState.seller,
+                                                            bonus: numericValue < 0 ? 0 : numericValue,
+                                                        },
+                                                    }));
+                                                }}
+                                            />
+                                        </Col>
+                                    </Row>
 
-                                                        this.setState((prevState) => ({
-                                                            seller: {
-                                                                ...prevState.seller,
-                                                                amount: numericValue < 0 ? 0 : numericValue,
-                                                            },
-                                                        }));
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
-
-                                        <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Tiền tip</Label>
-                                            </Col>
-                                            <Col md={8}>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    name="sellerBonus"
-                                                    value={new Intl.NumberFormat('en-US').format(this.state.seller.bonus)}
-                                                    onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
-                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
-
-                                                        this.setState((prevState) => ({
-                                                            seller: {
-                                                                ...prevState.seller,
-                                                                bonus: numericValue < 0 ? 0 : numericValue,
-                                                            },
-                                                        }));
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>
-
-                                    </Col>
-                                </Row>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="link" onClick={this.toggle}>
-                                    Hủy
-                                </Button>
-                                <Button color="primary" onClick={this.handleCreateBill} disabled={this.state.loading}>
-                                    {this.state.loading ? "Đang tạo..." : "Tạo"}
-                                </Button>{" "}
-                            </ModalFooter>
-                        </Modal>
+                                </Col>
+                            </Row>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="link" onClick={this.toggle}>
+                                Hủy
+                            </Button>
+                            <Button color="primary" onClick={this.handleCreateBill} disabled={this.state.loading}>
+                                {this.state.loading ? "Đang tạo..." : "Tạo"}
+                            </Button>{" "}
+                        </ModalFooter>
+                    </Modal>
                 </>)}
                 <SweetAlert title={this.state.errorMsg} show={this.state.alert}
                     type="error" onConfirm={() => this.setState({alert: false})}/>

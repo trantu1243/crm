@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faLock, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { addNoteService, deleteNoteService, lockBoxService } from "../../services/boxService";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 export const dummyData = [
     {
@@ -414,9 +415,11 @@ class Box extends Component {
                                                             </Col>
                                                             <Col md={8} xs={12}>
                                                                 <p className="fw-bold text-danger">{box.amount.toLocaleString()} vnd
-                                                                    <button class="btn btn-success ms-1">
-                                                                        <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
-                                                                    </button>
+                                                                    <CopyToClipboard text={box.amount.toLocaleString()}>
+                                                                        <button class="btn btn-success ms-1">
+                                                                            <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
+                                                                        </button>
+                                                                    </CopyToClipboard>
                                                                 </p>
                                                             </Col>
                                                         </Row>

@@ -49,7 +49,7 @@ class UserBoxMobile extends React.Component {
                             <div className="widget-content-left">
                                 <UncontrolledButtonDropdown>
                                     <DropdownToggle color="link" className="p-0 pt-1">
-                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
+                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar ? user.avatar : '/images/avatars/avatar.jpg'}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                         
                                     </DropdownToggle>
                                     <DropdownMenu end className="rm-pointers dropdown-menu-lg">
@@ -63,7 +63,7 @@ class UserBoxMobile extends React.Component {
                                                     <div className="widget-content p-0">
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left me-3">
-                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
+                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar ? user.avatar : '/images/avatars/avatar.jpg'}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                                             </div>
                                                             <div className="widget-content-left">
                                                                 <div className="widget-heading">

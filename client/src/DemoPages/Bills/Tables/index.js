@@ -131,7 +131,7 @@ class BillsTable extends Component {
                         />
                     </div>
                 </CardHeader>
-                <Table responsive hover striped borderless className="align-middle mb-0">
+                <Table responsive hover striped bordered className="align-middle mb-0">
                     <thead>
                         <tr>
                             <th className="text-center">ID</th>
@@ -157,8 +157,8 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <StatusBadge status={item.status} />
-                            <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
-                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                            <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
+                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>
                                     <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>

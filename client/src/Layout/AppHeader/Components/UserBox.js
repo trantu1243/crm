@@ -53,7 +53,7 @@ class UserBox extends React.Component {
                             <div className="widget-content-left">
                                 <UncontrolledButtonDropdown>
                                     <DropdownToggle color="link" className="p-0 pt-1">
-                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
+                                        <img className="rounded-circle" src={`${SERVER_URL}${user.avatar ? user.avatar : '/images/avatars/avatar.jpg'}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                         <FontAwesomeIcon
                                             className="ms-2 opacity-8"
                                             icon={faAngleDown}
@@ -70,7 +70,7 @@ class UserBox extends React.Component {
                                                     <div className="widget-content p-0">
                                                         <div className="widget-content-wrapper">
                                                             <div className="widget-content-left me-3">
-                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
+                                                                <img className="rounded-circle" src={`${SERVER_URL}${user.avatar ? user.avatar : '/images/avatars/avatar.jpg'}`} alt="" style={{width: 42, height: 42, objectFit: 'cover'}}/>
                                                             </div>
                                                             <div className="widget-content-left">
                                                                 <div className="widget-heading">

@@ -17,6 +17,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { cancelBillService, confirmBillService, createBill } from "../../../services/billService";
 import { getBoxById, getBoxByIdNoLoad } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 class BillsTable extends Component {
     constructor(props) {
@@ -36,14 +37,14 @@ class BillsTable extends Component {
             buyer: {
                 bankCode: '', 
                 stk: '', 
-                content: '', 
+                content: `Refund GDTG ${this.props.boxId.slice(-8)}`,
                 amount: '', 
                 bonus: 0
             },
             seller: {
                 bankCode: '', 
                 stk: '', 
-                content: '', 
+                content: `Thanh Khoan GDTG ${this.props.boxId.slice(-8)}`,
                 amount: '', 
                 bonus: 0
             }
@@ -171,10 +172,13 @@ class BillsTable extends Component {
                                 <Row>
                                     <div className="card-border mb-3 card card-body border-primary">
                                         <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                            <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnđ</span></span>
-                                            <button class="btn btn-success ms-1">
-                                                <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
-                                            </button>
+                                            <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnd</span></span>
+                                            <CopyToClipboard text={this.props.totalAmount.toLocaleString()}>
+                                                <button type="button" class="btn btn-success ms-1">
+                                                    <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
+                                                </button>
+                                            </CopyToClipboard>
+                                            
                                         </h5>
                                     </div>
                                 
@@ -469,7 +473,7 @@ class BillsTable extends Component {
                     </span>
                     
                 </CardHeader>
-                <Table responsive hover striped borderless className="align-middle mb-0">
+                <Table responsive hover striped bordered className="align-middle mb-0">
                     <thead>
                         <tr>
                             <th className="text-center">ID</th>
@@ -495,8 +499,8 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <BillStatusBadge status={item.status} />
-                            <td className="text-center text-muted"><img className="rounded-circle" src={`${SERVER_URL}${item.staffId.avatar}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                            <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                            <td className="text-center text-muted"><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>
                                     <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
