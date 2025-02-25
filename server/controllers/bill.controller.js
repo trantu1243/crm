@@ -18,6 +18,7 @@ const getBills = async (req, res) => {
             content,
             page = 1,
             limit = 10,
+            hasNotes, // Bộ lọc kiểm tra boxTransaction có notes
         } = req.query;
         
         const filter = {};
@@ -51,6 +52,12 @@ const getBills = async (req, res) => {
             ];
         }
 
+        if (hasNotes === 'true') {
+            const boxWithNotes = await BoxTransaction.find({ notes: { $ne: [] } }).select('_id');
+            const boxIdsWithNotes = boxWithNotes.map(box => box._id);
+            filter.boxId = { $in: boxIdsWithNotes };
+        }
+
         const bills = await Bill.paginate(filter, {
             page: Number(page),
             limit: Number(limit),
@@ -60,7 +67,7 @@ const getBills = async (req, res) => {
             ],
             sort: { createdAt: -1 },
         });
-        console.log(bills)
+
         res.status(200).json({
             message: 'Bills fetched successfully',
             data: bills,

@@ -17,7 +17,9 @@ const getTransactions = async (req, res) => {
             content,
             page = 1,
             limit = 10,
+            hasNotes, // Bộ lọc mới để lấy transactions có notes trong boxTransaction
         } = req.query;
+
         const filter = {};
 
         if (staffId) filter.staffId = { $in: Array.isArray(staffId) ? staffId : [staffId] };
@@ -37,12 +39,33 @@ const getTransactions = async (req, res) => {
         if (content) filter.content = { $regex: content, $options: 'i' };
 
         if (search) {
+            const boxMatches = await BoxTransaction.find({
+                messengerId: { $regex: search, $options: "i" }
+            }).select("_id");
+
+            const boxIds = boxMatches.map(box => box._id);
+
             filter.$or = [
                 { messengerId: { $regex: search, $options: 'i' } },
-                { content: { $regex: search, $options: 'i' } }
+                { content: { $regex: search, $options: 'i' } },
+                { boxId: { $in: boxIds } }
             ];
         }
 
+        if (hasNotes === 'true') {
+            const boxWithNotes = await BoxTransaction.find({
+                $and: [
+                  { notes: { $exists: true } },
+                  { notes: { $type: 'array' } },
+                  { notes: { $not: { $size: 0 } } }
+                ]
+            });          
+            console.log(JSON.stringify(boxWithNotes, null, 2));
+            const boxIdsWithNotes = boxWithNotes.map(box => box._id);
+            filter.boxId = { $in: boxIdsWithNotes };
+        }
+
+        // Sử dụng mongoose-paginate-v2 để phân trang
         const transactions = await Transaction.paginate(filter, {
             page: Number(page),
             limit: Number(limit),
@@ -63,6 +86,7 @@ const getTransactions = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 const getById = async (req, res) => {
     try {

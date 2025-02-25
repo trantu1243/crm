@@ -179,7 +179,13 @@ class BillsTable extends Component {
 
         const { bills } = this.props;
         const { isBuyerToggleOn, isSellerToggleOn, buyer, seller} = this.state;
-        
+       
+        const amount = bills.reduce((sum, item) => {
+            return sum + item.amount;
+        }, 0);
+        const bonus = bills.reduce((sum, item) => {
+            return sum + item.bonus;
+        }, 0);
         return (<Card className="main-card mb-3">
             {this.props.loading ? (
                 <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
@@ -525,7 +531,7 @@ class BillsTable extends Component {
                             <td className="text-center ">{item.content}</td>
                             <td className="text-center "> 
                                 <BillStatusBadge status={item.status} />&nbsp;
-                                {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" icon={faExclamationTriangle}>
+                                {item.boxId.notes.length > 0 && <FontAwesomeIcon title="Có ghi chú chưa hoàn thành" color="#d92550" icon={faExclamationTriangle}>
                                 </FontAwesomeIcon>}
                             </td>                            <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                             <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
@@ -545,6 +551,17 @@ class BillsTable extends Component {
                                 </>}
                             </td>
                         </tr>)}
+                        <tr className="fw-bold">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td className="text-center">{amount.toLocaleString()}</td>
+                                <td className="text-center">{bonus.toLocaleString()}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
                     </tbody>
                 </Table>
                 <CardFooter className="d-block text-center">

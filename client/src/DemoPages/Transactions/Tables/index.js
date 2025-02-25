@@ -6,7 +6,7 @@ import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getTransactions, getTransactionsNoLoad, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
+import { findTransactionsByStatus, getTransactions, getTransactionsNoLoad, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
@@ -22,6 +22,16 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { fetchBankApi } from "../../../services/bankApiService";
 import { createBill } from "../../../services/billService";
+
+const statusList = [
+    { value: 1, name: "Chưa nhận" },
+    { value: 2, name: "Thành công" },
+    { value: 3, name: "Hủy" },
+    { value: 6, name: "Đã nhận" },
+    { value: 7, name: "Đang xử lý" },
+    { value: 8, name: "Hoàn thành một phần" },
+    { value: 4, name: "Có ghi chú chưa hoàn thành" },
+];
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -52,6 +62,7 @@ class TransactionsTable extends Component {
             isSellerToggleOn: false,
             boxAmount: 0,
             boxId: '',
+            status: '',
             input: {
                 amount: '',
                 bankId: '',
@@ -356,6 +367,30 @@ class TransactionsTable extends Component {
         }
     }
 
+    handleStatus = async (value) => {
+        try {
+            if (value !== 4) {
+                await this.props.findTransactionsByStatus({
+                    status: [value], 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else {
+                await this.props.findTransactionsByStatus({
+                    hasNotes: true, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            }
+            
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
+    }
+
     handleCreateBill = async (e) => {
         try{
             e.preventDefault();
@@ -398,6 +433,22 @@ class TransactionsTable extends Component {
         const { transactions } = this.props;
         const input = this.state.input;
         const { isBuyerToggleOn, isSellerToggleOn, buyer, seller} = this.state;
+        
+        const totalAmount = transactions.docs.reduce((sum, item) => {
+            return sum + item.totalAmount;
+        }, 0);
+
+        const amount = transactions.docs.reduce((sum, item) => {
+            return sum + item.amount;
+        }, 0);
+
+        const fee = transactions.docs.reduce((sum, item) => {
+            return sum + item.fee;
+        }, 0);
+
+        const bonus = transactions.docs.reduce((sum, item) => {
+            return sum + item.bonus;
+        }, 0);
 
         return (<Card className="main-card mb-3">
             {this.props.loading ? (
@@ -409,7 +460,7 @@ class TransactionsTable extends Component {
                     <a href="/create-transaction" className="btn btn-info me-1 al-min-width-max-content" style={{minWidth: 'max-content', textTransform: 'none'}} onClick={this.toggleCreate}>
                         Tạo GDTG
                     </a>
-                    <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
+                    {/* <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
                         <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
                             <Row className="mb-4">
@@ -567,7 +618,7 @@ class TransactionsTable extends Component {
                                 {this.state.loading ? "Đang tạo..." : "Tạo"}
                             </Button>{" "}
                         </ModalFooter>
-                    </Modal>
+                    </Modal> */}
                     <h3 className="text-center w-100">Tổng số GD: <span className="text-danger fw-bold">{transactions.totalDocs}</span></h3>
                     <div>
                         <Input 
@@ -591,7 +642,31 @@ class TransactionsTable extends Component {
                             <th className="text-center">Tổng tiền</th>
                             <th className="text-center">Tiền tip</th>
                             <th className="text-center">Nội dung</th>
-                            <th className="text-center">Trạng thái</th>
+                            <th className="text-center" style={{ width: "180px" }}>
+                                <Select
+                                    value={statusList
+                                        .map(option => ({ value: option.value, label: option.name }))
+                                        .find(option => option.value === this.state.status) || null}
+                                    onChange={selected => {
+                                        this.setState({status: selected?.value });
+                                        this.handleStatus(selected?.value)
+                                    }}
+                                    options={statusList.map(option => ({
+                                        value: option.value,
+                                        label: option.name
+                                    }))}
+                                    placeholder="Trạng thái ..."
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            width: 150,
+                                            minHeight: 30
+                                        }),
+                                        menuPortal: base => ({ ...base, zIndex: 9999 })
+                                    }}
+                                    menuPortalTarget={document.body}
+                                />
+                            </th>
                             <th className="text-center">Nhân viên</th>
                             <th className="text-center">Box</th>
                             <th className="text-center">#</th>
@@ -629,7 +704,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center">{item.content}</td>
                                 <td className="text-center "> 
                                     <StatusBadge status={item.status} />&nbsp;
-                                    {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                        {item.boxId.notes?.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
                                     </FontAwesomeIcon>}
                                 </td>                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
@@ -702,6 +777,20 @@ class TransactionsTable extends Component {
                                     </>}
                                 </td>
                             </tr>})}
+                            <tr className="fw-bold">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td className="text-center">{amount.toLocaleString()}</td>
+                                <td className="text-center">{fee.toLocaleString()}</td>
+                                <td className="text-center">{totalAmount.toLocaleString()}</td>
+                                <td className="text-center">{bonus.toLocaleString()}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
                     </tbody>
                 </Table>
                 <CardFooter className="d-block text-center">
@@ -824,7 +913,7 @@ class TransactionsTable extends Component {
                                     </Col>       
                                 </Row>
                                 <Row className="mb-4">
-                                    <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                    <Col md={4} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                         <Label>Số tiền</Label>
                                         <Input
                                             type="text"
@@ -850,7 +939,7 @@ class TransactionsTable extends Component {
                                             }}
                                         />
                                     </Col>
-                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                         <Label>Phí</Label>
                                         <Input
                                             type="text"
@@ -864,6 +953,26 @@ class TransactionsTable extends Component {
                                                     update: {
                                                         ...prevState.update,
                                                         fee: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
+                                        />
+
+                                    </Col>     
+                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                        <Label>Tiền tip</Label>
+                                        <Input
+                                            type="text"
+                                            name="bonus"
+                                            value={new Intl.NumberFormat('en-US').format(this.state.update.bonus)}
+                                            onChange={(e) => {
+                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                this.setState((prevState) => ({
+                                                    update: {
+                                                        ...prevState.update,
+                                                        bonus: numericValue < 0 ? 0 : numericValue,
                                                     },
                                                 }));
                                             }}
@@ -1296,7 +1405,8 @@ const mapDispatchToProps = {
     getTransactionsNoLoad,
     setFilters,
     undoBox,
-    searchTransactions
+    searchTransactions,
+    findTransactionsByStatus
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionsTable);

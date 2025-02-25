@@ -1,4 +1,5 @@
 import { Button, Card, CardFooter, CardHeader, Col, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import Select from "react-select";
 
 import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
@@ -15,6 +16,13 @@ import { cancelBillService, confirmBillService } from "../../../services/billSer
 import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
+const statusList = [
+    { value: 1, name: "Đang xử lý" },
+    { value: 2, name: "Thành công" },
+    { value: 3, name: "Hủy" },
+    { value: 4, name: "Có ghi chú chưa hoàn thành" },
+];
+
 class BillsTable extends Component {
     constructor(props) {
         super(props);
@@ -27,6 +35,7 @@ class BillsTable extends Component {
             cancelBill: null,
             search: '',
             loading: false,
+            status: '',
         };
     
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
@@ -141,6 +150,14 @@ class BillsTable extends Component {
             limit: 10,
         };
         const { bills } = this.props;
+
+        const amount = bills.docs.reduce((sum, item) => {
+            return sum + item.amount;
+        }, 0);
+
+        const bonus = bills.docs.reduce((sum, item) => {
+            return sum + item.bonus;
+        }, 0);
         
         return (<Card className="main-card mb-3">
             {this.props.loading ? (
@@ -169,7 +186,30 @@ class BillsTable extends Component {
                             <th className="text-center">Số tiền</th>
                             <th className="text-center">Tiền tip</th>
                             <th className="text-center">Nội dung</th>
-                            <th className="text-center">Trạng thái</th>
+                            <th className="text-center" style={{ width: "160px" }}>
+                                <Select
+                                    value={statusList
+                                        .map(option => ({ value: option.value, label: option.name }))
+                                        .find(option => option.value === this.state.status) || null}
+                                    onChange={selected => this.setState(prevState => ({
+                                        status: selected?.value 
+                                    }))}
+                                    options={statusList.map(option => ({
+                                        value: option.value,
+                                        label: option.name
+                                    }))}
+                                    placeholder="Trạng thái ..."
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            width: 150,
+                                            minHeight: 30
+                                        }),
+                                        menuPortal: base => ({ ...base, zIndex: 9999 })
+                                    }}
+                                    menuPortalTarget={document.body}
+                                />
+                            </th>
                             <th className="text-center">Nhân viên</th>
                             <th className="text-center">Box</th>
                             <th className="text-center">#</th>
@@ -211,6 +251,17 @@ class BillsTable extends Component {
                                 </>}
                             </td>
                         </tr>)}
+                        <tr className="fw-bold">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td className="text-center">{amount.toLocaleString()}</td>
+                            <td className="text-center">{bonus.toLocaleString()}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     </tbody>
                 </Table>
                 <CardFooter className="d-block text-center">

@@ -352,6 +352,21 @@ class TransactionsTable extends Component {
         const { transactions } = this.props;
         const input = this.state.input;
         const { isBuyerToggleOn, isSellerToggleOn, buyer, seller} = this.state;
+        const totalAmount = transactions.reduce((sum, item) => {
+            return sum + item.totalAmount;
+        }, 0);
+
+        const amount = transactions.reduce((sum, item) => {
+            return sum + item.amount;
+        }, 0);
+
+        const fee = transactions.reduce((sum, item) => {
+            return sum + item.fee;
+        }, 0);
+
+        const bonus = transactions.reduce((sum, item) => {
+            return sum + item.bonus;
+        }, 0);
         return (
             <Card className="main-card mb-3">
                 {this.props.loading ? (
@@ -664,6 +679,20 @@ class TransactionsTable extends Component {
                                         </>}
                                     </td>
                                 </tr>})}
+                                <tr className="fw-bold">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td className="text-center">{amount.toLocaleString()}</td>
+                                    <td className="text-center">{fee.toLocaleString()}</td>
+                                    <td className="text-center">{totalAmount.toLocaleString()}</td>
+                                    <td className="text-center">{bonus.toLocaleString()}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
                         </tbody>
                     </Table>
 
