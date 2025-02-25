@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faCopy, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationTriangle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { getBoxById, getBoxByIdNoLoad, undoBox } from "../../../reducers/boxSlice";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
@@ -51,7 +51,7 @@ class TransactionsTable extends Component {
             input: {
                 amount: '',
                 bankId: '',
-                bonus: '0',
+                bonus: 0,
                 content: '',
                 fee: '',
                 messengerId: this.props.messengerId,
@@ -245,8 +245,8 @@ class TransactionsTable extends Component {
             e.preventDefault();
             this.setState({loading: true});
             await createTransaction(this.state.input);
-            this.setState({loading: false});
             await this.props.getBoxByIdNoLoad(this.props.boxId);
+            this.setState({loading: false});
             this.toggleCreate();
         } catch(error) {
             this.setState({
@@ -372,7 +372,7 @@ class TransactionsTable extends Component {
                                     </Col>
                                     <Col md={3} xs={6}>
                                         <div className="switch has-switch mb-2 me-2" data-on-label="ON"
-                                            data-off-label="OFF" onClick={this.handleClick}>
+                                            data-off-label="OFF">
                                             <div className={cx("switch-animate", {
                                                 "switch-on": input.isToggleOn,
                                                 "switch-off": !input.isToggleOn,
@@ -431,7 +431,7 @@ class TransactionsTable extends Component {
                                 </Row>
                                 <Row className="mb-4">
                                 
-                                    <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                    <Col md={4} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                         <Label>Số tiền</Label>
                                         <Input
                                             type="text"
@@ -445,7 +445,7 @@ class TransactionsTable extends Component {
                                             }}
                                         />
                                     </Col>
-                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                         <Label>Phí</Label>
                                         <Input
                                             type="text"
@@ -464,7 +464,27 @@ class TransactionsTable extends Component {
                                             }}
                                         />
 
-                                    </Col>           
+                                    </Col>   
+                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                        <Label>Tiền tip</Label>
+                                        <Input
+                                            type="text"
+                                            name="bonus"
+                                            value={new Intl.NumberFormat('en-US').format(this.state.input.bonus)}
+                                            onChange={(e) => {
+                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                this.setState((prevState) => ({
+                                                    input: {
+                                                        ...prevState.input,
+                                                        bonus: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
+                                        />
+
+                                    </Col>         
                                 </Row>
                                 <Row className="mb-4">
                                     <Col md={12} xs={12}>
@@ -572,9 +592,13 @@ class TransactionsTable extends Component {
                                     <td className="text-center ">{item.totalAmount.toLocaleString()}</td>
                                     <td className="text-center ">{item.bonus.toLocaleString()}</td>
                                     <td className="text-center ">{item.content}</td>
-                                    <td className="text-center "> <StatusBadge status={item.status} /></td>
+                                    <td className="text-center "> 
+                                        <StatusBadge status={item.status} />&nbsp;
+                                        {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                        </FontAwesomeIcon>}
+                                    </td>
                                     <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                    <td className="text-center "><a href="https://www.messenger.com/t/8681198405321843" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                    <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                     <td className="text-center ">
                                         {item.status === 6 && <>
                                             <button 

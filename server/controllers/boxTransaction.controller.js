@@ -46,12 +46,14 @@ const getById = async (req, res) => {
         }
         const transactions = await Transaction.find({ boxId: id }).sort({ createdAt: -1 }).populate(
             [
+                { path: 'boxId', select: 'amount messengerId notes' },
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
             ]
         );
         const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+            { path: 'boxId', select: 'amount messengerId notes' }
         ]);
         let buyerCustomer = await Customer.findOne({
             boxId: { $in: [box._id] },

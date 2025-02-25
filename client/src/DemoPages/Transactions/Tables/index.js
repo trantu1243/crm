@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
-import { faCheck, faCopy, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationTriangle, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
@@ -627,9 +627,12 @@ class TransactionsTable extends Component {
                                 <td className="text-center">{item.totalAmount.toLocaleString()}</td>
                                 <td className="text-center">{item.bonus.toLocaleString()}</td>
                                 <td className="text-center">{item.content}</td>
-                                <td className="text-center"> <StatusBadge status={item.status} /></td>
-                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                <td className="text-center"><a href="https://www.messenger.com/t/8681198405321843" rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                <td className="text-center "> 
+                                    <StatusBadge status={item.status} />&nbsp;
+                                    {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                    </FontAwesomeIcon>}
+                                </td>                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center">
                                     {item.status === 6 && <>
                                         <button 

@@ -10,6 +10,7 @@ import { getBoxById } from "../../reducers/boxSlice";
 import { withRouter } from "../../utils/withRouter";
 import { confirmBill, getBillById, switchBill } from "../../reducers/billsSlice";
 import Loader from "react-loaders";
+import { cancelBillService } from "../../services/billService";
 
 class Box extends Component {
     constructor(props) {
@@ -20,10 +21,13 @@ class Box extends Component {
             showBuyerQR: false,
             showSellerQR: false,
             confirmBillModal: false,
+            cancelBillModal: false,
             confirmBill: null,
+            cancelBill: null,
             isMobile: window.innerWidth < 768,
         };
         this.toggleConfirmBill = this.toggleConfirmBill.bind(this);
+        this.toggleCancelBill = this.toggleCancelBill.bind(this);
     }
 
     componentDidMount() {
@@ -37,6 +41,12 @@ class Box extends Component {
     
     updateScreenSize = () => {
         this.setState({ isMobile: window.innerWidth < 768 });
+    };
+
+    toggleCancelBill = () => {
+        this.setState((prevState) => ({
+            cancelBillModal: !prevState.cancelBillModal
+        }));
     };
 
     toggleQR = (side) => {
@@ -58,6 +68,23 @@ class Box extends Component {
             }
         });
     };
+
+    handleCancelBill = async () => {
+        try {           
+            this.setState({loading: true});  
+            const res = await cancelBillService(this.state.cancelBill?._id);
+            this.props.getBillById(this.props.bill._id);            
+            this.toggleCancelBill();
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })       
+            this.toggleCancelBill();
+            this.setState({loading: false});
+        }
+    }
 
     handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -193,7 +220,7 @@ class Box extends Component {
                                                         {bill.status === 1 && (
                                                             <div className="d-flex justify-content-center gap-3 p-3">
                                                                 <Button color="success" onClick={() => {this.setState({ confirmBill: bill }); this.toggleConfirmBill()}}>Xác nhận bill</Button>
-                                                                <Button color="danger">Huỷ</Button>
+                                                                <Button color="danger" onClick={() => {this.setState({ cancelBill: bill }); this.toggleCancelBill()}}>Huỷ</Button>
                                                             </div>
                                                         )}
                                                         {bill.status === 2 && (
@@ -227,7 +254,7 @@ class Box extends Component {
                                                         {bill.billId.status === 1 && (
                                                             <div className="d-flex justify-content-center gap-3 p-3">
                                                                 <Button color="success" onClick={() => {this.setState({ confirmBill: bill.billId }); this.toggleConfirmBill()}}>Xác nhận bill</Button>
-                                                                <Button color="danger">Huỷ</Button>
+                                                                <Button color="danger" onClick={() => {this.setState({ cancelBill: bill.billId }); this.toggleCancelBill()}}>Huỷ</Button>
                                                             </div>
                                                         )}
                                                         {bill.billId.status === 2 && (
@@ -268,7 +295,7 @@ class Box extends Component {
                                                         {bill.status === 1 && (
                                                             <div className="d-flex justify-content-center gap-3 p-3">
                                                                 <Button color="success"  onClick={() => {this.setState({ confirmBill: bill }); this.toggleConfirmBill()}}>Xác nhận bill</Button>
-                                                                <Button color="danger">Huỷ</Button>
+                                                                <Button color="danger" onClick={() => {this.setState({ cancelBill: bill }); this.toggleCancelBill()}}>Huỷ</Button>
                                                             </div>
                                                         )}
                                                         {bill.status === 2 && (
@@ -301,7 +328,7 @@ class Box extends Component {
                                                         {bill.billId.status === 1 && (
                                                             <div className="d-flex justify-content-center gap-3 p-3">
                                                                 <Button color="success" onClick={() => {this.setState({ confirmBill: bill.billId }); this.toggleConfirmBill()}}>Xác nhận bill</Button>
-                                                                <Button color="danger">Huỷ</Button>
+                                                                <Button color="danger" onClick={() => {this.setState({ cancelBill: bill.billId }); this.toggleCancelBill()}}>Huỷ</Button>
                                                             </div>
                                                         )}
                                                         {bill.status === 2 && (
@@ -348,7 +375,7 @@ class Box extends Component {
                         Số tài khoản: {this.state.confirmBill?.stk} <br />
                         Ngân hàng: {this.state.confirmBill?.bankCode} <br />
                         Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
-                        Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
+                        Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
                     </ModalBody>
 
                     <ModalFooter>
@@ -357,6 +384,24 @@ class Box extends Component {
                         </Button>
                         <Button color="primary" onClick={this.handleConfirmBill} disabled={this.state.loading}>
                             {this.state.loading ? "Đang xác nhận..." : "Xác nhận"}
+                        </Button>{" "}
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.cancelBillModal} toggle={this.toggleCancelBill} className={this.props.className}>
+                    <ModalHeader toggle={this.toggleCancelBill}><span style={{fontWeight: 'bold'}}>Huỷ bill</span></ModalHeader>
+                    <ModalBody>
+                        Số tài khoản: {this.state.cancelBill?.stk} <br />
+                        Ngân hàng: {this.state.cancelBill?.bankCode} <br />
+                        Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                        Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button color="link" onClick={this.toggleCancelBill}>
+                            Cancel
+                        </Button>
+                        <Button color="primary" onClick={this.handleCancelBill} disabled={this.state.loading}>
+                            {this.state.loading ? "Đang xác nhận..." : "Xác nhận"} 
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>

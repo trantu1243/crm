@@ -56,10 +56,11 @@ const getBills = async (req, res) => {
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { path: 'boxId', select: 'amount messengerId notes' }
             ],
             sort: { createdAt: -1 },
         });
-
+        console.log(bills)
         res.status(200).json({
             message: 'Bills fetched successfully',
             data: bills,

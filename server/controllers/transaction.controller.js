@@ -49,7 +49,7 @@ const getTransactions = async (req, res) => {
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
-                { path: 'boxId', select: 'amount' }
+                { path: 'boxId', select: 'amount messengerId notes' }
             ],
             sort: { createdAt: -1 },
         });

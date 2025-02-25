@@ -44,9 +44,9 @@ class CreateTransaction extends Component {
             input: {
                 amount: '',
                 bankId: '',
-                bonus: '0',
+                bonus: 0,
                 content: '',
-                fee: '',
+                fee: 0,
                 messengerId: '',
                 typeFee: 'buyer',
                 typeBox: 'facebook',
@@ -155,13 +155,13 @@ class CreateTransaction extends Component {
                 this.setState({
                     isCreated: true,
                     loading: false,
-                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
+                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
                     textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`
                 })
                 this.setState({loading: false});
             } else {
                 const { amount, bankId, bonus, content, fee, typeFee } = this.state.input;
-                if (!amount || !bankId || !bonus || !content || !fee || !typeFee) {
+                if (!amount || !bankId || !typeFee) {
                     this.setState({loading: false})
                     return this.setState({
                         alert: true,
@@ -183,7 +183,7 @@ class CreateTransaction extends Component {
                 const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
                 this.setState({
                     isCreated: true,
-                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + bonus}&addInfo=${content}&accountName=${bank.bankAccountName}`,
                     textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${amount.toLocaleString()} vnd\nPhí: ${fee.toLocaleString()} vnd\nNội dung: ${content}`
                 })
                 setTimeout(() => {
@@ -304,7 +304,7 @@ class CreateTransaction extends Component {
                                                 </Row>
                                                 <Row className="mb-4">
                                                 
-                                                    <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                                    <Col md={4} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                                         <Label>Số tiền</Label>
                                                         <Input
                                                             type="text"
@@ -318,7 +318,7 @@ class CreateTransaction extends Component {
                                                             }}
                                                         />
                                                     </Col>
-                                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                         <Label>Phí</Label>
                                                         <Input
                                                             type="text"
@@ -332,6 +332,26 @@ class CreateTransaction extends Component {
                                                                     input: {
                                                                         ...prevState.input,
                                                                         fee: numericValue < 0 ? 0 : numericValue,
+                                                                    },
+                                                                }));
+                                                            }}
+                                                        />
+
+                                                    </Col>    
+                                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                        <Label>Tiền tip</Label>
+                                                        <Input
+                                                            type="text"
+                                                            name="bonus"
+                                                            value={new Intl.NumberFormat('en-US').format(this.state.input.bonus)}
+                                                            onChange={(e) => {
+                                                                let rawValue = e.target.value.replace(/,/g, '');
+                                                                let numericValue = parseInt(rawValue, 10) || 0;
+
+                                                                this.setState((prevState) => ({
+                                                                    input: {
+                                                                        ...prevState.input,
+                                                                        bonus: numericValue < 0 ? 0 : numericValue,
                                                                     },
                                                                 }));
                                                             }}
@@ -385,6 +405,7 @@ class CreateTransaction extends Component {
 
                                                     </Col>
                                                 </Row>
+                                                
                                                 {this.state.isCreated &&
                                                 <>
                                                     {this.state.input.isToggleOn && <Row className="mb-4"> 
