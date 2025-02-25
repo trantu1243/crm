@@ -15,7 +15,6 @@ const LoginBoxed = ({ match }) => {
 
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state) => state.user);
-    const history = useHistory()
     const handleLogin = async (e) => {
         e.preventDefault();
         dispatch(loginStart());

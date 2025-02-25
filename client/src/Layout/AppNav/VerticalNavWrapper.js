@@ -22,12 +22,21 @@ class Nav extends Component {
     render() {
         const { user } = this.props;
 
-        const filteredNav = MainNav.filter(item => {
+        let filteredNav = MainNav.filter(item => {
             if (item.label === "Phân quyền hệ thống") {
                 return user?.is_admin === 1;
             }
             return true;
         });
+        const filteredNav2 = filteredNav[0].content.filter(item => {
+            if (item.label === "Thống kê chung") {
+                return user?.is_admin === 1;
+            }
+            return true;
+        });
+
+        filteredNav[0].content = filteredNav2;
+
         return (
             <Fragment>
                 <h5 className="app-sidebar__heading">Menu</h5>

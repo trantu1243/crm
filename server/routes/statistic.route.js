@@ -8,4 +8,7 @@ router.get('/monthly', authenticateToken, isAdmin, statisticController.getMonthl
 router.get('/daily', authenticateToken, isAdmin, statisticController.getDailyStats);
 router.get('/balance', authenticateToken, isAdmin, statisticController.getBalance);
 
+router.get('/staff-monthly', authenticateToken, isAdmin, statisticController.getStaffMonthlyStats);
+router.get('/staff-daily', authenticateToken, isAdmin, statisticController.getDailyBankStatsByStaff);
+
 module.exports = router;

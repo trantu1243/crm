@@ -8,16 +8,25 @@ import {
   Card,
   CardBody,
 } from "reactstrap";
+import Select from "react-select";
 
-import Donut from "./Examples/Donut";
-import { getBalanceService, getDailyStatsService, getMonthlyStatsService } from "../../../services/statisticService";
+import { getBalanceService, getDailyStatsServiceByStaff, getMonthlyStatsServiceByStaff } from "../../../services/statisticService";
 import Loader from "react-loaders";
-import MixedSingleMonth from "./Examples/Mixed";
-import DonutFeeChart from "./Examples/DonutFee";
-import DonutTransactionChart from "./Examples/DonutTransaction";
-import { DatePicker } from "react-widgets/cjs";
+import city3 from "../../../assets/utils/images/dropdown-header/city3.jpg";
 
-export default class General extends Component {
+import { DatePicker } from "react-widgets/cjs";
+import MixedSingleMonth from "../General/Examples/Mixed";
+import DonutFeeChart from "../General/Examples/DonutFee";
+import DonutTransactionChart from "../General/Examples/DonutTransaction";
+import DonutChart from "../General/Examples/Donut";
+import { connect } from "react-redux";
+import { SERVER_URL } from "../../../services/url";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFacebook } from "@fortawesome/free-brands-svg-icons";
+import { faPhone } from "@fortawesome/free-solid-svg-icons";
+import { fetchStaffs } from "../../../services/staffService";
+
+class StaffStatistic extends Component {
     constructor(props) {
         super(props);
 
@@ -27,6 +36,9 @@ export default class General extends Component {
             visible: true,
             popoverOpen1: false,
             date: new Date(),
+            staff: this.props.user,
+            staffs: [],
+            staffId: '',
             optionsRadial: {
                 chart: {
                     height: 350,
@@ -58,7 +70,7 @@ export default class General extends Component {
                         track: {
                         background: "#fff",
                         strokeWidth: "67%",
-                        margin: 0, // margin is in pixels
+                        margin: 0,
                         dropShadow: {
                             enabled: true,
                             top: -3,
@@ -110,32 +122,29 @@ export default class General extends Component {
             lastMonthStats: null,
             todayStats: null,
             loading: false,
-            balance: []
         };
         this.onDismiss = this.onDismiss.bind(this);
     }
 
     componentDidMount() {
-        this.loadStatistics();
-        this.getBalance();
+        const today = new Date();
+        this.loadStatistics(today, this.props.user._id);
+        this.getStaffs()
     }
 
-    getBalance = async () => {
-        try {
-            const data = await getBalanceService();
-            this.setState({balance: data.data})
-        } catch (error) {
-            console.error("Lỗi khi lấy thống kê", error);
-            this.setState({ loading: false });
+    getStaffs = async () => {
+            const data = await fetchStaffs();
+            this.setState({
+                staffs: data.data
+            })
         }
-    }
 
     handleDateChange = async (date) => {
         this.setState({ date });
-        this.loadStatistics(date); 
+        this.loadStatistics(date, this.state.staffId); 
     };
 
-    async loadStatistics(selectedDate) {
+    async loadStatistics(selectedDate, staffId) {
         try {
             this.setState({ loading: true });
         
@@ -146,9 +155,9 @@ export default class General extends Component {
             const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
             const currentDay = today.getDate();
         
-            const currentMonthStats = await getMonthlyStatsService({ month: currentMonth, year: currentYear });
-            const lastMonthStats = await getMonthlyStatsService({ month: lastMonth, year: lastYear });
-            const todayStats = await getDailyStatsService({ day: currentDay, month: currentMonth, year: currentYear });
+            const currentMonthStats = await getMonthlyStatsServiceByStaff({ month: currentMonth, year: currentYear, staffId});
+            const lastMonthStats = await getMonthlyStatsServiceByStaff({ month: lastMonth, year: lastYear, staffId});
+            const todayStats = await getDailyStatsServiceByStaff({ day: currentDay, month: currentMonth, year: currentYear, staffId });
         
             this.setState({
                 currentMonthStats,
@@ -177,7 +186,7 @@ export default class General extends Component {
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
-
+        
         const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
         return (
             <Fragment>
@@ -194,30 +203,84 @@ export default class General extends Component {
                                                 <span className={"d-inline-block pe-2"}>
                                                     <i className="lnr-apartment icon-gradient bg-mean-fruit" />
                                                 </span>
-                                                <span className="d-inline-block">Thống kê chung</span>
+                                                <span className="d-inline-block">Thống kê theo nhân viên</span>
                                                 </div>
-                                                
                                             </div>
                                         </div>
                                         <div className="page-title-actions">
                                             <Fragment>
-                                                <div className="d-inline-block pe-3">
-                                                <Fragment>
-                                                    <div className="d-inline-block pe-3">
-                                                        <DatePicker
-                                                            value={this.state.date}
-                                                            onChange={this.handleDateChange}
-                                                            format="YYYY-MM-DD"
-                                                            max={new Date()}
-                                                        />
-                                                    </div>
-                                                </Fragment>    
+                                                {this.props.user.is_admin && <div className="d-inline-block me-2">
+                                                    <Fragment>
+                                                        <div className="d-inline-block" style={{width: 212}}>
+                                                            <Select
+                                                                value={this.state.staffs
+                                                                    .map(item => ({ value: item._id, label: item.name_staff }))
+                                                                    .find(option => option.value === this.state.staffId) || null}
+                                                                onChange={selected => {
+                                                                        this.setState({ staffId: selected.value });
+                                                                        this.loadStatistics(this.state.date, selected.value); 
+                                                                    }
+                                                                }
+                                                                options={this.state.staffs.map(item => ({
+                                                                    value: item._id,
+                                                                    label: item.name_staff
+                                                                }))}
+                                                                placeholder="Chọn nhân viên"
+                                                            />
+                                                        </div>
+                                                    </Fragment>    
+                                                </div>}
+                                                <div className="d-inline-block">
+                                                    <Fragment>
+                                                        <div className="d-inline-block">
+                                                            <DatePicker
+                                                                value={this.state.date}
+                                                                onChange={this.handleDateChange}
+                                                                format="YYYY-MM-DD"
+                                                                max={new Date()}
+                                                            />
+                                                        </div>
+                                                    </Fragment>    
                                                 </div>
                                             </Fragment>
                                         </div>
                                     </div>
                                 </div>
                             </Fragment>
+                            <div className="dropdown-menu-header" style={{borderRadius: '0.25rem', overflow: 'hidden', zIndex: 0}}>
+                                <div className="dropdown-menu-header-inner bg-primary">
+                                    <div className="menu-header-image opacity-2"
+                                        style={{
+                                            backgroundImage: "url(" + city3 + ")"
+                                        }}/>
+                                    <div className="menu-header-content text-start">
+                                        <div className="widget-content p-0">
+                                            <div className="widget-content-wrapper">
+                                                <div className="widget-content-left me-3">
+                                                    <img className="rounded-circle" src={`${SERVER_URL}${this.state.staff.avatar ? this.state.staff.avatar : '/images/avatars/avatar.jpg'}`} alt="" style={{width: 60, height: 60, objectFit: 'cover'}}/>
+                                                </div>
+                                                <div className="widget-content-left">
+                                                    <div className="widget-heading" style={{fontSize: '18px'}}>
+                                                        {this.state.staff.name_staff}
+                                                    </div>
+                                                    <div className="widget-subheading opacity-8" style={{fontSize: '15px'}}>
+                                                        {this.state.staff.email}
+                                                    </div>
+                                                </div>
+                                                <div className="widget-content-right">
+                                                    <a href={`tel:${this.state.staff.phone_staff ? this.state.staff.phone_staff : ''}`} rel="noreferrer" target="_blank" className="btn btn-success me-2">
+                                                        <FontAwesomeIcon icon={faPhone} size="lg"/>
+                                                    </a>
+                                                    <a href={`https://www.facebook.com/${this.state.staff.uid_facebook ? this.state.staff.uid_facebook : ''}`} rel="noreferrer" target="_blank" className="btn btn-info me-2">
+                                                        <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             {loading ? (
                                 <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                     <Loader type="ball-spin-fade-loader" />
@@ -228,7 +291,7 @@ export default class General extends Component {
                                         
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số tiền GD trong tháng</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -255,7 +318,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số tiền GD tháng trước</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -284,7 +347,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Tiền phí trong tháng</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -310,7 +373,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Tiền phí tháng trước</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -339,7 +402,7 @@ export default class General extends Component {
                                         
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -364,7 +427,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số lượng GD tháng trước</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -391,7 +454,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số tiền giao dịch trong ngày</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -409,7 +472,7 @@ export default class General extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Tiền phí trong ngày</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
@@ -445,20 +508,7 @@ export default class General extends Component {
                                 </Card>
                                 
                                 <Row>
-                                    <Col sm="12" md="6" lg="6">
-                                        <Card className="mb-3">
-                                            <CardHeader className="card-header-tab">
-                                                <div className="card-header-title font-size-lg text-capitalize fw-normal">
-                                                    Tiền GDTG còn dư
-                                                </div>
-                                            
-                                            </CardHeader>
-                                            <CardBody className="p-4" style={{ minHeight: 350 }}>
-                                                <Donut bankStats={this.state.balance} />
-                                                
-                                            </CardBody>
-                                        </Card>
-                                    </Col>
+                                    
                                     <Col sm="12" md="6" lg="6">
                                         <Card className="mb-3">
                                             <CardHeader className="card-header-tab">
@@ -468,7 +518,7 @@ export default class General extends Component {
                                             
                                             </CardHeader>
                                             <CardBody className="p-4" style={{ minHeight: 350 }}>
-                                                <Donut bankStats={todayStats?.bankStats} />
+                                                <DonutChart bankStats={todayStats?.bankStats} />
                                                 
                                             </CardBody>
                                         </Card>
@@ -512,3 +562,14 @@ export default class General extends Component {
         );
     }
 }
+const mapStateToProps = (state) => ({
+    user: state.user.user || {
+        _id: '',
+    }
+});
+  
+const mapDispatchToProps = {
+
+};
+  
+export default connect(mapStateToProps, mapDispatchToProps)(StaffStatistic);

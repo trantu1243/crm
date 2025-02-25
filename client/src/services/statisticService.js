@@ -73,3 +73,51 @@ export const getBalanceService = async () => {
         throw error.response?.data?.message || "Failed to fetch daily stats!";
     }
 };
+
+export const getMonthlyStatsServiceByStaff = async ({ staffId, month, year } = {}) => {
+    try {
+        const response = await axios.get(`${API_URL}/staff-monthly`, {
+            params: { staffId, month, year }, 
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching monthly stats", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch monthly stats!";
+    }
+};
+
+export const getDailyStatsServiceByStaff = async ({ staffId, day, month, year } = {}) => {
+    try {
+        const response = await axios.get(`${API_URL}/staff-daily`, {
+            params: { staffId, day, month, year },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily stats", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch daily stats!";
+    }
+};

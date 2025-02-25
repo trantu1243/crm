@@ -26,7 +26,6 @@ class Header extends React.Component {
             enableHeaderShadow,
             user
         } = this.props;
-        console.log(user)
         if (!user) {
             return <Redirect to="/login" />
         }

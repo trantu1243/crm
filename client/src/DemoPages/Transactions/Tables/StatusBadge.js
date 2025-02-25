@@ -6,7 +6,7 @@ const StatusBadge = ({ status }) => {
 
     switch (status) {
         case 1:
-            badgeClass = 'bg-warning';
+            badgeClass = 'bg-secondary';
             badgeText = 'Chưa nhận';
             break;
         case 2:
@@ -18,15 +18,15 @@ const StatusBadge = ({ status }) => {
             badgeText = 'Hủy';
             break;
         case 6:
-            badgeClass = 'bg-secondary';
+            badgeClass = 'bg-primary';
             badgeText = 'Đã nhận';
             break;
         case 7:
-            badgeClass = 'bg-info';
+            badgeClass = 'bg-warning';
             badgeText = 'Đang xử lý';
             break;
         case 8:
-            badgeClass = 'bg-primary';
+            badgeClass = 'bg-warning';
             badgeText = 'Hoàn thành 1 phần';
             break;
         default:

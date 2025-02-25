@@ -14,11 +14,10 @@ import MinimalDashboard2 from "./Minimal/Variation2";
 
 import AppHeader from "../../Layout/AppHeader/";
 import AppSidebar from "../../Layout/AppSidebar/";
-import AppFooter from "../../Layout/AppFooter/";
 
 // Theme Options
-import ThemeOptions from "../../Layout/ThemeOptions/";
 import General from "./General/";
+import StaffStatistic from "./StaffStatistic";
 
 const Dashboards = ({ url }) => (
   <Fragment>
@@ -28,6 +27,7 @@ const Dashboards = ({ url }) => (
       <div className="app-main__outer">
         <div className="app-main__inner">
           <Route exact path={`${url}/general`} component={General}/>
+          <Route exact path={`${url}/staff`} component={StaffStatistic}/>
           <Route exact path={`${url}/analytics`} component={AnalyticsDashboard}/>
           <Route exact path={`${url}/sales`} component={SalesDashboard} />
           <Route exact path={`${url}/commerce`} component={CommerceDashboard} />

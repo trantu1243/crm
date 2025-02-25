@@ -8,34 +8,38 @@ export const MainNav = [
               to: "/dashboards/general",
             },
             {
-                label: "Analytics",
-                to: "/dashboards/analytics",
+              label: "Thống kê theo nhân viên",
+              to: "/dashboards/staff",
             },
-            {
-                label: "Commerce",
-                to: "/dashboards/commerce",
-            },
-            {
-                label: "Sales",
-                to: "/dashboards/sales",
-            },
-            {
-                label: "Minimal",
-                content: [
-                    {
-                        label: "Variation 1",
-                        to: "/dashboards/minimal-dashboard-1",
-                    },
-                    {
-                        label: "Variation 2",
-                        to: "/dashboards/minimal-dashboard-2",
-                    },
-                ],
-            },
-            {
-                label: "CRM",
-                to: "/dashboards/crm",
-            },
+            // {
+            //     label: "Analytics",
+            //     to: "/dashboards/analytics",
+            // },
+            // {
+            //     label: "Commerce",
+            //     to: "/dashboards/commerce",
+            // },
+            // {
+            //     label: "Sales",
+            //     to: "/dashboards/sales",
+            // },
+            // {
+            //     label: "Minimal",
+            //     content: [
+            //         {
+            //             label: "Variation 1",
+            //             to: "/dashboards/minimal-dashboard-1",
+            //         },
+            //         {
+            //             label: "Variation 2",
+            //             to: "/dashboards/minimal-dashboard-2",
+            //         },
+            //     ],
+            // },
+            // {
+            //     label: "CRM",
+            //     to: "/dashboards/crm",
+            // },
         ],
     },
     {

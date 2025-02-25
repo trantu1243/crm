@@ -35,7 +35,7 @@ const Tables = lazy(() => import("../../DemoPages/Tables"));
 const AppMain = () => {
 
     const [isAuth, setIsAuth] = useState(null);
-    const [tokenState, setTokenState] = useState(localStorage.getItem("token"));
+    const [tokenState] = useState(localStorage.getItem("token"));
     const dispatch = useDispatch();
     const transactions = useSelector(state => state.transactions);
     const box = useSelector(state => state.box);
@@ -52,9 +52,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                // localStorage.removeItem("token");
-                // dispatch(logout());
-                // setIsAuth(false);
+                localStorage.removeItem("token");
+                dispatch(logout());
+                setIsAuth(false);
             }
         };
 

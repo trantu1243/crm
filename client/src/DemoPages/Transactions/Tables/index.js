@@ -1285,7 +1285,7 @@ const mapStateToProps = (state) => ({
     transactions: state.transactions.transactions,
     loading: state.transactions.loading,
     filters: state.transactions.filters,
-    bankAccounts: state.user.user.permission_bank || [],
+    bankAccounts: state.user?.user?.permission_bank || [],
 });
   
 const mapDispatchToProps = {

@@ -87,7 +87,7 @@ const createBill = async (req, res) => {
         const { boxId, buyer, seller } = req.body;
 
         if ( !buyer && !seller ) {
-            return res.status(400).json({ message: 'Bad request' });
+            return res.status(400).json({ message: 'Nhập thiếu thông tin' });
         }
 
         const box = await BoxTransaction.findById(boxId);
@@ -105,8 +105,8 @@ const createBill = async (req, res) => {
         let boxAmount = box.amount;
         if (buyer) boxAmount -= Number(buyer.amount);
         if (seller) boxAmount -= Number(seller.amount);
-        if (boxAmount <= 0) {
-            return res.status(400).json({ message: 'Bad request' });
+        if (boxAmount < 0) {
+            return res.status(400).json({ message: 'Số dư của box không đủ' });
         }
 
         const staff = await Staff.findById(req.user.id);

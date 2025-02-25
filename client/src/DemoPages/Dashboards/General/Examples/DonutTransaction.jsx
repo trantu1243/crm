@@ -22,8 +22,6 @@ const DonutTransactionChart = ({ bankStats }) => {
     tooltip: {
       y: {
         formatter: function (val, opts) {
-          const label = opts?.w?.config?.labels[opts.seriesIndex];
-          // val là số thực tế, ta format theo dạng 1,000
           return `${new Intl.NumberFormat("en-US").format(val)}`;
         },
       },
@@ -42,6 +40,23 @@ const DonutTransactionChart = ({ bankStats }) => {
         return `${label}: ${new Intl.NumberFormat("en-US").format(seriesVal)}`;
       },
     },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "",
+              formatter: function (w) {
+                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                return `${new Intl.NumberFormat("en-US").format(total)}`;
+              },
+            }
+          }
+        }
+      }
+    }
   });
 
   const [series, setSeries] = useState([]);
