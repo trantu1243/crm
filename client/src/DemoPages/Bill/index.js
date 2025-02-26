@@ -675,7 +675,7 @@ class Box extends Component {
                                                                 <Label>Số tiền đã giao dịch</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p className="fw-bold text-success">{this.props.box.bills.reduce((sum, item) => sum + item.amount, 0).toLocaleString()} vnd</p>
+                                                                <p className="fw-bold text-success">{new Intl.NumberFormat('en-US').format(this.props.box.bills.reduce((sum, item) => sum + item.amount, 0))} vnd</p>
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -683,8 +683,8 @@ class Box extends Component {
                                                                 <Label>Số tiền trong box</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p className="fw-bold text-danger">{box.amount.toLocaleString()} vnd
-                                                                    <CopyToClipboard text={box.amount.toLocaleString()}>
+                                                                <p className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(box.amount)} vnd
+                                                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(box.amount)}>
                                                                         <button class="btn btn-success ms-1">
                                                                             <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                                                         </button>
@@ -887,7 +887,7 @@ class Box extends Component {
                     <ModalBody>
                         Số tài khoản: {this.state.confirmBill?.stk} <br />
                         Ngân hàng: {this.state.confirmBill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.confirmBill?.amount)} vnd</span><br />
                         Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
                     </ModalBody>
 
@@ -910,12 +910,12 @@ class Box extends Component {
                     <ModalBody>
                         Số tài khoản: {this.props.bill?.stk} <br />
                         Ngân hàng: {this.props.bill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.props.bill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.props.bill?.amount)} vnd</span><br />
                         Cho: {this.props.bill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}<br />
                         và<br/>
                         Số tài khoản: {this.props.bill?.billId?.stk} <br />
                         Ngân hàng: {this.props.bill?.billId?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.props.bill?.billId?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.props.bill?.billId?.amount)} vnd</span><br />
                         Cho: {this.props.bill?.billId?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}<br />
                     </ModalBody>
 
@@ -933,7 +933,7 @@ class Box extends Component {
                     <ModalBody>
                         Số tài khoản: {this.state.cancelBill?.stk} <br />
                         Ngân hàng: {this.state.cancelBill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.cancelBill?.amount)} vnd</span><br />
                         Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
                     </ModalBody>
 
@@ -952,12 +952,12 @@ class Box extends Component {
                     <ModalBody>
                         Số tài khoản: {this.props.bill?.stk} <br />
                         Ngân hàng: {this.props.bill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.props.bill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.props.bill?.amount)} vnd</span><br />
                         Cho: {this.props.bill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}<br />
                         và<br/>
                         Số tài khoản: {this.props.bill?.billId?.stk} <br />
                         Ngân hàng: {this.props.bill?.billId?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.props.bill?.billId?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.props.bill?.billId?.amount)} vnd</span><br />
                         Cho: {this.props.bill?.billId?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}<br />
                     </ModalBody>
 
@@ -977,8 +977,8 @@ class Box extends Component {
                         <Row>
                             <div className="card-border mb-3 card card-body border-primary">
                                 <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                    <span class="fw-bold text-danger"><span>{this.props.box?.amount.toLocaleString()} vnd</span></span>
-                                    <CopyToClipboard text={this.props.box?.amount.toLocaleString()}>
+                                    <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.props.box?.amount)} vnd</span></span>
+                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.props.box?.amount)}>
                                         <button type="button" class="btn btn-success ms-1">
                                             <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                         </button>
@@ -1142,8 +1142,8 @@ class Box extends Component {
                         <Row>
                             <div className="card-border mb-3 card card-body border-primary">
                                 <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                    <span class="fw-bold text-danger"><span>{this.props.box?.amount.toLocaleString()} vnd</span></span>
-                                    <CopyToClipboard text={this.props.box?.amount.toLocaleString()}>
+                                    <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.props.box?.amount)} vnd</span></span>
+                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.props.box?.amount)}>
                                         <button type="button" class="btn btn-success ms-1">
                                             <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                         </button>

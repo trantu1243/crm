@@ -344,7 +344,7 @@ class TransactionsTable extends Component {
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
             this.setState({
                 updateTransaction: res.transaction,
-                textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${res.transaction.amount.toLocaleString()} vnd\nPhí: ${res.transaction.fee.toLocaleString()} vnd\nNội dung: ${res.transaction.content}`,
+                textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\nNội dung: ${res.transaction.content}`,
             });
             await this.props.getBoxByIdNoLoad(this.props.boxId);
             this.setState({loading: false});
@@ -630,10 +630,10 @@ class TransactionsTable extends Component {
                                     <td className="text-center ">{item._id.slice(-8)}</td>
                                     <td className="text-center ">{formatDate(item.createdAt)}</td>
                                     <td className="text-center ">{item.bankId.bankCode}</td>
-                                    <td className="text-center ">{item.amount.toLocaleString()}</td>
-                                    <td className="text-center ">{item.fee.toLocaleString()}</td>
-                                    <td className="text-center ">{item.totalAmount.toLocaleString()}</td>
-                                    <td className="text-center ">{item.bonus.toLocaleString()}</td>
+                                    <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
+                                    <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
+                                    <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.totalAmount)}</td>
+                                    <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                                     <td className="text-center ">{item.content}</td>
                                     <td className="text-center "> 
                                         <StatusBadge status={item.status} />&nbsp;
@@ -676,7 +676,7 @@ class TransactionsTable extends Component {
                                             onClick={() => {
                                                 this.setState({
                                                     updateTransaction: item,
-                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${item.amount.toLocaleString()} vnd\nPhí: ${item.fee.toLocaleString()} vnd\nNội dung: ${item.content}`,
+                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\nNội dung: ${item.content}`,
                                                     update: {
                                                         amount: String(item.amount),
                                                         bankId: item.bankId._id,
@@ -711,10 +711,10 @@ class TransactionsTable extends Component {
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td className="text-center">{amount.toLocaleString()}</td>
-                                    <td className="text-center">{fee.toLocaleString()}</td>
-                                    <td className="text-center">{totalAmount.toLocaleString()}</td>
-                                    <td className="text-center">{bonus.toLocaleString()}</td>
+                                    <td className="text-center">{new Intl.NumberFormat('en-US').format(amount)}</td>
+                                    <td className="text-center">{new Intl.NumberFormat('en-US').format(fee)}</td>
+                                    <td className="text-center">{new Intl.NumberFormat('en-US').format(totalAmount)}</td>
+                                    <td className="text-center">{new Intl.NumberFormat('en-US').format(bonus)}</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -731,7 +731,7 @@ class TransactionsTable extends Component {
                             Số tài khoản: {this.state.undoTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.undoTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.undoTransaction?.bankId.bankAccountName} <br />
-                            Tổng tiền: <span className="fw-bold text-danger">{this.state.undoTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+                            Tổng tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.undoTransaction?.totalAmount)} vnd</span><br />
                             Nội dung: {this.state.undoTransaction?.content} <br />            
                         </ModalBody>
                         <ModalFooter>
@@ -751,7 +751,7 @@ class TransactionsTable extends Component {
                             Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.confirmTransaction?.bankId.bankAccountName} <br />
-                            Tổng tiền: <span className="fw-bold text-danger">{this.state.confirmTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+                            Tổng tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.confirmTransaction?.totalAmount)} vnd</span><br />
                             Nội dung: {this.state.confirmTransaction?.content} <br />
                         </ModalBody>
 
@@ -772,7 +772,7 @@ class TransactionsTable extends Component {
                             Số tài khoản: {this.state.cancelTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.cancelTransaction?.bankId.bankName} <br />
                             Chủ tài khoản: {this.state.cancelTransaction?.bankId.bankAccountName} <br />
-                            Tổng tiền: <span className="fw-bold text-danger">{this.state.cancelTransaction?.totalAmount.toLocaleString()} vnd</span><br />
+                            Tổng tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.cancelTransaction?.totalAmount)} vnd</span><br />
                             Nội dung: {this.state.cancelTransaction?.content} <br />            
                         </ModalBody>
     
@@ -965,8 +965,8 @@ class TransactionsTable extends Component {
                             <Row>
                                 <div className="card-border mb-3 card card-body border-primary">
                                     <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                        <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnđ</span></span>
-                                        <CopyToClipboard text={this.props.totalAmount.toLocaleString()}>
+                                        <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.props.totalAmount)} vnđ</span></span>
+                                        <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.props.totalAmount)}>
                                             <button type="button" class="btn btn-success ms-1">
                                                 <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                             </button>

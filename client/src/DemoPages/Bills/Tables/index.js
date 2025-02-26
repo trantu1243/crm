@@ -224,8 +224,8 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item._id.slice(-8)}</td>
                             <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
                             <td className="text-center text-muted">{item.bankCode}</td>
-                            <td className="text-center text-muted">{item.amount.toLocaleString()}</td>
-                            <td className="text-center text-muted">{item.bonus.toLocaleString()}</td>
+                            <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
+                            <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <td className="text-center "> 
                                 <StatusBadge status={item.status} />&nbsp;
@@ -257,8 +257,8 @@ class BillsTable extends Component {
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td className="text-center">{amount.toLocaleString()}</td>
-                            <td className="text-center">{bonus.toLocaleString()}</td>
+                            <td className="text-center">{new Intl.NumberFormat('en-US').format(amount)}</td>
+                            <td className="text-center">{new Intl.NumberFormat('en-US').format(bonus)}</td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -304,7 +304,7 @@ class BillsTable extends Component {
                 <ModalBody>
                     Số tài khoản: {this.state.confirmBill?.stk} <br />
                     Ngân hàng: {this.state.confirmBill?.bankCode} <br />
-                    Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
+                    Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.confirmBill?.amount)} vnd</span><br />
                     Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
                 </ModalBody>
 
@@ -322,7 +322,7 @@ class BillsTable extends Component {
                 <ModalBody>
                     Số tài khoản: {this.state.cancelBill?.stk} <br />
                     Ngân hàng: {this.state.cancelBill?.bankCode} <br />
-                    Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                    Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.cancelBill?.amount)} vnd</span><br />
                     Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người bán" : "Người mua"}
                 </ModalBody>
 

@@ -203,8 +203,8 @@ class BillsTable extends Component {
                                 <Row>
                                     <div className="card-border mb-3 card card-body border-primary">
                                         <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                            <span class="fw-bold text-danger"><span>{this.props.totalAmount.toLocaleString()} vnd</span></span>
-                                            <CopyToClipboard text={this.props.totalAmount.toLocaleString()}>
+                                            <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.props.totalAmount)} vnd</span></span>
+                                            <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.props.totalAmount)}>
                                                 <button type="button" class="btn btn-success ms-1">
                                                     <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                                 </button>
@@ -574,8 +574,8 @@ class BillsTable extends Component {
                             <td className="text-center ">{item._id.slice(-8)}</td>
                             <td className="text-center ">{formatDate(item.createdAt)}</td>
                             <td className="text-center ">{item.bankCode}</td>
-                            <td className="text-center ">{item.amount.toLocaleString()}</td>
-                            <td className="text-center ">{item.bonus.toLocaleString()}</td>
+                            <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
+                            <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                             <td className="text-center ">{item.content}</td>
                             <td className="text-center "> 
                                 <BillStatusBadge status={item.status} />&nbsp;
@@ -603,8 +603,8 @@ class BillsTable extends Component {
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td className="text-center">{amount.toLocaleString()}</td>
-                            <td className="text-center">{bonus.toLocaleString()}</td>
+                            <td className="text-center">{new Intl.NumberFormat('en-US').format(amount)}</td>
+                            <td className="text-center">{new Intl.NumberFormat('en-US').format(bonus)}</td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -621,7 +621,7 @@ class BillsTable extends Component {
                     <ModalBody>
                         Số tài khoản: {this.state.confirmBill?.stk} <br />
                         Ngân hàng: {this.state.confirmBill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.state.confirmBill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.confirmBill?.amount)} vnd</span><br />
                         Cho: {this.state.confirmBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
                     </ModalBody>
 
@@ -639,7 +639,7 @@ class BillsTable extends Component {
                     <ModalBody>
                         Số tài khoản: {this.state.cancelBill?.stk} <br />
                         Ngân hàng: {this.state.cancelBill?.bankCode} <br />
-                        Số tiền: <span className="fw-bold text-danger">{this.state.cancelBill?.amount.toLocaleString()} vnd</span><br />
+                        Số tiền: <span className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(this.state.cancelBill?.amount)} vnd</span><br />
                         Cho: {this.state.cancelBill?.typeTransfer === 'buyer' ? "Người mua" : "Người bán"}
                     </ModalBody>
 

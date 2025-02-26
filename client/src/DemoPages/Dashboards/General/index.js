@@ -234,7 +234,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                    {currentMonthStats?.totalStats.totalAmount.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(currentMonthStats?.totalStats.totalAmount)}&nbsp;
                                                                     <small className="opacity-5 text-muted">vnd</small>
                                                                 </div>
                                                                 <div className="ms-auto">
@@ -261,7 +261,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                    {lastMonthStats?.totalStats.totalAmount.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(lastMonthStats?.totalStats.totalAmount)}&nbsp;
                                                                     <small className="opacity-5 text-muted">vnd</small>
                                                                 </div>
                                                                 <div className="ms-auto">
@@ -290,7 +290,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3 text-danger">
-                                                                    {currentMonthStats?.totalStats.totalFee.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(currentMonthStats?.totalStats.totalFee)}&nbsp;
                                                                     <small className="opacity-5 text-muted">vnd</small>
                                                                 </div>
                                                                 <div className="ms-auto">
@@ -316,7 +316,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3 text-danger">
-                                                                    {lastMonthStats?.totalStats.totalFee.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(lastMonthStats?.totalStats.totalFee)}&nbsp;
                                                                     <small className="opacity-5 text-muted">vnd</small>
                                                                 </div>
                                                                 <div className="ms-auto">
@@ -345,7 +345,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                {currentMonthStats?.totalStats.totalTransactions.toLocaleString()}
+                                                                {new Intl.NumberFormat('en-US').format(currentMonthStats?.totalStats.totalTransactions)}
                                                                 </div>
                                                                 <div className="ms-auto">
                                                                     <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
@@ -370,7 +370,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                {lastMonthStats?.totalStats.totalTransactions.toLocaleString()}
+                                                                {new Intl.NumberFormat('en-US').format(lastMonthStats?.totalStats.totalTransactions)}
                                                                 </div>
                                                                 <div className="ms-auto">
                                                                     <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
@@ -397,7 +397,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                    {todayStats?.totalStats.totalAmount.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(todayStats?.totalStats.totalAmount)}&nbsp;
                                                                     <small className="opacity-5">vnd</small>
                                                                 </div>
                                                             </div>
@@ -415,7 +415,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                    {todayStats?.totalStats.totalFee.toLocaleString()}&nbsp;
+                                                                    {new Intl.NumberFormat('en-US').format(todayStats?.totalStats.totalFee)}&nbsp;
                                                                     <small className="opacity-5">vnd</small>
                                                                 </div>
                                                             </div>

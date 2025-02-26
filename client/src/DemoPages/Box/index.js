@@ -408,7 +408,7 @@ class Box extends Component {
                                                                 <Label>Số tiền đã giao dịch</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p className="fw-bold text-success">{this.props.box.bills.reduce((sum, item) => sum + item.amount, 0).toLocaleString()} vnd</p>
+                                                                <p className="fw-bold text-success">{new Intl.NumberFormat('en-US').format(this.props.box.bills.reduce((sum, item) => sum + item.amount, 0))} vnd</p>
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -416,8 +416,8 @@ class Box extends Component {
                                                                 <Label>Số tiền trong box</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p className="fw-bold text-danger">{box.amount.toLocaleString()} vnd
-                                                                    <CopyToClipboard text={box.amount.toLocaleString()}>
+                                                                <p className="fw-bold text-danger">{new Intl.NumberFormat('en-US').format(box.amount)} vnd
+                                                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(box.amount)}>
                                                                         <button class="btn btn-success ms-1">
                                                                             <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
                                                                         </button>

@@ -33,7 +33,7 @@ class Transaction extends Component {
             value: [],
             bankAccounts: [],
             fee: [],
-            textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`: "",
+            textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content}`: "",
             copied: false,
             input: {
                 amount: this.props.transaction.amount ? this.props.transaction.amount : '',
@@ -82,7 +82,7 @@ class Transaction extends Component {
             }));
             this.setState({
                 linkQr: this.props.transaction.linkQr,
-                textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`: "",
+                textCopy: this.props.transaction.bankId ?  `${this.props.transaction.bankId.bankAccount} tại ${this.props.transaction.bankId.bankName} - ${this.props.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content}`: "",
             })
         }
     }
