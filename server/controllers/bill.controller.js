@@ -100,6 +100,12 @@ const createBill = async (req, res) => {
 
         const box = await BoxTransaction.findById(boxId);
 
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         const existingBill = await Bill.findOne({boxId: box._id, status: 1});
         if (existingBill) {
             return res.status(400).json({ message: 'Có bill thanh khoản chưa được xử lý' });
@@ -111,8 +117,8 @@ const createBill = async (req, res) => {
         }
 
         let boxAmount = box.amount;
-        if (buyer) boxAmount -= Number(buyer.amount);
-        if (seller) boxAmount -= Number(seller.amount);
+        if (buyer) boxAmount -= Number(buyer.amount) - Number(buyer.bonus ? buyer.bonus  : 0);
+        if (seller) boxAmount -= Number(seller.amount) - Number(seller.bonus ? seller.bonus  : 0);
         if (boxAmount < 0) {
             return res.status(400).json({ message: 'Số dư của box không đủ' });
         }
@@ -244,7 +250,9 @@ const confirmBill = async (req, res) => {
             { _id: id, status: 1 },
             { status: 2 },
             { new: true, session }
-        );
+        ).populate([
+            { path: 'billId'},
+        ]);
 
         if (!bill) {
             await session.abortTransaction();
@@ -278,7 +286,7 @@ const confirmBill = async (req, res) => {
         if (box.amount < (bill.amount + bill.bonus)) {
             await session.abortTransaction();
             session.endSession();
-            return res.status(400).json({ message: "Insufficient balance in box" });
+            return res.status(400).json({ message: "Số dư của box không đủ" });
         }
 
         // ✅ Cập nhật số dư trong BoxTransaction
@@ -350,18 +358,21 @@ const confirmBill = async (req, res) => {
 
 const updateBill = async (req, res) => {
     try {
+        console.log(req.body)
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
             return res.status(400).json({ message: `Không đủ quyền` });
         }
 
-        const requiredFields = ['bankCode', 'stk', 'content', 'amount', 'bonus'];
+        const requiredFields = ['bankCode', 'stk', 'content', 'amount'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
+
+        const {bankCode, stk, amount, content, bonus = 0 } = req.body;
 
         const { id } = req.params;
 
@@ -377,13 +388,17 @@ const updateBill = async (req, res) => {
             return res.status(404).json({ message: 'Box is locked' })
         }
 
+        if (box.amount - Number(amount) - Number(bonus) < 0){
+            return res.status(400).json({ message: "Số dư của box không đủ" });
+        }
+
         if (bill.status !== 1) {
             return res.status(400).json({ message: 'Bad request' });
         }
 
         const bank = await BankApi.findOne({ bankCode: bankCode});
         const customer = await Customer.findOne({
-            boxId: { $in: [boxId] },
+            boxId: { $in: [box._id] },
             type: 'seller',
             isDeleted: false,
         });
@@ -396,22 +411,13 @@ const updateBill = async (req, res) => {
             customer.bankAccounts.push({ bankCode, stk });
             await customer.save();
         }
-
-        const qrPayload = {
-            accountNo: stk,
-            acqId: bank.binBank, 
-            addInfo: content,
-            amount: amount.toString(),
-        };
     
-        const qrLink = await generateQrCode(qrPayload);
-
         bill.bankCode = bankCode;
         bill.stk = stk;
         bill.content = content;
         bill.amount = amount;
         bill.bonus = bonus;
-        bill.linkQr = qrLink;
+        bill.linkQr = `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`;
 
         await bill.save();
 
@@ -436,7 +442,9 @@ const cancelBill = async (req, res) => {
 
         const { id } = req.params;
 
-        const bill = await Bill.findById(id);
+        const bill = await Bill.findById(id).populate([
+            { path: 'billId', select: 'bankCode stk content amount bonus typeTransfer boxId linkQr status staffId billId' },
+        ]);
 
         if (!bill || bill.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for cancellation' });
@@ -445,6 +453,23 @@ const cancelBill = async (req, res) => {
         
         if (box && box.status === 'lock') {
             return res.status(404).json({ message: 'Box is locked' })
+        }
+
+        if (bill.billId && bill.billId.status === 1) {
+            bill.status = 3;
+            await bill.save();
+
+            const io = getSocket();
+
+            io.emit('cancel_bill', {
+                bill,
+                box
+            });
+
+            return res.status(200).json({
+                status: true,
+                message: 'Bill canceled successfully',
+            });
         }
         // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
         const result = await Transaction.aggregate([
@@ -537,7 +562,7 @@ const switchBills = async (req, res) => {
         const bill = await Bill.findById(id).populate([
             { path: 'billId'},
         ]);
-        
+        console.log(bill);
         if (!bill || !bill.billId || bill.status !== 1 || bill.billId.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for switch' });
         }

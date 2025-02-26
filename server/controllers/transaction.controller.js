@@ -153,6 +153,12 @@ const createTransaction = async (req, res) => {
 
         let box = await BoxTransaction.findOne({messengerId: messengerId});
 
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' })
+        }
+
         if (!box) {
             box = await BoxTransaction.create({
                 name: '',
@@ -288,6 +294,11 @@ const updateTransaction = async (req, res) => {
 
         // 6. Lấy (hoặc tạo) box
         let box = await BoxTransaction.findOne({ messengerId }).session(session);
+        if (box && box.status === 'lock') {
+            await session.abortTransaction();
+            session.endSession();
+            return res.status(404).json({ message: 'Box is locked' })
+        }
         if (box && box.status === 'lock') {
             await session.abortTransaction();
             session.endSession();

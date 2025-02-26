@@ -136,7 +136,7 @@ class TransactionsTable extends Component {
     }
 
     handleKeyDown = (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !this.state.loading) {
             if (this.state.confirmTransactionModal) {
                 this.handleConfirmTransaction();
             } else if (this.state.cancelModal) {
@@ -293,6 +293,7 @@ class TransactionsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggleCreate()
             this.setState({loading: false})
         }
     };
@@ -313,7 +314,8 @@ class TransactionsTable extends Component {
             this.setState({
                 alert: true,
                 errorMsg: error
-            })
+            });
+            this.toggleUpdate()
             this.setState({loading: false})
         }
     }
@@ -412,7 +414,9 @@ class TransactionsTable extends Component {
             this.setState({
                 alert: true,
                 errorMsg: error
-            })
+            });
+            this.toggle()
+            this.setState({loading: false});
         }
         
     };
@@ -889,7 +893,7 @@ class TransactionsTable extends Component {
 
                 <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-xl">
                     <ModalHeader toggle={this.toggleUpdate}><span style={{fontWeight: 'bold'}}>Chỉnh sửa giao dịch</span></ModalHeader>
-                    <ModalBody onKeyDown={(e) => e.key === "Enter" && this.handleUpdate(e)}>
+                    <ModalBody onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleUpdate(e)}>
                         <Row>
                             <Col md={6} xs={12}>
 
@@ -1085,7 +1089,7 @@ class TransactionsTable extends Component {
                 </Modal>
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
                     <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
-                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleCreateBill(e)}>
+                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleCreateBill(e)}>
                         <Row>
                             <div className="card-border mb-3 card card-body border-primary">
                                 <h5>Số tiền thanh khoản còn lại:&nbsp;

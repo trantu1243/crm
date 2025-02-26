@@ -94,7 +94,7 @@ const ChangePassword = () => {
                         <Container fluid>
                             <Card
                                 className="main-card mb-3 ps-3 pe-3"
-                                onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
+                                onKeyDown={(e) => e.key === "Enter" && !loading && handleSubmit(e)}
                             >
                                 <CardTitle className="mt-3 ml-3">
                                     Đổi Mật Khẩu

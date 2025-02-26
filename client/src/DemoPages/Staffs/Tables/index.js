@@ -160,7 +160,7 @@ class StaffTable extends Component {
                     </Button>
                     <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-lg" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggleCreate}>Tạo nhân viên</ModalHeader>
-                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleSubmit(e)}>
                             <Row className="mb-4">
                                 <Col md={3}>
                                     <Label>Tên nhân viên</Label>
@@ -363,7 +363,7 @@ class StaffTable extends Component {
                 </CardFooter>
                 <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-lg" style={{marginTop: '10rem'}}>
                     <ModalHeader toggle={this.toggleUpdate}>Tạo nhân viên</ModalHeader>
-                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleUpdate(e)}>
+                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
                         <Row className="mb-4">
                             <Col md={3}>
                                 <Label>Tên nhân viên</Label>

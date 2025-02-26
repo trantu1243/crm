@@ -101,6 +101,7 @@ class BillsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggleConfirmBill()
             this.setState({loading: false});
         }
     }
@@ -117,6 +118,7 @@ class BillsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggleCancelBill()
             this.setState({loading: false});
         }
     }

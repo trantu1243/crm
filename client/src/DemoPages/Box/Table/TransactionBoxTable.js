@@ -108,7 +108,7 @@ class TransactionsTable extends Component {
     }
 
     handleKeyDown = (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !this.state.loading) {
             if (this.state.confirmTransactionModal) {
                 this.handleConfirmTransaction();
             } else if (this.state.cancelModal) {
@@ -283,6 +283,7 @@ class TransactionsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggleUndo();
             this.setState({loading: false});
         }
         
@@ -311,6 +312,7 @@ class TransactionsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggle();
             this.setState({loading: false});
         }
         
@@ -352,6 +354,7 @@ class TransactionsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.toggleUpdate();
             this.setState({loading: false})
         }
     }
@@ -405,7 +408,7 @@ class TransactionsTable extends Component {
                         </Button>
                         <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
                             <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
-                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
+                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleSubmit(e)}>
                                 <Row className="mb-4">
                                     <Col md={3} xs={6}>
                                         <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
@@ -640,7 +643,7 @@ class TransactionsTable extends Component {
                                     <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                     <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                     <td className="text-center ">
-                                        {item.status === 6 && <>
+                                        {(item.status === 6 || item.status === 8) && <>
                                             <button 
                                                 className="btn btn-sm btn-primary me-1 mb-1" 
                                                 title="Tạo bill thanh khoản" 
@@ -648,11 +651,11 @@ class TransactionsTable extends Component {
                                                     this.setState({
                                                         buyer: {
                                                             ...this.state.buyer, 
-                                                            content: `Refund GDTG ${item.boxId.slice(-8)}`
+                                                            content: `Refund GDTG ${item.boxId._id.slice(-8)}`
                                                         },
                                                         seller: {
                                                             ...this.state.seller, 
-                                                            content: `Thanh khoản GDTG ${item.boxId.slice(-8)}`
+                                                            content: `Thanh khoản GDTG ${item.boxId._id.slice(-8)}`
                                                         }
                                                     });
                                                     this.toggle();
@@ -785,7 +788,7 @@ class TransactionsTable extends Component {
 
                     <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-xl">
                         <ModalHeader toggle={this.toggleUpdate}><span style={{fontWeight: 'bold'}}>Chỉnh sửa giao dịch</span></ModalHeader>
-                        <ModalBody onKeyDown={(e) => e.key === "Enter" && this.handleUpdate(e)}>
+                        <ModalBody onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleUpdate(e)}>
                             <Row>
                                 <Col md={6} xs={12}>
 
@@ -958,7 +961,7 @@ class TransactionsTable extends Component {
                     </Modal>
                     <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
-                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleCreateBill(e)}>
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleCreateBill(e)}>
                             <Row>
                                 <div className="card-border mb-3 card card-body border-primary">
                                     <h5>Số tiền thanh khoản còn lại:&nbsp;

@@ -234,7 +234,7 @@ class CreateTransaction extends Component {
                     <div className="app-main__outer">
                         <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>
-                                <Card className="main-card mb-3" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
+                                <Card className="main-card mb-3" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleSubmit(e)}>
                                     <CardTitle></CardTitle>
                                     <CardBody>
                                         <Row>

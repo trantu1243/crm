@@ -77,6 +77,28 @@ export const createBill = async (billData) => {
     }  
 };
 
+
+export const updateBill = async (id, billData) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/update`, billData, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating bill", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to creating bill!";
+    }  
+};
+
 export const switchBillService = async (id) => {
     try {
         const response = await axios.post(`${API_URL}/${id}/switch`, {}, {

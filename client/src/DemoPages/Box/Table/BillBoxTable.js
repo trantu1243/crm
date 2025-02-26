@@ -67,7 +67,7 @@ class BillsTable extends Component {
     }
     
     handleKeyDown = (e) => {
-        if (e.key === "Enter") {
+        if (e.key === "Enter" && !this.state.alert.loading) {
             if (this.state.confirmBillModal) {
                 this.handleConfirmBill();
             } else if (this.state.cancelBillModal) {
@@ -199,7 +199,7 @@ class BillsTable extends Component {
                         </Button>
                         <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
                             <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
-                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
+                            <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleSubmit(e)}>
                                 <Row>
                                     <div className="card-border mb-3 card card-body border-primary">
                                         <h5>Số tiền thanh khoản còn lại:&nbsp;

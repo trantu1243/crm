@@ -158,7 +158,7 @@ class RoleTable extends Component {
                     </Button>
                     <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-lg" style={{marginTop: '10rem'}}>
                         <ModalHeader toggle={this.toggleCreate}>Tạo nhóm quyền</ModalHeader>
-                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleSubmit(e)}>
                             <Row className="mb-4">
                                 <Col md={3}>
                                     <Label>Tên nhóm quyền</Label>
@@ -290,7 +290,7 @@ class RoleTable extends Component {
             </>)}
             <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-lg" style={{marginTop: '10rem'}}>
                 <ModalHeader toggle={this.toggleUpdate}>Cập nhật nhóm quyền</ModalHeader>
-                <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleUpdate(e)}>
+                <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
                     <Row className="mb-4">
                         <Col md={3}>
                             <Label>Tên nhóm quyền</Label>

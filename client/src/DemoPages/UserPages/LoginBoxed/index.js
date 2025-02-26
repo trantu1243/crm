@@ -44,7 +44,7 @@ const LoginBoxed = () => {
                                             <span>Vui lòng đăng nhập tài khoản phía dưới.</span>
                                         </h4>
                                     </div>
-                                    <Form onKeyDown={(e) => e.key === "Enter" && handleLogin(e)}>
+                                    <Form onKeyDown={(e) => e.key === "Enter" && !loading && handleLogin(e)}>
                                         <Row form>
                                             <Col md={12}>
                                                 <FormGroup>
