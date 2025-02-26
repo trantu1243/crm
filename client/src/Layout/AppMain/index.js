@@ -41,6 +41,7 @@ const AppMain = () => {
             }
             try {
                 const userData = await verifyToken(tokenState);
+                console.log(userData)
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
