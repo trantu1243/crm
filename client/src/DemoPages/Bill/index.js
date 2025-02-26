@@ -839,12 +839,12 @@ class Box extends Component {
                                                                 <Button color="danger" title="Hủy bill thanh khoản" onClick={() => {this.setState({ cancelBill: bill.billId }); this.toggleCancelBill()}}><FontAwesomeIcon icon={faMinus}></FontAwesomeIcon></Button>
                                                             </div>
                                                         )}
-                                                        {bill.status === 2 && (
+                                                        {bill.billId.status === 2 && (
                                                             <div className="d-flex justify-content-center gap-3 p-4">
                                                                 <span className="badge bg-success">Thành công</span>
                                                             </div>
                                                         )}
-                                                        {bill.status === 3 && (
+                                                        {bill.billId.status === 3 && (
                                                             <div className="d-flex justify-content-center gap-3 p-4">
                                                                 <span className="badge bg-danger">Huỷ</span>
                                                             </div>
