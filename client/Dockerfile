@@ -1,4 +1,4 @@
-FROM node:alpine as builder
+FROM node:18-alpine as builder
 
 RUN mkdir -p /usr/src/client && chown -R node:node /usr/src/client
 
