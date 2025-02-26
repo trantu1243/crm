@@ -26,24 +26,27 @@ async function transactionToMongo() {
                     const box = await BoxTransaction.findOne({ initialId: Number(item.box_transaction_id) });
                     const bank = await BankAccount.findOne({ initialId: item.bank_id });
 
-                    const newItem = await Transaction.create({
-                        initialId: item.id,
-                        boxId: box._id,
-                        bankId: bank._id,
-                        amount: Number(item.amount),
-                        content: item.content,
-                        fee: Number(item.fee),
-                        totalAmount: Number(item.total_amount),
-                        status: Number(item.status),
-                        linkQr: item.link_qr ? item.link_qr : '',
-                        messengerId: item.messenger_id,
-                        staffId: staff._id,
-                        typeFee: item.type_fee,
-                        bonus: Number(item.bonus),
-                        decodeQr: item.decode_qr,
-                        createdAt: createdAt.toISOString(),
-                        updatedAt: updatedAt.toISOString(),
-                    });
+                    if (staff) {
+                        const newItem = await Transaction.create({
+                            initialId: item.id,
+                            boxId: box._id,
+                            bankId: bank._id,
+                            amount: Number(item.amount),
+                            content: item.content,
+                            fee: Number(item.fee),
+                            totalAmount: Number(item.total_amount),
+                            status: Number(item.status),
+                            linkQr: item.link_qr ? item.link_qr : '',
+                            messengerId: item.messenger_id,
+                            staffId: staff._id,
+                            typeFee: item.type_fee,
+                            bonus: Number(item.bonus),
+                            decodeQr: item.decode_qr,
+                            createdAt: createdAt.toISOString(),
+                            updatedAt: updatedAt.toISOString(),
+                        });
+                    }
+                    
                 }
             }
             
