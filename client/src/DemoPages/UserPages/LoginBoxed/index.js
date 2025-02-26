@@ -3,18 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { Col, Row, Button, Form, FormGroup, Input } from "reactstrap";
 import { loginFailure, loginStart, loginSuccess } from "../../../reducers/userSlice";
 import { login } from "../../../services/authService";
-import { useHistory } from "react-router-dom";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
 // Layout
-const LoginBoxed = ({ match }) => {
+const LoginBoxed = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [alert, setAlert] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
     const dispatch = useDispatch();
-    const { loading, error } = useSelector((state) => state.user);
+    const { loading } = useSelector((state) => state.user);
     const handleLogin = async (e) => {
         e.preventDefault();
         dispatch(loginStart());

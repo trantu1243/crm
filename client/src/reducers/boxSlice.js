@@ -30,7 +30,7 @@ export const undoBox = createAsyncThunk(
             const response = await undoBoxService(id); 
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error);
         }
     }
 );

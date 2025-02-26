@@ -8,4 +8,6 @@ router.post('/login', authController.login);
 
 router.post('/verify-token', authenticateToken, authController.authToken);
 
+router.post('/change-password', authenticateToken, authController.changePassword);
+
 module.exports = router;

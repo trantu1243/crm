@@ -50,7 +50,7 @@ class TransactionsTable extends Component {
             banks: [],
             input: {
                 amount: '',
-                bankId: '',
+                bankId: this.props.transactions[0]?.bankId._id || '',
                 bonus: 0,
                 content: '',
                 fee: '',
@@ -246,23 +246,47 @@ class TransactionsTable extends Component {
             this.setState({loading: true});
             await createTransaction(this.state.input);
             await this.props.getBoxByIdNoLoad(this.props.boxId);
-            this.setState({loading: false});
+            this.setState({
+                loading: false,
+                input: {
+                    amount: '',
+                    bankId: this.props.transactions[0]?.bankId._id || '',
+                    bonus: 0,
+                    content: '',
+                    fee: '',
+                    messengerId: this.props.messengerId,
+                    typeFee: 'buyer',
+                    typeBox: 'facebook',
+                    isToggleOn: true,
+                },
+            });
             this.toggleCreate();
         } catch(error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
+            this.toggleCreate();
             this.setState({loading: false})
         }
     };
 
     handleUndo = async () => {
-        this.setState({loading: true});
-        await this.props.undoBox(this.props.boxId);
-        await this.props.getBoxByIdNoLoad(this.props.boxId);
-        this.toggleUndo();
-        this.setState({loading: false});
+        try{
+            this.setState({loading: true});
+            await this.props.undoBox(this.props.boxId);
+            await this.props.getBoxByIdNoLoad(this.props.boxId);
+            this.toggleUndo();
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false});
+        }
+        
+        
     }
 
     handleCreateBill = async (e) => {
@@ -287,6 +311,7 @@ class TransactionsTable extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false});
         }
         
     };

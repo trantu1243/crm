@@ -552,16 +552,16 @@ class BillsTable extends Component {
                             </td>
                         </tr>)}
                         <tr className="fw-bold">
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td className="text-center">{amount.toLocaleString()}</td>
-                                <td className="text-center">{bonus.toLocaleString()}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td className="text-center">{amount.toLocaleString()}</td>
+                            <td className="text-center">{bonus.toLocaleString()}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     </tbody>
                 </Table>
                 <CardFooter className="d-block text-center">

@@ -98,7 +98,7 @@ class UserBoxMobile extends React.Component {
                                                     </NavLink>
                                                 </NavItem>
                                                 <NavItem>
-                                                    <NavLink href="#">Đổi mật khẩu</NavLink>
+                                                    <NavLink href="/change-password">Đổi mật khẩu</NavLink>
                                                 </NavItem>
                                             
                                             </Nav>

@@ -1,5 +1,37 @@
 const { default: mongoose } = require("mongoose");
-const { Transaction, BankAccount, Staff } = require("../models");
+const { Transaction, BankAccount, Staff, BoxTransaction, Bill } = require("../models");
+
+const statusNames = {
+    1: "Chưa nhận",
+    2: "Thành công",
+    3: "Hủy",
+    6: "Đã nhận",
+    7: "Đang xử lý",
+    8: "Hoàn thành một phần"
+};
+  
+const allStatuses = [1, 2, 3, 6, 7, 8];
+
+const convertToStatusMap = (arr) => {
+
+    const result = {};
+    allStatuses.forEach((st) => {
+        result[st] = {
+            name: statusNames[st],
+            count: 0
+        };
+    });
+
+    arr.forEach((item) => {
+        const status = item._id;
+        const count = item.totalAmount;
+        if (result[status]) {
+        result[status].count = count;
+        }
+    });
+
+    return result;
+};
 
 const getMonthlyStats = async (req, res) => {
     try {
@@ -448,6 +480,12 @@ const getDailyBankStatsByStaff = async (req, res) => {
             return res.status(400).json({ message: "Vui lòng cung cấp staffId" });
         }
 
+        const user = await Staff.findById(req.user.id);
+
+        if (req.user.id !== staffId && user.is_admin === 0) {
+            return res.status(400).json({ message: "Không đủ quyền" });
+        }
+
         const staffObjectId = new mongoose.Types.ObjectId(staffId);
 
         const today = new Date();
@@ -564,11 +602,631 @@ const getDailyBankStatsByStaff = async (req, res) => {
     }
 };
 
+const getTransactionStatsByStaff = async (req, res) => {
+    try {
+        let { staffId, day, month, year } = req.query;
+
+        if (!staffId) {
+            return res.status(400).json({ message: "Vui lòng cung cấp staffId" });
+        }
+
+        const user = await Staff.findById(req.user.id);
+
+        if (req.user.id !== staffId && user.is_admin === 0) {
+            return res.status(400).json({ message: "Không đủ quyền" });
+        }
+
+        const staffObjectId = new mongoose.Types.ObjectId(staffId);
+
+        const today = new Date();
+
+        // Nếu không có param, mặc định là ngày hiện tại theo giờ Việt Nam (UTC+7)
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        // ✅ Xác định khoảng thời gian từ 00:00:00 đến 23:59:59 theo giờ Việt Nam
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
+        
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        
+        const lastMonth = month === 1 ? 12 : month - 1;
+        const lastYear = month === 1 ? year - 1 : year;
+        const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
+        const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
+    
+    
+        // Tạo object match chung cho staffId (nếu có)
+        // Nếu không có staffId, thì không lọc staffId (tức là lấy tất cả)
+        const staffMatch = { staffId: staffObjectId };
+    
+        // Sử dụng \$facet để gom 3 truy vấn trong 1 pipeline
+        const results = await Transaction.aggregate([
+            {
+                $facet: {
+                    today: [
+                        { 
+                            $match: {
+                                ...staffMatch,
+                                createdAt: { $gte: startOfDayVN, $lt: endOfDayVN }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",             
+                                totalAmount: { $sum: 1 }
+                            }
+                        }
+                        ],
+                        currentMonth: [
+                        {
+                            $match: {
+                                ...staffMatch,
+                                createdAt: { $gte: startOfMonth, $lt: endOfMonth }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",
+                                totalAmount: { $sum: 1 }
+                            }
+                        }
+                        ],
+                        lastMonth: [
+                        {
+                            $match: {
+                                ...staffMatch,
+                                createdAt: { $gte: startOfLastMonth, $lt: endOfLastMonth }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",
+                                totalAmount: { $sum: 1 }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+    
+        const [stats] = results;
+    
+        const responseData = {
+            today: convertToStatusMap(stats.today || []),
+            currentMonth: convertToStatusMap(stats.currentMonth || []),
+            lastMonth: convertToStatusMap(stats.lastMonth || []),
+          };
+    
+        return res.status(200).json({
+            message: "Lấy thống kê giao dịch thành công",
+            data: responseData,
+        });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+async function listActiveBoxAmountByBank(req, res) {
+    try {
+        const results = await Transaction.aggregate([
+            {
+                $lookup: {
+                    from: "boxtransactions",  
+                    localField: "boxId",
+                    foreignField: "_id",
+                    as: "boxInfo"
+                }
+            },
+            { $unwind: "$boxInfo" },
+            {
+                $match: { "boxInfo.status": "active" }
+            },
+            {
+                $lookup: {
+                    from: "bankaccounts",  
+                    localField: "bankId",
+                    foreignField: "_id",
+                    as: "bankInfo"
+                }
+            },
+            { $unwind: "$bankInfo" },
+            {
+                $group: {
+                    _id: "$bankInfo._id",
+                    bankName: { $first: "$bankInfo.bankName" },
+                    bankCode: { $first: "$bankInfo.bankCode" },
+                    boxAmounts: { $addToSet: "$boxInfo.amount" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    bankId: "$_id",
+                    bankName: 1,
+                    bankCode: 1,
+                    totalAmount: { $sum: "$boxAmounts" } 
+                }
+            },
+            { $sort: { amount: -1 } }
+        ]);
+    
+        res.status(200).json({
+            message: "Danh sách ngân hàng + tổng Box.amount (active)",
+            data: results
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+async function listActiveBoxAmountByStaff(req, res) {
+    try {
+        let { staffId, day, month, year } = req.query;
+
+        if (!staffId) {
+            return res.status(400).json({ message: "Vui lòng cung cấp staffId" });
+        }
+
+        const user = await Staff.findById(req.user.id);
+
+        if (req.user.id !== staffId && user.is_admin === 0) {
+            return res.status(400).json({ message: "Không đủ quyền" });
+        }
+
+        const today = new Date();
+
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
+    
+        const matchTransaction = {};
+        matchTransaction.staffId = new mongoose.Types.ObjectId(staffId);
+      
+        const matchBox = { "boxInfo.status": "active" };
+        if (startOfDayVN && endOfDayVN) {
+            matchBox["boxInfo.createdAt"] = {
+                $gte: startOfDayVN,
+                $lte: endOfDayVN
+            };
+        }
+  
+        const results = await Transaction.aggregate([
+            { $match: matchTransaction },
+            {
+                $lookup: {
+                    from: "boxtransactions",
+                    localField: "boxId",
+                    foreignField: "_id",
+                    as: "boxInfo"
+                }
+            },
+            { $unwind: "$boxInfo" },
+            { $match: matchBox },
+            {
+                $lookup: {
+                    from: "bankaccounts",
+                    localField: "bankId",
+                    foreignField: "_id",
+                    as: "bankInfo"
+                }
+            },
+            { $unwind: "$bankInfo" },
+            {
+                $group: {
+                    _id: "$bankInfo._id",
+                    bankName: { $first: "$bankInfo.bankName" },
+                    bankCode: { $first: "$bankInfo.bankCode" },
+                    boxAmounts: { $addToSet: "$boxInfo.amount" }, 
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    bankId: "$_id",
+                    bankName: 1,
+                    bankCode: 1,
+                    totalAmount: { $sum: "$boxAmounts" }
+                }
+            },
+            { $sort: { totalAmount: -1 } }
+        ]);
+  
+        return res.status(200).json({
+            message: "Danh sách ngân hàng + tổng box.amount (Box active, Transaction lọc staffId)",
+            data: results
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+async function getStaffShareInMonth(req, res) {
+    try {
+        let { staffId, year, month } = req.query;
+
+        if (!staffId) {
+            return res.status(400).json({ message: "Vui lòng cung cấp staffId" });
+        }
+
+        const user = await Staff.findById(req.user.id);
+
+        if (req.user.id !== staffId && user.is_admin === 0) {
+            return res.status(400).json({ message: "Không đủ quyền" });
+        }
+
+        const today = new Date();
+
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        
+        const staffObjectId = new mongoose.Types.ObjectId(staffId);
+    
+        const results = await BoxTransaction.aggregate([
+            {
+                $match: {
+                    status: "complete",
+                    createdAt: {
+                        $gte: startOfMonth,
+                        $lt: endOfMonth
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "bills",
+                    localField: "_id",
+                    foreignField: "boxId",
+                    as: "bills"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    createdAt: 1,
+                    totalBills: { $size: "$bills" },
+                    staffABillsCount: {
+                        $size: {
+                            $filter: {
+                                input: "$bills",
+                                as: "b",
+                                cond: { $eq: ["$$b.staffId", staffObjectId] }
+                            }
+                        }
+                    }
+                }
+            },
+    
+            {
+            $project: {
+                fraction: {
+                    $cond: [
+                        { $eq: ["$totalBills", 0] },
+                        0,
+                        { $divide: ["$staffABillsCount", "$totalBills"] }
+                    ]
+                }
+            }
+            },
+    
+            {
+            $group: {
+                _id: null,
+                totalShare: { $sum: "$fraction" }
+            }
+            }
+        ]);
+      
+        const results3 = await BoxTransaction.aggregate([
+            {
+                $match: {
+                    status: { $in: ["complete", 'active']},
+                    createdAt: {
+                        $gte: startOfMonth,
+                        $lt: endOfMonth
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "bills",
+                    localField: "_id",
+                    foreignField: "boxId",
+                    as: "bills"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    status: 1,
+                    createdAt: 1,
+                    totalBills: { $size: "$bills" },
+                    staffABillsCount: {
+                        $size: {
+                            $filter: {
+                                input: "$bills",
+                                as: "b",
+                                cond: { $eq: ["$$b.staffId", staffObjectId] }
+                            }
+                        }
+                    }
+                }
+            },
+    
+            {
+            $project: {
+                fraction: {
+                    $cond: [
+                        { $eq: ["$totalBills", 0] },
+                        0,
+                        { $divide: ["$staffABillsCount", "$totalBills"] }
+                    ]
+                }
+            }
+            },
+    
+            {
+            $group: {
+                _id: null,
+                totalShare: { $sum: "$fraction" }
+            }
+            }
+        ]);
+  
+        const totalShare1 = results.length ? results[0].totalShare : 0;
+
+        const totalShare2 = results3.length ? results3[0].totalShare : 0;
+
+        const results2 = await Bill.aggregate([
+            { 
+                $match: { staffId: staffObjectId }
+            },
+            {
+                $lookup: {
+                    from: "boxtransactions",
+                    localField: "boxId",
+                    foreignField: "_id",
+                    as: "boxInfo"
+                }
+            },
+            { $unwind: "$boxInfo" },
+            {
+                $match: {
+                    "boxInfo.createdAt": {
+                    $gte: startOfMonth,
+                    $lt: endOfMonth
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalBills: { $sum: "$amount" }
+                }
+            }
+        ]);
+    
+        const totalBills = results2.length ? results2[0].totalBills : 0;
+    
+        return res.status(200).json({
+            message: "Tổng phần chia của Staff A trong tháng",
+            staffId,
+            year,
+            month,
+            share: totalShare1,
+            share2: totalShare2,
+            totalBills
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+async function getDailyShareOfStaff(req, res) {
+    try {
+      let { staffId, day, month, year } = req.query;
+  
+     if (!staffId) {
+            return res.status(400).json({ message: "Vui lòng cung cấp staffId" });
+        }
+
+        const user = await Staff.findById(req.user.id);
+
+        if (req.user.id !== staffId && user.is_admin === 0) {
+            return res.status(400).json({ message: "Không đủ quyền" });
+        }
+
+        const staffObjectId = new mongoose.Types.ObjectId(staffId);
+
+        const today = new Date();
+
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
+  
+        const results = await BoxTransaction.aggregate([
+            {
+                $match: {
+                    status: "complete", 
+                    createdAt: {
+                        $gte: startOfDayVN,
+                        $lte: endOfDayVN
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "bills",
+                    localField: "_id",
+                    foreignField: "boxId",
+                    as: "bills"
+                }
+            },
+            {
+                $project: {
+                    totalBills: { $size: "$bills" },
+                    staffABillsCount: {
+                        $size: {
+                            $filter: {
+                                input: "$bills",
+                                as: "bill",
+                                cond: { $eq: ["$$bill.staffId", staffObjectId] }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    fraction: {
+                        $cond: [
+                            { $eq: ["$totalBills", 0] },
+                            0,
+                            { $divide: ["$staffABillsCount", "$totalBills"] }
+                        ]
+                    }
+                }
+            },
+            {
+            $group: {
+                _id: null,
+                dailyShare: { $sum: "$fraction" }
+            }
+            }
+        ]);
+
+        const results3 = await BoxTransaction.aggregate([
+            {
+                $match: {
+                    status: "complete", 
+                    createdAt: {
+                        $gte: startOfDayVN,
+                        $lte: endOfDayVN
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "bills",
+                    localField: "_id",
+                    foreignField: "boxId",
+                    as: "bills"
+                }
+            },
+            {
+                $project: {
+                    totalBills: { $size: "$bills" },
+                    staffABillsCount: {
+                        $size: {
+                            $filter: {
+                                input: "$bills",
+                                as: "bill",
+                                cond: { $eq: ["$$bill.staffId", staffObjectId] }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    fraction: {
+                        $cond: [
+                            { $eq: ["$totalBills", 0] },
+                            0,
+                            { $divide: ["$staffABillsCount", "$totalBills"] }
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    dailyShare: { $sum: "$fraction" }
+                }
+            }
+        ]);
+
+        const results2 = await Bill.aggregate([
+            { 
+                $match: { staffId: staffObjectId }
+            },
+            {
+                $lookup: {
+                    from: "boxtransactions",     // collection của BoxTransaction
+                    localField: "boxId",
+                    foreignField: "_id",
+                    as: "boxInfo"
+                }
+            },
+            { $unwind: "$boxInfo" },
+    
+            {
+                $match: {
+                    "boxInfo.createdAt": {
+                        $gte: startOfDayVN,
+                        $lte: endOfDayVN
+                    }
+                }
+            },
+    
+            {
+                $group: {
+                    _id: null,
+                    totalBills: { $sum: "$amount" } 
+                }
+            }
+        ]);
+  
+      // Kết quả, nếu không có bill => results=[]
+        const totalBills = results2.length ? results2[0].totalBills : 0;
+        const dailyShare2 = results3.length ? results3[0].dailyShare : 0;
+
+        console.log(results3)
+        const dailyShare1 = results.length ? results[0].dailyShare : 0;
+    
+        return res.status(200).json({
+            message: "Phần chia của staff trong 1 ngày",
+            date: `${day}-${month}-${year}`,
+            staffId,
+            dailyShare1,
+            totalBills,
+            dailyShare2
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+  
+
 
 module.exports = {
     getMonthlyStats,
     getDailyStats,
     getBalance,
     getStaffMonthlyStats,
-    getDailyBankStatsByStaff
+    getDailyBankStatsByStaff,
+    getTransactionStatsByStaff,
+    listActiveBoxAmountByBank,
+    listActiveBoxAmountByStaff,
+    getStaffShareInMonth,
+    getDailyShareOfStaff
 }

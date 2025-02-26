@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 
-const DonutFeeChart = ({ bankStats }) => {
+const DonutTransactionsChart = ({ bankStats }) => {
   const [options, setOptions] = useState({
     chart: {
       sparkline: { enabled: false }
@@ -37,7 +37,7 @@ const DonutFeeChart = ({ bankStats }) => {
       // Nếu muốn hiển thị series dạng 1,000 trong legend, có thể thêm formatter:
       formatter: function (label, opts) {
         const seriesVal = opts.w.globals.series[opts.seriesIndex];
-        return `${label}: ${new Intl.NumberFormat("en-US").format(seriesVal)} vnd`;
+        return `${label}: ${new Intl.NumberFormat("en-US").format(seriesVal)}`;
       },
     },
     plotOptions: {
@@ -45,18 +45,12 @@ const DonutFeeChart = ({ bankStats }) => {
         donut: {
           labels: {
             show: true,
-            value: {
-                show: true,
-                formatter: function (w) {
-                  return `${new Intl.NumberFormat("en-US").format(w)} vnd`;
-                },
-            },
             total: {
               show: true,
               label: "",
               formatter: function (w) {
                 const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                return `${new Intl.NumberFormat("en-US").format(total)} vnd`;
+                return `${new Intl.NumberFormat("en-US").format(total)}`;
               },
             }
           }
@@ -71,9 +65,9 @@ const DonutFeeChart = ({ bankStats }) => {
     if (!bankStats) return;
 
     // Tạo labels = danh sách tên ngân hàng
-    const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
-    // Tạo series = mảng totalFee, là số (không format chuỗi)
-    const newSeries = bankStats.map((b) => b.totalFee || 0);
+    const newLabels = Object.entries(bankStats).map(([statusKey, item], index) => item.name || "Unknown");
+    // Tạo series = mảng totalTransactions, là số (không format chuỗi)
+    const newSeries =Object.entries(bankStats).map(([statusKey, item], index) => item.count || 0);
 
     setOptions((prev) => ({
       ...prev,
@@ -93,4 +87,4 @@ const DonutFeeChart = ({ bankStats }) => {
   );
 };
 
-export default DonutFeeChart;
+export default DonutTransactionsChart;

@@ -118,13 +118,13 @@ const createTransaction = async (req, res) => {
             return res.status(400).json({ message: `Không đủ quyền` });
         }
 
-        const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
+        const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
-
+        console.log(req.body)
         const {
             bankId,
             typeBox,
@@ -133,7 +133,7 @@ const createTransaction = async (req, res) => {
             messengerId,
             typeFee,
             fee,
-            bonus
+            bonus = 0
         } = req.body;
 
         let oriAmount = Number(amount);
@@ -173,6 +173,16 @@ const createTransaction = async (req, res) => {
                 boxId: [box._id],
                 type: "seller"
             });
+        } else {
+            if (box.status === 'active') {
+                const tran = await Transaction.findOne({ boxId: box._id }).sort({ createdAt: -1 }).populate(
+                    [
+                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                    ]);
+                if (tran && tran.bankId.bankCode !== bank.bankCode) {
+                    return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
+                }
+            }
         }
         
         const newTransaction = await Transaction.create({
@@ -301,13 +311,6 @@ const updateTransaction = async (req, res) => {
             }
             box.amount += oriAmount;
             await box.save({ session });
-
-            const oldBank = await BankAccount.findById(tran.bankId).session(session);
-            if (oldBank) {
-                oldBank.totalAmount -= tran.amount;
-                oldBank.totalAmount += oriAmount;
-                await oldBank.save({ session });
-            }
         }
 
         // 8. Update transaction
@@ -413,21 +416,6 @@ const confirmTransaction = async (req, res) => {
 
         // 🔥 Cập nhật tất cả giao dịch có status = 2 thành status = 8
         await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 }, { session });
-
-        //
-        const bank = await BankAccount.findById(transaction.bankId).session(session);
-
-        if (!bank) {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(400).json({ message: "Bank not found" });
-        }
-        
-        await BankAccount.updateOne(
-            { _id: bank._id },
-            { $inc: { totalAmount: transaction.totalAmount } },
-            { session }
-        )
         
         // ✅ Commit transaction (lưu tất cả thay đổi)
         await session.commitTransaction();

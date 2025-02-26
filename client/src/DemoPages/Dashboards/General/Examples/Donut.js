@@ -40,7 +40,6 @@ const DonutChart = ({ bankStats }) => {
             value: {
                 show: true,
                 formatter: function (w) {
-                  console.log(w)
                   return `${new Intl.NumberFormat("en-US").format(w)} vnd`;
                 },
             },

@@ -301,16 +301,6 @@ const confirmBill = async (req, res) => {
         const transactions = await Transaction.find({ boxId: box._id, status: 7 })
             .sort({ createdAt: 1 })
             .session(session);
-
-
-        //
-        const bank = await BankAccount.findById(transactions[0].bankId).session(session);
-
-        if (!bank) {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(400).json({ message: "Bank not found" });
-        }
         
         if (box.amount - (bill.amount + bill.bonus) === 0) {
             // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
@@ -336,12 +326,6 @@ const confirmBill = async (req, res) => {
 
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 6 }, { session });
         }
-
-        await BankAccount.updateOne(
-            { _id: bank._id },
-            { $inc: { totalAmount: - (bill.amount + bill.bonus) } },
-            { session }
-        )
         
         // ✅ Commit transaction nếu mọi thứ thành công
         await session.commitTransaction();

@@ -88,10 +88,10 @@ const undoBox = async (req, res) => {
         
         // Tìm BoxTransaction theo ID
         const box = await BoxTransaction.findById(id);
-        if (!box || box.status === 'lock') return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
+        if (!box || box.status === 'lock') return res.status(400).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         const user = await Staff.findById(req.user.id);
-        if (box.status === 'complete' && user.is_admin === 0) return res.status(404).json({ message: 'Box đã hoàn thành' });
+        if (box.status === 'complete' && user.is_admin === 0) return res.status(400).json({ message: 'Box đã hoàn thành' });
         // Lấy danh sách transactions (trừ những transaction có status = 3), sắp xếp theo thời gian mới nhất
         const transactions = await Transaction.find({ boxId: box._id, status: { $ne: 1 } }).sort({ createdAt: -1 });
         if (transactions.length === 0) return res.status(400).json({ message: 'No transactions found' });
