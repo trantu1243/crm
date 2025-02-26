@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet";
 import * as serviceWorker from "./serviceWorker";
 import * as process from 'process';
 
-import { BrowserRouter, HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import "./assets/base.scss";
 import Main from "./DemoPages/Main";
 import configureStore from "./config/configureStore";

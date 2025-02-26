@@ -30,7 +30,6 @@ class Main extends Component {
             colorScheme,
             enableFixedHeader,
             enableFixedSidebar,
-            enableFixedFooter,
             enableClosedSidebar,
             closedSmallerSidebar,
             enableMobileMenu,
