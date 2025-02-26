@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-# Copy cấu hình Nginx vào container
+# Copy file cấu hình vào thư mục chính xác
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy build React vào thư mục phục vụ Nginx
