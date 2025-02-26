@@ -41,7 +41,11 @@ const AppMain = () => {
             }
             try {
                 const userData = await verifyToken(tokenState);
-                console.log(userData)
+                if (!userData.user) {
+                    localStorage.removeItem("token");
+                    dispatch(logout());
+                    setIsAuth(false);
+                }
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
