@@ -81,7 +81,6 @@ const AppMain = () => {
                 })
 
                 socket.on('confirm_transaction', (data) => {
-                    console.log('confirm')
                     if (transactions.transactions?.docs.length > 0) {
                         dispatch(getTransactionsNoLoad(transactions.filters));
                     }
