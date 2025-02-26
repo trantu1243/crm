@@ -20,7 +20,7 @@ async function importExcelToMongo() {
     // await boxTransactionToMongo();
     // await feeTransactionToMongo();
     // await billToMongo();
-    await transactionToMongo();
+    // await transactionToMongo();
 }
 
 module.exports = {
