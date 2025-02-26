@@ -14,13 +14,13 @@ const { billToMongo } = require('./bill');
 const { transactionToMongo } = require('./transaction');
 
 async function importExcelToMongo() {
-    // await bankAccountToMongo();
-    // await bankApiToMongo();
-    // await staffToMongo();
-    // await boxTransactionToMongo();
-    // await feeTransactionToMongo();
-    // await billToMongo();
-    // await transactionToMongo();
+    await bankAccountToMongo();
+    await bankApiToMongo();
+    await staffToMongo();
+    await boxTransactionToMongo();
+    await feeTransactionToMongo();
+    await billToMongo();
+    await transactionToMongo();
 }
 
 module.exports = {
