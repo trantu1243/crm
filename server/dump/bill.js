@@ -35,7 +35,6 @@ async function billToMongo() {
                     boxId: box._id,
                     messengerId: item.messenger_id,
                     linkQr: item.link_qr ? item.link_qr : '',
-                    customerFbId: item.customer_fb_id ? item.customer_fb_id : '',
                     status: Number(item.status),
                     staffId: staff._id,
                     isCompleted: item.is_completed,

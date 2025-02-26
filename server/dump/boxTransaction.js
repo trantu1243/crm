@@ -38,14 +38,8 @@ async function boxTransactionToMongo() {
                 const newArray = [];
 
                 for (const it of note_data) {
-                    const created_at = it.created_at ? new Date(it.created_at * 1000) : new Date();
-                    const staff = await Staff.findOne({ email: it.created_by });
-                    newArray.push({
-                        note: it.note,
-                        status: it.status,
-                        createdAt: created_at.toISOString(),
-                        createdBy: staff._id
-                    });
+                   
+                    newArray.push(it.note);
                 }
 
                 const createdAt = item.created_at ? new Date(item.created_at * 1000) : new Date();

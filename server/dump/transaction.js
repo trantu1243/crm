@@ -30,7 +30,6 @@ async function transactionToMongo() {
                     boxId: box._id,
                     bankId: bank._id,
                     amount: Number(item.amount),
-                    stk: item.account_id,
                     content: item.content,
                     fee: Number(item.fee),
                     totalAmount: Number(item.total_amount),
