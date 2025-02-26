@@ -131,7 +131,7 @@ const undoBox = async (req, res) => {
             const bill = await Bill.findOne({boxId: box._id, status: 1}).populate([
                 { path: 'billId'},
             ]);
-            
+
             if (bill.billId && bill.billId.status === 2) {
                 const updateBill = await Bill.findById(bill.billId._id);
                 updateBill.status = 1;
@@ -218,6 +218,7 @@ const undoBox = async (req, res) => {
         
         else if (latestTransaction.status === 3) {
             latestTransaction.status = 1;
+            latestTransaction.createdAt =  new Date().toISOString();
             await latestTransaction.save();
         }
         // Nếu transaction mới nhất có status = 1, tìm transaction tiếp theo có status = 6 để cập nhật
