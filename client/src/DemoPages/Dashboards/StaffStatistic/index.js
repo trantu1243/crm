@@ -731,7 +731,7 @@ class StaffStatistic extends Component {
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số lệnh trong ngày</h6>
+                                                    <h6 className="widget-subheading">Số lệnh trong tháng</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
@@ -754,7 +754,7 @@ class StaffStatistic extends Component {
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số tiền thanh khoản trong tháng</h6>
+                                                    <h6 className="widget-subheading">Số tiền thanh khoản tháng trước</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
@@ -774,7 +774,7 @@ class StaffStatistic extends Component {
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số lệnh trong ngày</h6>
+                                                    <h6 className="widget-subheading">Số lệnh tháng trước</h6>
                                                     <div className="widget-chart-flex">
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
