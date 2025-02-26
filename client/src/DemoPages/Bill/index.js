@@ -378,6 +378,7 @@ class Box extends Component {
                 alert: true,
                 errorMsg: error
             })
+            this.setState({loading: false});
         }
     }
 

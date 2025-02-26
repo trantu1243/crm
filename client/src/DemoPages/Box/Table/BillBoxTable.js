@@ -323,6 +323,18 @@ class BillsTable extends Component {
                                                             },
                                                         }));
                                                     }}
+                                                    onPaste={(e) => {
+                                                        e.preventDefault(); 
+                                                        let pastedText = e.clipboardData.getData("text"); 
+                                                        let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                        this.setState((prevState) => ({
+                                                            buyer: {
+                                                                ...prevState.buyer,
+                                                                amount: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
@@ -341,6 +353,18 @@ class BillsTable extends Component {
                                                         let rawValue = e.target.value.replace(/,/g, ''); 
                                                         let numericValue = parseInt(rawValue, 10) || 0;
                                                         
+                                                        this.setState((prevState) => ({
+                                                            buyer: {
+                                                                ...prevState.buyer,
+                                                                bonus: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
+                                                    onPaste={(e) => {
+                                                        e.preventDefault(); 
+                                                        let pastedText = e.clipboardData.getData("text"); 
+                                                        let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
                                                         this.setState((prevState) => ({
                                                             buyer: {
                                                                 ...prevState.buyer,
@@ -460,6 +484,18 @@ class BillsTable extends Component {
                                                             },
                                                         }));
                                                     }}
+                                                    onPaste={(e) => {
+                                                        e.preventDefault(); 
+                                                        let pastedText = e.clipboardData.getData("text"); 
+                                                        let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                        this.setState((prevState) => ({
+                                                            seller: {
+                                                                ...prevState.buyer,
+                                                                amount: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
@@ -481,6 +517,18 @@ class BillsTable extends Component {
                                                         this.setState((prevState) => ({
                                                             seller: {
                                                                 ...prevState.seller,
+                                                                bonus: numericValue < 0 ? 0 : numericValue,
+                                                            },
+                                                        }));
+                                                    }}
+                                                    onPaste={(e) => {
+                                                        e.preventDefault(); 
+                                                        let pastedText = e.clipboardData.getData("text"); 
+                                                        let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                        this.setState((prevState) => ({
+                                                            seller: {
+                                                                ...prevState.buyer,
                                                                 bonus: numericValue < 0 ? 0 : numericValue,
                                                             },
                                                         }));

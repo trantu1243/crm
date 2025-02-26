@@ -713,7 +713,7 @@ class TransactionsTable extends Component {
                                 </td>                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center">
-                                    {item.status === 6 && <>
+                                    {(item.status === 6 || item.status === 8) && <>
                                         <button 
                                             className="btn btn-sm btn-primary me-1 mb-1" 
                                             title="Tạo bill thanh khoản" 
@@ -1212,6 +1212,18 @@ class TransactionsTable extends Component {
                                                     },
                                                 }));
                                             }}
+                                            onPaste={(e) => {
+                                                e.preventDefault(); 
+                                                let pastedText = e.clipboardData.getData("text"); 
+                                                let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                this.setState((prevState) => ({
+                                                    buyer: {
+                                                        ...prevState.buyer,
+                                                        amount: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
                                         />
                                     </Col>
                                 </Row>
@@ -1230,6 +1242,18 @@ class TransactionsTable extends Component {
                                                 let rawValue = e.target.value.replace(/,/g, ''); 
                                                 let numericValue = parseInt(rawValue, 10) || 0;
                                                 
+                                                this.setState((prevState) => ({
+                                                    buyer: {
+                                                        ...prevState.buyer,
+                                                        bonus: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
+                                            onPaste={(e) => {
+                                                e.preventDefault(); 
+                                                let pastedText = e.clipboardData.getData("text"); 
+                                                let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
                                                 this.setState((prevState) => ({
                                                     buyer: {
                                                         ...prevState.buyer,
@@ -1349,6 +1373,18 @@ class TransactionsTable extends Component {
                                                     },
                                                 }));
                                             }}
+                                            onPaste={(e) => {
+                                                e.preventDefault(); 
+                                                let pastedText = e.clipboardData.getData("text"); 
+                                                let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                this.setState((prevState) => ({
+                                                    seller: {
+                                                        ...prevState.buyer,
+                                                        amount: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
                                         />
                                     </Col>
                                 </Row>
@@ -1370,6 +1406,18 @@ class TransactionsTable extends Component {
                                                 this.setState((prevState) => ({
                                                     seller: {
                                                         ...prevState.seller,
+                                                        bonus: numericValue < 0 ? 0 : numericValue,
+                                                    },
+                                                }));
+                                            }}
+                                            onPaste={(e) => {
+                                                e.preventDefault(); 
+                                                let pastedText = e.clipboardData.getData("text"); 
+                                                let numericValue = parseInt(pastedText.replace(/,/g, ""), 10) || 0; 
+
+                                                this.setState((prevState) => ({
+                                                    seller: {
+                                                        ...prevState.buyer,
                                                         bonus: numericValue < 0 ? 0 : numericValue,
                                                     },
                                                 }));
