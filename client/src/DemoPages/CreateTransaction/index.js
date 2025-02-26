@@ -149,7 +149,6 @@ class CreateTransaction extends Component {
             this.setState({loading: true});
             if (this.state.input.isToggleOn) {
                 const res = await createTransaction(this.state.input);
-                console.log(res);
                 this.props.setTransaction(res.transaction);
                 const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
                 this.setState({

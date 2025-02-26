@@ -19,7 +19,6 @@ const LoginBoxed = () => {
         dispatch(loginStart());
         try {
             const data = await login(email, password);
-            console.log(data)
             localStorage.setItem("token", data.token);
             dispatch(loginSuccess(data));
             window.location.href = "/transactions";

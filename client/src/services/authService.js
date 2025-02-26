@@ -15,7 +15,6 @@ export const login = async (email, password) => {
         );
         return response.data; // Giả sử server trả về `{ user, token }`
     } catch (error) {
-        console.log(error)
         throw error.response?.data?.message || "Đăng nhập thất bại!";
     }
 };
@@ -25,7 +24,6 @@ export const verifyToken = async (token) => {
         const response = await axios.post(`${API_URL}/auth/verify-token`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });    
-        console.log(response.data)    
         return response.data;
     } catch (error) {
         localStorage.removeItem("token");
