@@ -4,7 +4,7 @@ services:
     image: mongo
     container_name: mongodb-container
     restart: always
-    command: ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/data/db/mongo-keyfile"]
+    command: ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/data/mongo-keyfile"]
     ports:
       - "27017:27017"
     environment:
@@ -13,7 +13,7 @@ services:
       MONGO_INITDB_DATABASE: crm_main
     volumes:
       - ./db/:/data/db
-      - ./mongo-keyfile:/data/mongo-keyfile
+      - ./mongo-keyfile:/data/db/mongo-keyfile
     networks:
       - crm_network
   traefik:
