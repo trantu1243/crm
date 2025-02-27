@@ -808,7 +808,7 @@ async function listActiveBoxAmountByStaff(req, res) {
         const matchTransaction = {};
         matchTransaction.staffId = new mongoose.Types.ObjectId(staffId);
       
-        const matchBox = { "boxInfo.status": { $in: ["active", "lock"] } };
+        const matchBox = { "boxInfo.amount": { $gt: 0 }  };
         if (startOfDayUTC && endOfDayUTC) {
             matchBox["boxInfo.createdAt"] = {
                 $gte: startOfDayUTC,
