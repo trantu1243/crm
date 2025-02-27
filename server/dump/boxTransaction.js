@@ -25,7 +25,7 @@ async function boxTransactionToMongo() {
         for (const item of data) {
             if (Number(item.id) > 55000) { 
                 const existingAccount = await BoxTransaction.findOne({ initialId: item.id });
-                if (item.id % 100) console.log(item.id);
+                if (item.id % 100 === 0) console.log(item.id);
                 if (!existingAccount) {
                     const staff = await Staff.findOne({ email: item.created_by });
     
