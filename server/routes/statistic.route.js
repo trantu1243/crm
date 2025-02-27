@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/monthly', authenticateToken, isAdmin, statisticController.getMonthlyStats);
 router.get('/daily', authenticateToken, isAdmin, statisticController.getDailyStats);
-router.get('/balance', authenticateToken, isAdmin, statisticController.listActiveBoxAmountByBank);
+router.get('/balance', authenticateToken, isAdmin, statisticController.getBalance);
 
 router.get('/staff-monthly', authenticateToken, statisticController.getStaffMonthlyStats);
 router.get('/staff-daily', authenticateToken, statisticController.getDailyBankStatsByStaff);
