@@ -251,6 +251,7 @@ const getDailyStats = async (req, res) => {
                     _id: 0, 
                     bankId: "$bankInfo._id",
                     bankCode: "$bankInfo.bankCode",
+                    bankName: "$bankInfo.bankName",
                     totalAmount: 1,
                     totalFee: 1,
                     totalTransactions: 1
@@ -272,6 +273,7 @@ const getDailyStats = async (req, res) => {
                 bankStats.push({
                     bankId: bank._id,
                     bankCode: bank.bankCode || "",
+                    bankName: bank.bankName || "",
                     totalAmount: 0,
                     totalFee: 0,
                     totalTransactions: 0,
@@ -559,6 +561,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
                     _id: 0,
                     bankId: "$bankInfo._id",
                     bankCode: "$bankInfo.bankCode",
+                    bankName: "$bankInfo.bankName",
                     totalAmount: 1,
                     totalFee: 1,
                     totalTransactions: 1
@@ -580,6 +583,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
                 bankStats.push({
                     bankId: bank._id,
                     bankCode: bank.bankCode || "",
+                    bankName: bank.bankName || "",
                     totalAmount: 0,
                     totalFee: 0,
                     totalTransactions: 0
@@ -737,7 +741,7 @@ async function listActiveBoxAmountByBank(req, res) {
             },
             { $unwind: "$boxInfo" },
             {
-                $match: { "boxInfo.status": "active" }
+                $match: { "boxInfo.amount": { $gt: 0 }  }
             },
             {
                 $lookup: {

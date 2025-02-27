@@ -187,7 +187,7 @@ class Transactions extends Component {
                                                                     bankId: selected.map((b) => b._id),
                                                                 })
                                                             }
-                                                            textField="bankCode"
+                                                            textField="bankName"
                                                             valueField="_id"
                                                             placeholder="Chọn ngân hàng"
                                                         />

@@ -65,7 +65,7 @@ const DonutTransactionChart = ({ bankStats }) => {
     if (!bankStats) return;
 
     // Tạo labels = danh sách tên ngân hàng
-    const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
+    const newLabels = bankStats.map((b) => b.bankName || "Unknown");
     // Tạo series = mảng totalTransactions, là số (không format chuỗi)
     const newSeries = bankStats.map((b) => b.totalTransactions || 0);
 

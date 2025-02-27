@@ -71,7 +71,7 @@ const DonutFeeChart = ({ bankStats }) => {
     if (!bankStats) return;
 
     // Tạo labels = danh sách tên ngân hàng
-    const newLabels = bankStats.map((b) => b.bankCode || "Unknown");
+    const newLabels = bankStats.map((b) => b.bankName || "Unknown");
     // Tạo series = mảng totalFee, là số (không format chuỗi)
     const newSeries = bankStats.map((b) => b.totalFee || 0);
 
