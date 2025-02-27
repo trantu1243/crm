@@ -15,7 +15,7 @@ async function transactionToMongo() {
         const data = xlsx.utils.sheet_to_json(sheet);
 
         for (const item of data) {
-            if (Number(item.id) > 32460) {
+            if (Number(item.id) > 80000) {
                 const existingAccount = await Transaction.findOne({ initialId: item.id });
 
                 const createdAt = item.created_at ? new Date(item.created_at * 1000) : new Date();
@@ -47,6 +47,28 @@ async function transactionToMongo() {
                         });
                     }
                     
+                } else {
+                    const staff = await Staff.findOne({ email: item.created_by });
+                    const box = await BoxTransaction.findOne({ initialId: Number(item.box_transaction_id) });
+                    const bank = await BankAccount.findOne({ initialId: item.bank_id });
+                    existingAccount.initialId = item.id;
+                    existingAccount.boxId = box._id;
+                    existingAccount.bankId = bank._id;
+                    existingAccount.amount = Number(item.amount);
+                    existingAccount.content = item.content;
+                    existingAccount.fee = Number(item.fee);
+                    existingAccount.totalAmount = Number(item.total_amount);
+                    existingAccount.status = Number(item.status);
+                    existingAccount.linkQr = item.link_qr ? item.link_qr : '';
+                    existingAccount.messengerId = item.messenger_id;
+                    existingAccount.staffId = staff._id;
+                    existingAccount.typeFee = item.type_fee;
+                    existingAccount.bonus = Number(item.bonus);
+                    existingAccount.decodeQr = item.decode_qr;
+                    existingAccount.createdAt = createdAt.toISOString();
+                    existingAccount.updatedAt = updatedAt.toISOString();
+                    await existingAccount.save();
+
                 }
             }
             
