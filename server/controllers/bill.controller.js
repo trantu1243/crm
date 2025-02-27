@@ -34,8 +34,18 @@ const getBills = async (req, res) => {
         }
         if (startDate || endDate) {
             filter.createdAt = {};
-            if (startDate) filter.createdAt.$gte = new Date(startDate);
-            if (endDate) filter.createdAt.$lte = new Date(endDate);
+          
+            if (startDate) {
+                const start = new Date(startDate);
+                start.setHours(-7, 0, 0, 0);
+                filter.createdAt.$gte = start;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(16, 59, 59, 999);
+                filter.createdAt.$lte = end;
+            }
+            
         }
         if (content) filter.content = { $regex: content, $options: 'i' };
 
