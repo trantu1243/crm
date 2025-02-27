@@ -196,12 +196,14 @@ const getDailyStats = async (req, res) => {
         // ✅ Chuyển mốc thời gian về múi giờ Việt Nam (UTC+7)
         const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0); // Bắt đầu ngày 00:00:00 giờ Việt Nam
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59); // Kết thúc ngày 23:59:59 giờ Việt Nam
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
 
         // ✅ Tổng tất cả giao dịch trong ngày theo giờ Việt Nam
         const totalStats = await Transaction.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfDayVN, $lt: endOfDayVN },
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -219,7 +221,7 @@ const getDailyStats = async (req, res) => {
         const bankStats = await Transaction.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfDayVN, $lt: endOfDayVN },
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
