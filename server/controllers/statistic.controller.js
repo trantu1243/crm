@@ -296,11 +296,43 @@ const getDailyStats = async (req, res) => {
 
 const getBalance = async (req, res) => {
     try {
-        const bankAccounts = await BankAccount.find({ isDeleted: false });
+        const totalAmount = await BoxTransaction.aggregate([
+            { 
+                $match: { amount: { $gt: 0 } } // Lọc các box có amount > 0
+            },
+            {
+                $group: {
+                    _id: null, // Gom tất cả thành một nhóm
+                    totalAmount: { $sum: "$amount" } // Tính tổng amount
+                }
+            }
+        ]);
+
+        const box = await BoxTransaction.find({amount: { $gt: 0 }});
+
+        const boxes = await BoxTransaction.find({ amount: { $gt: 0 } });
+
+        const updatedBoxes = await Promise.all(boxes.map(async (box) => {
+            const transaction = await Transaction.findOne({ boxId: box._id }).populate([
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+            ]);
+            return { _id: box._id, bankId: transaction ? transaction.bankId._id : null, bankName: transaction ? transaction.bankId.bankName : null, amount: box.amount };
+        }));
+
+        // Nhóm và tính tổng amount theo bankId
+        const amountByBank = updatedBoxes.reduce((acc, box) => {
+            if (box.bankId) {
+                const bankIdStr = box.bankId.toString();
+                acc[bankIdStr] = (acc[bankIdStr] || 0) + box.amount;
+            }
+            return acc;
+        }, {});
+
 
         res.status(200).json({
             message: 'Bank Accounts fetched successfully',
-            data: bankAccounts,
+            data: amountByBank,
+            total: totalAmount
         });
     } catch (error) {
         console.error(error);
