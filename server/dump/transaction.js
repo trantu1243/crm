@@ -15,7 +15,7 @@ async function transactionToMongo() {
         const data = xlsx.utils.sheet_to_json(sheet);
 
         for (const item of data) {
-            if (Number(item.id) > 0) {
+            if (Number(item.id) > 68071) {
                 const existingAccount = await Transaction.findOne({ initialId: item.id });
 
                 const createdAt = item.created_at ? new Date(item.created_at * 1000) : new Date();
