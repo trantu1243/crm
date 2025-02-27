@@ -92,3 +92,6 @@ services:
 networks:
   crm_network:
     driver: bridge
+
+volumes:
+  mongo_config:
