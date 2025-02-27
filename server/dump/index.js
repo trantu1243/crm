@@ -74,11 +74,11 @@ async function importExcelToMongo() {
     // await bankAccountToMongo();
     // await bankApiToMongo();
     // await staffToMongo();
-    await boxTransactionToMongo();
+    // await boxTransactionToMongo();
     // await feeTransactionToMongo();
-    await billToMongo();
-    await transactionToMongo();
-    await deleteBoxAndRelatedData()
+    // await billToMongo();
+    // await transactionToMongo();
+    // await deleteBoxAndRelatedData()
 }
 
 module.exports = {
