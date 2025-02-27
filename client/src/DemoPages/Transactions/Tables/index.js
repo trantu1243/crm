@@ -125,10 +125,22 @@ class TransactionsTable extends Component {
     
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
-            this.props.getTransactions(this.props.filters);
+            if (this.state.search) {
+                this.props.searchTransactions({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getTransactions(this.props.filters)
         }
         if (prevProps.filters.limit !== this.props.filters.limit) {
-            this.props.getTransactions(this.props.filters);
+            if (this.state.search) {
+                this.props.searchTransactions({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getTransactions(this.props.filters)
         }
         if (prevProps.bankAccounts !== this.props.bankAccounts) {
             this.setState({bankAccounts: this.props.bankAccounts});

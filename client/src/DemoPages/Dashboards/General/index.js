@@ -10,7 +10,7 @@ import {
 } from "reactstrap";
 
 import Donut from "./Examples/Donut";
-import { getBalanceService, getDailyStatsService, getMonthlyStatsService } from "../../../services/statisticService";
+import { getBalanceService, getDailyStatsService, getMonthlyStatsService, getTotalBillServiceByDaily } from "../../../services/statisticService";
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
@@ -109,6 +109,7 @@ export default class General extends Component {
             currentMonthStats: null,
             lastMonthStats: null,
             todayStats: null,
+            billStats: null,
             loading: false,
             balance: []
         };
@@ -145,15 +146,16 @@ export default class General extends Component {
             const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
             const lastYear = currentMonth === 1 ? currentYear - 1 : currentYear;
             const currentDay = today.getDate();
-        
+            
             const currentMonthStats = await getMonthlyStatsService({ month: currentMonth, year: currentYear });
             const lastMonthStats = await getMonthlyStatsService({ month: lastMonth, year: lastYear });
             const todayStats = await getDailyStatsService({ day: currentDay, month: currentMonth, year: currentYear });
-        
+            const billStats = await getTotalBillServiceByDaily({ day: currentDay, month: currentMonth, year: currentYear });
             this.setState({
                 currentMonthStats,
                 lastMonthStats,
                 todayStats,
+                billStats,
                 loading: false,
             });
         } catch (error) {
@@ -173,7 +175,7 @@ export default class General extends Component {
     }
 
     render() {
-        const { loading, currentMonthStats, lastMonthStats, todayStats } = this.state;
+        const { loading, currentMonthStats, lastMonthStats, todayStats, billStats } = this.state;
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
@@ -509,6 +511,166 @@ export default class General extends Component {
                                     </div>
                                     
                                 </CardHeader>
+
+                                <Row>
+                                    <Col md="6" lg="3">
+                                        
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Tiền thanh khoản trong tháng</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.totalBillMonth)}&nbsp;
+                                                                    <small className="opacity-5 text-muted">vnd</small>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Số thanh khoản tháng trước</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.totalBillLastMonth)}&nbsp;
+                                                                    <small className="opacity-5 text-muted">vnd</small>
+                                                                </div>
+                                                               
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                        
+                                    </Col>
+                                    <Col md="6" lg="3">
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Số thanh khoản trong tháng</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3 text-danger">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.countBillMonth)}&nbsp;
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Số thanh khoản tháng trước</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3 text-danger">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.countBillLastMonth)}&nbsp;
+                                                                   
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                    </Col>
+                                    <Col md="6" lg="3">
+                                        
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Tiền thanh khoản trong ngày</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                {new Intl.NumberFormat('en-US').format(billStats?.totalBillToday)}
+                                                                <small className="opacity-5 text-muted">vnd</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Số thanh khoản trong ngày</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                {new Intl.NumberFormat('en-US').format(billStats?.countBillToday)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                    <Col md="6" lg="3">
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Tiền dư trong ngày</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.transactionDiffToday)}&nbsp;
+                                                                    <small className="opacity-5">vnd</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content">
+                                                    <h6 className="widget-subheading">Tiền dư trong tháng</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(billStats?.transactionDiffMonth)}&nbsp;
+                                                                    <small className="opacity-5">vnd</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    
+                                        
+                                    </Col>
+                                </Row>
                             </>)}
                             
                         </div>
