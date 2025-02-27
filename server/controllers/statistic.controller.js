@@ -54,6 +54,8 @@ const getMonthlyStats = async (req, res) => {
         const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
         const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
 
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
         // Lấy số ngày đã qua trong tháng hiện tại (theo giờ Việt Nam)
         const daysPassedThisMonth = today.getDate();
 
@@ -64,7 +66,7 @@ const getMonthlyStats = async (req, res) => {
         const currentMonthStats = await Transaction.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+                    createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -82,7 +84,7 @@ const getMonthlyStats = async (req, res) => {
         const lastMonthStats = await Transaction.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfLastMonth, $lt: endOfLastMonth },
+                    createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -335,6 +337,9 @@ const getStaffMonthlyStats = async (req, res) => {
         const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
         const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
 
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+
         // Lấy số ngày đã qua trong tháng hiện tại
         const daysPassedThisMonth = today.getDate();
         // Lấy tổng số ngày của tháng trước
@@ -345,7 +350,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+                    createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -364,7 +369,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfLastMonth, $lt: endOfLastMonth },
+                    createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -500,13 +505,14 @@ const getDailyBankStatsByStaff = async (req, res) => {
         // ✅ Xác định khoảng thời gian từ 00:00:00 đến 23:59:59 theo giờ Việt Nam
         const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
-
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         // 🔹 **Tổng tất cả giao dịch trong ngày của nhân viên**
         const totalStats = await Transaction.aggregate([
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfDayVN, $lt: endOfDayVN },
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -525,7 +531,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfDayVN, $lt: endOfDayVN },
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
                     status: { $exists: true, $nin: [3, "3"] }
                 }
             },
@@ -630,15 +636,21 @@ const getTransactionStatsByStaff = async (req, res) => {
         // ✅ Xác định khoảng thời gian từ 00:00:00 đến 23:59:59 theo giờ Việt Nam
         const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
-        
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+
         const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
         const endOfMonth = new Date(year, month, 1, 0, 0, 0);
-        
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+
+
         const lastMonth = month === 1 ? 12 : month - 1;
         const lastYear = month === 1 ? year - 1 : year;
         const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
         const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
-    
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
     
         // Tạo object match chung cho staffId (nếu có)
         // Nếu không có staffId, thì không lọc staffId (tức là lấy tất cả)
@@ -652,7 +664,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         { 
                             $match: {
                                 ...staffMatch,
-                                createdAt: { $gte: startOfDayVN, $lt: endOfDayVN }
+                                createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC }
                             }
                         },
                         {
@@ -666,7 +678,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         {
                             $match: {
                                 ...staffMatch,
-                                createdAt: { $gte: startOfMonth, $lt: endOfMonth }
+                                createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC }
                             }
                         },
                         {
@@ -680,7 +692,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         {
                             $match: {
                                 ...staffMatch,
-                                createdAt: { $gte: startOfLastMonth, $lt: endOfLastMonth }
+                                createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC }
                             }
                         },
                         {
@@ -789,15 +801,18 @@ async function listActiveBoxAmountByStaff(req, res) {
 
         const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
-    
+        
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+
         const matchTransaction = {};
         matchTransaction.staffId = new mongoose.Types.ObjectId(staffId);
       
         const matchBox = { "boxInfo.status": "active" };
-        if (startOfDayVN && endOfDayVN) {
+        if (startOfDayUTC && endOfDayUTC) {
             matchBox["boxInfo.createdAt"] = {
-                $gte: startOfDayVN,
-                $lte: endOfDayVN
+                $gte: startOfDayUTC,
+                $lte: endOfDayUTC
             };
         }
   
@@ -873,7 +888,9 @@ async function getStaffShareInMonth(req, res) {
 
         const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
         const endOfMonth = new Date(year, month, 1, 0, 0, 0);
-        
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+
         const staffObjectId = new mongoose.Types.ObjectId(staffId);
     
         const results = await BoxTransaction.aggregate([
@@ -881,8 +898,8 @@ async function getStaffShareInMonth(req, res) {
                 $match: {
                     status: "complete",
                     createdAt: {
-                        $gte: startOfMonth,
-                        $lt: endOfMonth
+                        $gte: startOfMonthUTC,
+                        $lt: endOfMonthUTC
                     }
                 }
             },
@@ -937,8 +954,8 @@ async function getStaffShareInMonth(req, res) {
                 $match: {
                     status: { $in: ["complete", 'active']},
                     createdAt: {
-                        $gte: startOfMonth,
-                        $lt: endOfMonth
+                        $gte: startOfMonthUTC,
+                        $lt: endOfMonthUTC
                     }
                 }
             },
@@ -1063,14 +1080,15 @@ async function getDailyShareOfStaff(req, res) {
 
         const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
-  
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         const results = await BoxTransaction.aggregate([
             {
                 $match: {
                     status: "complete", 
                     createdAt: {
-                        $gte: startOfDayVN,
-                        $lte: endOfDayVN
+                        $gte: startOfDayUTC,
+                        $lte: endOfDayUTC
                     }
                 }
             },
@@ -1120,8 +1138,8 @@ async function getDailyShareOfStaff(req, res) {
                 $match: {
                     status: "complete", 
                     createdAt: {
-                        $gte: startOfDayVN,
-                        $lte: endOfDayVN
+                        $gte: startOfDayUTC,
+                        $lte: endOfDayUTC
                     }
                 }
             },
@@ -1183,8 +1201,8 @@ async function getDailyShareOfStaff(req, res) {
             {
                 $match: {
                     "boxInfo.createdAt": {
-                        $gte: startOfDayVN,
-                        $lte: endOfDayVN
+                        $gte: startOfDayUTC,
+                        $lte: endOfDayUTC
                     }
                 }
             },
