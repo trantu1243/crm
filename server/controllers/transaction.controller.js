@@ -37,6 +37,8 @@ const getTransactions = async (req, res) => {
             if (startDate && endDate && startDate === endDate) {
                 const start = new Date(startDate);
                 const end = new Date(startDate);
+                console.log(start);
+                console.log(end);
                 end.setHours(23, 59, 59, 999);
         
                 filter.createdAt = { $gte: start, $lte: end };
