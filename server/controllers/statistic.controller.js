@@ -73,7 +73,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -91,7 +91,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -119,7 +119,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: { $dayOfMonth: "$createdAtVN" }, // Lấy ngày theo giờ Việt Nam
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -212,7 +212,7 @@ const getDailyStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -230,7 +230,7 @@ const getDailyStats = async (req, res) => {
             {
                 $group: {
                     _id: "$bankId",
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -407,7 +407,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -426,7 +426,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -456,7 +456,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $group: {
                     _id: { $dayOfMonth: "$createdAtVN" }, // Lấy ngày theo giờ Việt Nam
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -569,7 +569,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -588,7 +588,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
             {
                 $group: {
                     _id: "$bankId",
-                    totalAmount: { $sum: "$totalAmount" },
+                    totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
                 }
@@ -722,7 +722,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         {
                             $group: {
                                 _id: "$status",             
-                                totalAmount: { $sum: 1 }
+                                amount: { $sum: 1 }
                             }
                         }
                         ],
@@ -736,7 +736,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         {
                             $group: {
                                 _id: "$status",
-                                totalAmount: { $sum: 1 }
+                                amount: { $sum: 1 }
                             }
                         }
                         ],
@@ -750,7 +750,7 @@ const getTransactionStatsByStaff = async (req, res) => {
                         {
                             $group: {
                                 _id: "$status",
-                                totalAmount: { $sum: 1 }
+                                amount: { $sum: 1 }
                             }
                         }
                     ]
@@ -958,161 +958,52 @@ async function getStaffShareInMonth(req, res) {
 
         const staffObjectId = new mongoose.Types.ObjectId(staffId);
     
-        const results = await BoxTransaction.aggregate([
+        const billsMonth = await Bill.aggregate([
             {
                 $match: {
-                    status: "complete",
-                    createdAt: {
-                        $gte: startOfMonthUTC,
-                        $lt: endOfMonthUTC
-                    }
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
                 }
             },
             {
-                $lookup: {
-                    from: "bills",
-                    localField: "_id",
-                    foreignField: "boxId",
-                    as: "bills"
+                $group: {
+                    _id: "$boxId",
+                    count: { $sum: 1 },
+                    bills: { $push: "$_id" }
                 }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    status: 1,
-                    createdAt: 1,
-                    totalBills: { $size: "$bills" },
-                    staffABillsCount: {
-                        $size: {
-                            $filter: {
-                                input: "$bills",
-                                as: "b",
-                                cond: { $eq: ["$$b.staffId", staffObjectId] }
-                            }
-                        }
-                    }
-                }
-            },
-    
-            {
-            $project: {
-                fraction: {
-                    $cond: [
-                        { $eq: ["$totalBills", 0] },
-                        0,
-                        { $divide: ["$staffABillsCount", "$totalBills"] }
-                    ]
-                }
-            }
-            },
-    
-            {
-            $group: {
-                _id: null,
-                totalShare: { $sum: "$fraction" }
-            }
             }
         ]);
-      
-        const results3 = await BoxTransaction.aggregate([
+
+        const billCount = await Bill.aggregate([
             {
                 $match: {
-                    status: { $in: ["complete", 'active']},
-                    createdAt: {
-                        $gte: startOfMonthUTC,
-                        $lt: endOfMonthUTC
-                    }
-                }
-            },
-            {
-                $lookup: {
-                    from: "bills",
-                    localField: "_id",
-                    foreignField: "boxId",
-                    as: "bills"
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    status: 1,
-                    createdAt: 1,
-                    totalBills: { $size: "$bills" },
-                    staffABillsCount: {
-                        $size: {
-                            $filter: {
-                                input: "$bills",
-                                as: "b",
-                                cond: { $eq: ["$$b.staffId", staffObjectId] }
-                            }
-                        }
-                    }
-                }
-            },
-    
-            {
-            $project: {
-                fraction: {
-                    $cond: [
-                        { $eq: ["$totalBills", 0] },
-                        0,
-                        { $divide: ["$staffABillsCount", "$totalBills"] }
-                    ]
-                }
-            }
-            },
-    
-            {
-            $group: {
-                _id: null,
-                totalShare: { $sum: "$fraction" }
-            }
-            }
-        ]);
-  
-        const totalShare1 = results.length ? results[0].totalShare : 0;
-
-        const totalShare2 = results3.length ? results3[0].totalShare : 0;
-
-        const results2 = await Bill.aggregate([
-            { 
-                $match: { staffId: staffObjectId }
-            },
-            {
-                $lookup: {
-                    from: "boxtransactions",
-                    localField: "boxId",
-                    foreignField: "_id",
-                    as: "boxInfo"
-                }
-            },
-            { $unwind: "$boxInfo" },
-            {
-                $match: {
-                    "boxInfo.createdAt": {
-                    $gte: startOfMonth,
-                    $lt: endOfMonth
-                    }
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
                 }
             },
             {
                 $group: {
                     _id: null,
-                    totalBills: { $sum: "$amount" }
+                    totalBills: { $sum: 1 },
+                    totalAmount: { $sum: "$amount" }
                 }
             }
         ]);
-    
-        const totalBills = results2.length ? results2[0].totalBills : 0;
+        
+        let totalKPIMonth = 0;
+        for (const box of billsMonth) {
+            const kpiPerBill = 1 / box.count; 
+            totalKPIMonth += kpiPerBill * box.count; 
+        }
     
         return res.status(200).json({
             message: "Tổng phần chia của Staff A trong tháng",
             staffId,
             year,
             month,
-            share: totalShare1,
-            share2: totalShare2,
-            totalBills
+            totalBills: billCount[0]?.totalBills || 0,
+            totalAmount: billStats[0]?.totalAmount || 0,
+            kpi: totalKPIMonth,
         });
     } catch (err) {
         console.error(err);
@@ -1147,153 +1038,53 @@ async function getDailyShareOfStaff(req, res) {
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
         const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
-        const results = await BoxTransaction.aggregate([
+        
+
+        const billsDay = await Bill.aggregate([
             {
                 $match: {
-                    status: "complete", 
-                    createdAt: {
-                        $gte: startOfDayUTC,
-                        $lte: endOfDayUTC
-                    }
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC },
                 }
             },
             {
-                $lookup: {
-                    from: "bills",
-                    localField: "_id",
-                    foreignField: "boxId",
-                    as: "bills"
+                $group: {
+                    _id: "$boxId",
+                    count: { $sum: 1 },
+                    bills: { $push: "$_id" }
                 }
-            },
-            {
-                $project: {
-                    totalBills: { $size: "$bills" },
-                    staffABillsCount: {
-                        $size: {
-                            $filter: {
-                                input: "$bills",
-                                as: "bill",
-                                cond: { $eq: ["$$bill.staffId", staffObjectId] }
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    fraction: {
-                        $cond: [
-                            { $eq: ["$totalBills", 0] },
-                            0,
-                            { $divide: ["$staffABillsCount", "$totalBills"] }
-                        ]
-                    }
-                }
-            },
-            {
-            $group: {
-                _id: null,
-                dailyShare: { $sum: "$fraction" }
-            }
             }
         ]);
 
-        const results3 = await BoxTransaction.aggregate([
+        let totalKPIDay = 0;
+        for (const box of billsDay) {
+            const kpiPerBill = 1 / box.count; 
+            totalKPIDay += kpiPerBill * box.count; 
+        }
+
+        const billCount = await Bill.aggregate([
             {
                 $match: {
-                    status: "complete", 
-                    createdAt: {
-                        $gte: startOfDayUTC,
-                        $lte: endOfDayUTC
-                    }
-                }
-            },
-            {
-                $lookup: {
-                    from: "bills",
-                    localField: "_id",
-                    foreignField: "boxId",
-                    as: "bills"
-                }
-            },
-            {
-                $project: {
-                    totalBills: { $size: "$bills" },
-                    staffABillsCount: {
-                        $size: {
-                            $filter: {
-                                input: "$bills",
-                                as: "bill",
-                                cond: { $eq: ["$$bill.staffId", staffObjectId] }
-                            }
-                        }
-                    }
-                }
-            },
-            {
-                $project: {
-                    fraction: {
-                        $cond: [
-                            { $eq: ["$totalBills", 0] },
-                            0,
-                            { $divide: ["$staffABillsCount", "$totalBills"] }
-                        ]
-                    }
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC }
                 }
             },
             {
                 $group: {
                     _id: null,
-                    dailyShare: { $sum: "$fraction" }
+                    totalBills: { $sum: 1 },
+                    totalAmount: { $sum: "$amount" }
                 }
             }
         ]);
-
-        const results2 = await Bill.aggregate([
-            { 
-                $match: { staffId: staffObjectId }
-            },
-            {
-                $lookup: {
-                    from: "boxtransactions",     // collection của BoxTransaction
-                    localField: "boxId",
-                    foreignField: "_id",
-                    as: "boxInfo"
-                }
-            },
-            { $unwind: "$boxInfo" },
-    
-            {
-                $match: {
-                    "boxInfo.createdAt": {
-                        $gte: startOfDayUTC,
-                        $lte: endOfDayUTC
-                    }
-                }
-            },
-    
-            {
-                $group: {
-                    _id: null,
-                    totalBills: { $sum: "$amount" } 
-                }
-            }
-        ]);
-  
-      // Kết quả, nếu không có bill => results=[]
-        const totalBills = results2.length ? results2[0].totalBills : 0;
-        const dailyShare2 = results3.length ? results3[0].dailyShare : 0;
-
-        console.log(results3)
-        const dailyShare1 = results.length ? results[0].dailyShare : 0;
     
         return res.status(200).json({
             message: "Phần chia của staff trong 1 ngày",
             date: `${day}-${month}-${year}`,
             staffId,
-            dailyShare1,
-            totalBills,
-            dailyShare2
+            totalBills: billCount[0]?.totalBills || 0,
+            totalAmount: billStats[0]?.totalAmount || 0,
+            kpi: totalKPIDay,
         });
     } catch (err) {
         console.error(err);
@@ -1323,7 +1114,7 @@ const transactionTotal = async (start, end) => {
                 createdAt: { $gte: start, $lte: end } 
             } 
         },
-        { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+        { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
 
     const bills = await billTotal(start, end);

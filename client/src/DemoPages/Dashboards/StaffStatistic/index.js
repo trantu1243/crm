@@ -653,145 +653,142 @@ class StaffStatistic extends Component {
                                             </CardBody>
                                         </Card>
                                     </Col>
-                                </Row>
 
-                                <CardHeader className="mbg-3 h-auto ps-0 pe-0 bg-transparent no-border">
-                                    <div className="card-header-title fsize-2 text-capitalize fw-normal">
-                                        Thống kê bill thanh khoản
-                                    </div>
-                                   
-                                </CardHeader>
+                                    <Col sm="12" md="6" lg="6">
+                                        <Row>
+                                            <Col md="6" lg="4">
+                                                
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Tiền thanh khoản trong ngày</h6>
+                                                            <div className="widget-chart-flex">
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                            {new Intl.NumberFormat('en-US').format(this.state.totalBillDaily?.totalAmount)}&nbsp;
+                                                                            <small className="opacity-5 text-muted">vnd</small>
+                                                                        </div>
+                                                                        
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                            
+                                            
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Số lệnh trong ngày</h6>
+                                                            <div className="widget-chart-flex">
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                            {new Intl.NumberFormat('en-US').format(this.state.totalBillDaily?.totalBills)} ({this.state.totalBillDaily?.kpi.toFixed(2)})&nbsp;
+                                                                            
+                                                                        </div>
+                                                                        
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Card>
+                                                
+                                            </Col>
 
-                                <Row>
-                                    <Col md="6" lg="4">
-                                        
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số tiền thanh khoản trong ngày</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
+                                            <Col md="6" lg="4">
+                                                
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Tiền thanh khoản trong tháng</h6>
                                                             <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(this.state.totalBillDaily?.totalBills)}&nbsp;
-                                                                    <small className="opacity-5 text-muted">vnd</small>
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                            {new Intl.NumberFormat('en-US').format(this.state.totalBillMonthly?.totalAmount)}&nbsp;
+                                                                            <small className="opacity-5 text-muted">vnd</small>
+                                                                        </div>
+                                                                        
+                                                                    </div>
                                                                 </div>
-                                                                
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    
-                                    
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số lệnh trong ngày</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
+                                                </Card>
+                                            
+                                            
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Số lệnh trong tháng</h6>
                                                             <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {this.state.totalBillDaily?.dailyShare2.toFixed(2)} ({this.state.totalBillDaily?.dailyShare1.toFixed(2)})&nbsp;
-                                                                    
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                        {new Intl.NumberFormat('en-US').format(this.state.totalBillMonthly?.totalBills)} ({this.state.totalBillMonthly?.kpi.toFixed(2)})&nbsp;
+                                                                            
+                                                                        </div>
+                                                                        
+                                                                    </div>
                                                                 </div>
-                                                                
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                        
-                                    </Col>
+                                                </Card>
+                                                
+                                            </Col>
 
-                                    <Col md="6" lg="4">
-                                        
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số tiền thanh khoản trong tháng</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
+                                            <Col md="6" lg="4">
+                                                
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Số tiền thanh khoản tháng trước</h6>
                                                             <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(this.state.totalBillMonthly?.totalBills)}&nbsp;
-                                                                    <small className="opacity-5 text-muted">vnd</small>
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                            {new Intl.NumberFormat('en-US').format(this.state.lastTotalBillMonthly?.totalAmount)}&nbsp;
+                                                                            <small className="opacity-5 text-muted">vnd</small>
+                                                                        </div>
+                                                                        
+                                                                    </div>
                                                                 </div>
-                                                                
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    
-                                    
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số lệnh trong tháng</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
+                                                </Card>
+                                            
+                                            
+                                                <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                                    <div className="widget-chat-wrapper-outer">
+                                                        <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                            <h6 className="widget-subheading">Số lệnh tháng trước</h6>
                                                             <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {this.state.totalBillMonthly?.share2.toFixed(2)} ({this.state.totalBillMonthly?.share.toFixed(2)})&nbsp;
-                                                                    
+                                                                <div className="widget-numbers mb-0 w-100">
+                                                                    <div className="widget-chart-flex">
+                                                                        <div className="fsize-3">
+                                                                        {new Intl.NumberFormat('en-US').format(this.state.lastTotalBillMonthly?.totalBills)} ({this.state.lastTotalBillMonthly?.kpi.toFixed(2)})&nbsp;
+                                                                            
+                                                                        </div>
+                                                                        
+                                                                    </div>
                                                                 </div>
-                                                                
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                        
-                                    </Col>
-
-                                    <Col md="6" lg="4">
-                                        
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số tiền thanh khoản tháng trước</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
-                                                            <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(this.state.lastTotalBillMonthly?.totalBills)}&nbsp;
-                                                                    <small className="opacity-5 text-muted">vnd</small>
-                                                                </div>
-                                                                
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    
-                                    
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
-                                            <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
-                                                    <h6 className="widget-subheading">Số lệnh tháng trước</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
-                                                            <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                    {this.state.lastTotalBillMonthly?.share2.toFixed(2)} ({this.state.lastTotalBillMonthly?.share.toFixed(2)})&nbsp;
-                                                                    
-                                                                </div>
-                                                                
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                        
+                                                </Card>
+                                                
+                                            </Col>
+                                        </Row>
                                     </Col>
                                 </Row>
+
+                                
                             </>)}
                             
                         </div>
