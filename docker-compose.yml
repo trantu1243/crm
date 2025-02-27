@@ -4,7 +4,6 @@ services:
     image: mongo
     container_name: mongodb-container
     restart: always
-    command: ["mongod", "--replSet", "rs0"]
     ports:
       - "27017:27017"
     environment:
