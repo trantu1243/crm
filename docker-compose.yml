@@ -3,6 +3,7 @@ services:
   mongodb:
     image: mongo
     container_name: mongodb-container
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     restart: always
     ports:
       - "27017:27017"
@@ -10,8 +11,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin036203
       MONGO_INITDB_DATABASE: crm_main
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
     volumes:
-      - ./db/:/data/db
+      - "./db/:/data/db"
+      - "mongo_config:/data/configdb"
     networks:
       - crm_network
   traefik:
@@ -40,7 +51,7 @@ services:
     container_name: server
     environment:
       - PORT=80
-      - MONGODB_URL=mongodb://admin:admin036203@mongodb-container:27017/crm_main?authSource=admin
+      - MONGODB_URL=mongodb://admin:admin036203@mongodb-container:27017/crm_main?authSource=admin&replicaSet=rs0
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
