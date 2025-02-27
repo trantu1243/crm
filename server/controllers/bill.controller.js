@@ -563,7 +563,9 @@ const switchBills = async (req, res) => {
             { path: 'billId'},
         ]);
         console.log(bill);
-        if (!bill || !bill.billId || bill.status !== 1 || bill.billId.status !== 1) {
+
+
+        if (!bill || bill.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for switch' });
         }
 
@@ -571,6 +573,27 @@ const switchBills = async (req, res) => {
         
         if (box && box.status === 'lock') {
             return res.status(404).json({ message: 'Box is locked' })
+        }
+
+        if (!bill.billId) {
+            if (bill.typeTransfer === "buyer") bill.typeTransfer = "seller";
+            else bill.typeTransfer = "buyer";
+            await bill.save();
+
+            const io = getSocket();
+
+            io.emit('switch_bill', {
+                bill
+            });
+
+            return res.status(200).json({
+                status: true,
+                message: 'Bill canceled successfully',
+            });
+        }
+
+        if (bill.billId && bill.billId.status !== 1) {
+            return res.status(400).json({ message: 'Bill not eligible for switch' });
         }
         
         const typeTranfer = bill.typeTransfer;
