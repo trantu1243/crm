@@ -1441,7 +1441,7 @@ class TransactionsTable extends Component {
 
                                                 this.setState((prevState) => ({
                                                     seller: {
-                                                        ...prevState.buyer,
+                                                        ...prevState.seller,
                                                         bonus: numericValue < 0 ? 0 : numericValue,
                                                     },
                                                 }));

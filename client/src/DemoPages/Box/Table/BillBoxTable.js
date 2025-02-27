@@ -491,7 +491,7 @@ class BillsTable extends Component {
 
                                                         this.setState((prevState) => ({
                                                             seller: {
-                                                                ...prevState.buyer,
+                                                                ...prevState.seller,
                                                                 amount: numericValue < 0 ? 0 : numericValue,
                                                             },
                                                         }));
