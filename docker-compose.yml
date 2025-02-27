@@ -13,6 +13,7 @@ services:
       MONGO_INITDB_DATABASE: crm_main
     volumes:
       - ./db/:/data/db
+      - ./mongo-keyfile:/data/mongo-keyfile
     networks:
       - crm_network
   traefik:
