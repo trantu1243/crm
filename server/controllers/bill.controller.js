@@ -137,19 +137,19 @@ const createBill = async (req, res) => {
 
             const bank = await BankApi.findOne({ bankCode: bankCode});
             console.log(boxId)
-            const customer = await Customer.findOne({
-                boxId: { $in: [boxId] },
-                type: 'buyer',
-                isDeleted: false,
-            });
-            const exists = customer.bankAccounts.some(
-                (account) => account.bankCode === bankCode && account.stk === stk
-            );
+            // const customer = await Customer.findOne({
+            //     boxId: { $in: [boxId] },
+            //     type: 'buyer',
+            //     isDeleted: false,
+            // });
+            // const exists = customer.bankAccounts.some(
+            //     (account) => account.bankCode === bankCode && account.stk === stk
+            // );
 
-            if (!exists) {
-                customer.bankAccounts.push({ bankCode, stk });
-                await customer.save();
-            }
+            // if (!exists) {
+            //     customer.bankAccounts.push({ bankCode, stk });
+            //     await customer.save();
+            // }
 
             buyerBill = {
                 bankCode,
@@ -174,20 +174,20 @@ const createBill = async (req, res) => {
             }
             const { bankCode, stk, content, amount, bonus = 0 } = seller;
             const bank = await BankApi.findOne({ bankCode: bankCode});
-            const customer = await Customer.findOne({
-                boxId: { $in: [boxId] },
-                type: 'seller',
-                isDeleted: false,
-            });
+            // const customer = await Customer.findOne({
+            //     boxId: { $in: [boxId] },
+            //     type: 'seller',
+            //     isDeleted: false,
+            // });
 
-            const exists = customer.bankAccounts.some(
-                (account) => account.bankCode === bankCode && account.stk === stk
-            );
+            // const exists = customer.bankAccounts.some(
+            //     (account) => account.bankCode === bankCode && account.stk === stk
+            // );
 
-            if (!exists) {
-                customer.bankAccounts.push({ bankCode, stk });
-                await customer.save();
-            }
+            // if (!exists) {
+            //     customer.bankAccounts.push({ bankCode, stk });
+            //     await customer.save();
+            // }
         
             sellerBill = {
                 bankCode,
@@ -397,20 +397,20 @@ const updateBill = async (req, res) => {
         }
 
         const bank = await BankApi.findOne({ bankCode: bankCode});
-        const customer = await Customer.findOne({
-            boxId: { $in: [box._id] },
-            type: 'seller',
-            isDeleted: false,
-        });
+        // const customer = await Customer.findOne({
+        //     boxId: { $in: [box._id] },
+        //     type: 'seller',
+        //     isDeleted: false,
+        // });
 
-        const exists = customer.bankAccounts.some(
-            (account) => account.bankCode === bankCode && account.stk === stk
-        );
+        // const exists = customer.bankAccounts.some(
+        //     (account) => account.bankCode === bankCode && account.stk === stk
+        // );
 
-        if (!exists) {
-            customer.bankAccounts.push({ bankCode, stk });
-            await customer.save();
-        }
+        // if (!exists) {
+        //     customer.bankAccounts.push({ bankCode, stk });
+        //     await customer.save();
+        // }
     
         bill.bankCode = bankCode;
         bill.stk = stk;

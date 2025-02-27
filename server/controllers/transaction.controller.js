@@ -167,18 +167,18 @@ const createTransaction = async (req, res) => {
                 typeBox: typeBox
             });
             
-            const buyerCustomer = await Customer.create({
-                nameCustomer: "",
-                facebookId: "",
-                boxId: [box._id],
-                type: "buyer"
-            });
-            const sellerCustomer = await Customer.create({
-                nameCustomer: "",
-                facebookId: "",
-                boxId: [box._id],
-                type: "seller"
-            });
+            // const buyerCustomer = await Customer.create({
+            //     nameCustomer: "",
+            //     facebookId: "",
+            //     boxId: [box._id],
+            //     type: "buyer"
+            // });
+            // const sellerCustomer = await Customer.create({
+            //     nameCustomer: "",
+            //     facebookId: "",
+            //     boxId: [box._id],
+            //     type: "seller"
+            // });
         } else {
             if (box.status === 'active') {
                 const tran = await Transaction.findOne({ boxId: box._id }).sort({ createdAt: -1 }).populate(

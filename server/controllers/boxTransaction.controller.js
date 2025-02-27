@@ -55,22 +55,22 @@ const getById = async (req, res) => {
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
             { path: 'boxId', select: 'amount messengerId notes' }
         ]);
-        let buyerCustomer = await Customer.findOne({
-            boxId: { $in: [box._id] },
-            type: 'buyer',
-            isDeleted: false,
-        });
+        // let buyerCustomer = await Customer.findOne({
+        //     boxId: { $in: [box._id] },
+        //     type: 'buyer',
+        //     isDeleted: false,
+        // });
 
-        let sellerCustomer = await Customer.findOne({
-            boxId: { $in: [box._id] },
-            type: 'seller',
-            isDeleted: false,
-        });
+        // let sellerCustomer = await Customer.findOne({
+        //     boxId: { $in: [box._id] },
+        //     type: 'seller',
+        //     isDeleted: false,
+        // });
         const boxObject = box.toObject();
         boxObject.transactions = transactions;
         boxObject.bills = bills;
-        boxObject.buyerCustomer = buyerCustomer ? buyerCustomer : null;
-        boxObject.sellerCustomer = sellerCustomer ? sellerCustomer : null;
+        // boxObject.buyerCustomer = buyerCustomer ? buyerCustomer : null;
+        // boxObject.sellerCustomer = sellerCustomer ? sellerCustomer : null;
         res.status(200).json({
             message: 'Transaction fetched successfully',
             data: boxObject,
@@ -417,37 +417,37 @@ const updateBox = async (req, res) => {
         const transaction = await Transaction.findOne({ boxId: id, status: { $in: [2, 6, 7, 8]}});
         const user = await Staff.findById(req.user.id);
 
-        let buyerCustomer = await Customer.findOne({
-            boxId: { $in: [box._id] },
-            type: 'buyer',
-            isDeleted: false,
-        });
+        // let buyerCustomer = await Customer.findOne({
+        //     boxId: { $in: [box._id] },
+        //     type: 'buyer',
+        //     isDeleted: false,
+        // });
 
-        let sellerCustomer = await Customer.findOne({
-            boxId: { $in: [box._id] },
-            type: 'seller',
-            isDeleted: false,
-        });
+        // let sellerCustomer = await Customer.findOne({
+        //     boxId: { $in: [box._id] },
+        //     type: 'seller',
+        //     isDeleted: false,
+        // });
 
-        if (buyerFb) {
-            const customer = await Customer.findOne({
-                facebookId: buyerFb
-            });
-            if (customer) buyerCustomer = customer;
-            else buyerCustomer.facebookId = buyerFb;
-            if (buyerName) buyerCustomer.nameCustomer = buyerName;
-            await buyerCustomer.save();
-        }
+        // if (buyerFb) {
+        //     const customer = await Customer.findOne({
+        //         facebookId: buyerFb
+        //     });
+        //     if (customer) buyerCustomer = customer;
+        //     else buyerCustomer.facebookId = buyerFb;
+        //     if (buyerName) buyerCustomer.nameCustomer = buyerName;
+        //     await buyerCustomer.save();
+        // }
 
-        if (sellerFb) {
-            const customer = await Customer.findOne({
-                facebookId: sellerFb
-            });
-            if (customer) sellerCustomer = customer;
-            else sellerCustomer.facebookId = sellerFb;
-            if (sellerName) sellerCustomer.nameCustomer = sellerName;
-            await sellerCustomer.await();
-        }
+        // if (sellerFb) {
+        //     const customer = await Customer.findOne({
+        //         facebookId: sellerFb
+        //     });
+        //     if (customer) sellerCustomer = customer;
+        //     else sellerCustomer.facebookId = sellerFb;
+        //     if (sellerName) sellerCustomer.nameCustomer = sellerName;
+        //     await sellerCustomer.await();
+        // }
         
         if (!transaction && messengerId) {
             const oldBox = await BoxTransaction.findOne({ messengerId: messengerId });
@@ -458,10 +458,10 @@ const updateBox = async (req, res) => {
                     staffId: user._id,
                     typeBox: box.typeBox
                 });
-                buyerCustomer.boxId.push(newbox._id);
-                sellerCustomer.boxId.push(newbox._id);
-                await buyerCustomer.save();
-                await sellerCustomer.save();
+                // buyerCustomer.boxId.push(newbox._id);
+                // sellerCustomer.boxId.push(newbox._id);
+                // await buyerCustomer.save();
+                // await sellerCustomer.save();
                 await Transaction.updateMany({boxId: box._id}, {boxId: newbox._id});
                 await BoxTransaction.findByIdAndDelete(box._id);
                 return res.json({ 
@@ -470,12 +470,12 @@ const updateBox = async (req, res) => {
                     box: newbox
                 });
             } else {
-                buyerCustomer.boxId.push(oldBox._id);
-                buyerCustomer.nameCustomer = buyerName;
-                sellerCustomer.boxId.push(oldBox._id);
-                sellerCustomer.nameCustomer = sellerName;
-                await buyerCustomer.save();
-                await sellerCustomer.save();
+                // buyerCustomer.boxId.push(oldBox._id);
+                // buyerCustomer.nameCustomer = buyerName;
+                // sellerCustomer.boxId.push(oldBox._id);
+                // sellerCustomer.nameCustomer = sellerName;
+                // await buyerCustomer.save();
+                // await sellerCustomer.save();
                 await Transaction.updateMany({boxId: box._id}, {boxId: oldBox._id});
                 await BoxTransaction.findByIdAndDelete(box._id);
                 oldBox.name = name;
