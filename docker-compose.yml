@@ -2,6 +2,7 @@ name: crm
 services:
   mongodb:
     image: mongo:8
+    container_name: mongodb-container
     volumes:
       - ./db/:/data/db
     environment:
@@ -26,7 +27,7 @@ services:
       mongodb:
         condition: service_healthy
     command: >
-      mongosh --host mongodb:27017 --eval
+      mongosh --host mongodb://admin:admin036203@mongodb-container:27017 --eval
       '
       rs.initiate( {
          _id : "rs0",
