@@ -18,9 +18,9 @@ const { Transaction } = require('./models');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
-    importExcelToMongo();
-    seedPermissions();
-    resetPass();
+    // importExcelToMongo();
+    // seedPermissions();
+    // resetPass();
 });
 
 const app = express();
