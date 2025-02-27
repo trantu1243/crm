@@ -311,10 +311,12 @@ const getBalance = async (req, res) => {
         const boxes = await BoxTransaction.find({ amount: { $gt: 0 } });
         
         const updatedBoxes = await Promise.all(boxes.map(async (box) => {
-            const transaction = await Transaction.findOne({ boxId: box._id }).populate([
+            const transaction = await Transaction.findOne({ boxId: box._id, status: {$in: [6, 7, 8]} })
+            .sort({ createdAt: -1 }) 
+            .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
             ]);
-            
+
             return {
                 _id: box._id,
                 bankId: transaction ? transaction.bankId._id.toString() : null,
