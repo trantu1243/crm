@@ -155,11 +155,11 @@ class CreateTransaction extends Component {
                     isCreated: true,
                     loading: false,
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
-                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${this.props.transaction.amount.toLocaleString()} vnd\nPhí: ${this.props.transaction.fee.toLocaleString()} vnd\nNội dung: ${this.props.transaction.content}`
+                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content}`
                 })
                 this.setState({loading: false});
             } else {
-                const { amount, bankId, bonus, content, fee, typeFee } = this.state.input;
+                const { amount, bankId, bonus = 0, content, fee = 0, typeFee } = this.state.input;
                 if (!amount || !bankId || !typeFee) {
                     this.setState({loading: false})
                     return this.setState({
@@ -172,18 +172,18 @@ class CreateTransaction extends Component {
                 let totalAmount = Number(amount);
 
                 if (typeFee === "buyer") {
-                    totalAmount += fee;
+                    totalAmount += Number(fee);
                 } else if (typeFee === "seller") {
-                    oriAmount -= fee;
+                    oriAmount -= Number(fee);
                 } else if (typeFee === "split") {
-                    oriAmount -= fee / 2;
-                    totalAmount += fee / 2;
+                    oriAmount -= Number(fee) / 2;
+                    totalAmount += Number(fee) / 2;
                 }
                 const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
                 this.setState({
                     isCreated: true,
-                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + bonus}&addInfo=${content}&accountName=${bank.bankAccountName}`,
-                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${amount.toLocaleString()} vnd\nPhí: ${fee.toLocaleString()} vnd\nNội dung: ${content}`
+                    linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${Number(totalAmount) + Number(bonus)}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(fee)} vnd\nNội dung: ${content}`
                 })
                 setTimeout(() => {
                     this.setState({loading: false});

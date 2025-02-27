@@ -16,7 +16,7 @@ router.get('/staff-balance', authenticateToken, statisticController.listActiveBo
 router.get('/staff-kpi-monthly', authenticateToken, statisticController.getStaffShareInMonth);
 router.get('/staff-kpi-daily', authenticateToken, statisticController.getDailyShareOfStaff);
 
-router.get('/test', statisticController.getBalance);
+router.get('/bill', statisticController.getStatisticBill);
 
 
 module.exports = router;

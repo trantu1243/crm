@@ -67,7 +67,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $match: {
                     createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -85,7 +85,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $match: {
                     createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -113,7 +113,7 @@ const getMonthlyStats = async (req, res) => {
             {
                 $match: {
                     createdAtVN: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -206,7 +206,7 @@ const getDailyStats = async (req, res) => {
             {
                 $match: {
                     createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3" , 1 , "1"] }
                 }
             },
             {
@@ -224,7 +224,7 @@ const getDailyStats = async (req, res) => {
             {
                 $match: {
                     createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -401,7 +401,7 @@ const getStaffMonthlyStats = async (req, res) => {
                 $match: {
                     staffId: staffObjectId,
                     createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3" , 1, "1"] }
                 }
             },
             {
@@ -420,7 +420,7 @@ const getStaffMonthlyStats = async (req, res) => {
                 $match: {
                     staffId: staffObjectId,
                     createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -450,7 +450,7 @@ const getStaffMonthlyStats = async (req, res) => {
                 $match: {
                     staffId: staffObjectId,
                     createdAtVN: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -563,7 +563,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
                 $match: {
                     staffId: staffObjectId,
                     createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -582,7 +582,7 @@ const getDailyBankStatsByStaff = async (req, res) => {
                 $match: {
                     staffId: staffObjectId,
                     createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
-                    status: { $exists: true, $nin: [3, "3"] }
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
@@ -1300,7 +1300,95 @@ async function getDailyShareOfStaff(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
-  
+
+
+// thống kê bill
+
+const billTotal = async (start, end) => {
+    return await Bill.aggregate([
+        { $match: { status: 2, createdAt: { $gte: start, $lte: end } } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+};
+
+const countBills = async (start, end) => {
+    return await Bill.countDocuments({ status: 2, createdAt: { $gte: start, $lte: end } });
+};
+
+const transactionTotal = async (start, end) => {
+    const transactions = await Transaction.aggregate([
+        { 
+            $match: { 
+                status: { $nin: [1, 3] }, 
+                createdAt: { $gte: start, $lte: end } 
+            } 
+        },
+        { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+
+    const bills = await billTotal(start, end);
+
+    return (transactions[0]?.total || 0) - (bills[0]?.total || 0);
+};
+
+const getStatisticBill = async (req, res) => {
+    try {
+        let { day, month, year } = req.query;
+
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+
+        // ✅ Xác định tháng trước
+        const lastMonth = month === 1 ? 12 : month - 1;
+        const lastYear = month === 1 ? year - 1 : year;
+        const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
+        const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
+
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+
+        const totalBillToday = await billTotal(startOfDayUTC, endOfDayUTC);
+        const totalBillMonth = await billTotal(startOfMonthUTC, endOfMonthUTC);
+        const totalBillLastMonth = await billTotal(startOfLastMonthUTC, endOfLastMonthUTC);
+
+        const countBillToday = await countBills(startOfDayUTC, endOfDayUTC);
+        const countBillMonth = await countBills(startOfMonthUTC, endOfMonthUTC);
+        const countBillLastMonth = await countBills(startOfLastMonthUTC, endOfLastMonthUTC);
+
+        const transactionDiffToday = await transactionTotal(startOfDayUTC, endOfDayUTC);
+        const transactionDiffMonth = await transactionTotal(startOfMonthUTC, endOfMonthUTC);
+        const transactionDiffLastMonth = await transactionTotal(startOfLastMonthUTC, endOfLastMonthUTC);
+
+        return res.status(200).json({
+            message: "Thống kê bill",
+            date: `${day}-${month}-${year}`,
+            totalBillToday,
+            totalBillMonth,
+            totalBillLastMonth,
+            countBillToday,
+            countBillMonth,
+            countBillLastMonth,
+            transactionDiffToday, 
+            transactionDiffMonth,
+            transactionDiffLastMonth
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 
 
 module.exports = {
@@ -1313,5 +1401,6 @@ module.exports = {
     listActiveBoxAmountByBank,
     listActiveBoxAmountByStaff,
     getStaffShareInMonth,
-    getDailyShareOfStaff
+    getDailyShareOfStaff,
+    getStatisticBill
 }
