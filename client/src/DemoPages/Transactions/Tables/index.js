@@ -24,6 +24,7 @@ import { fetchBankApi } from "../../../services/bankApiService";
 import { createBill } from "../../../services/billService";
 
 const statusList = [
+    { value: 0, name: "Tất cả" },
     { value: 1, name: "Chưa nhận" },
     { value: 2, name: "Thành công" },
     { value: 3, name: "Hủy" },
@@ -407,20 +408,27 @@ class TransactionsTable extends Component {
 
     handleStatus = async (value) => {
         try {
-            if (value !== 4) {
-                await this.props.findTransactionsByStatus({
+            if (value === 0) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: false, 
+                });
+            } else if (value !== 4) {
+                await this.props.setFilters({
+                    ...this.props.filters,
                     status: [value], 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
+                    hasNotes: false, 
+                });
+               
             } else {
-                await this.props.findTransactionsByStatus({
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
                     hasNotes: true, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
+                });
             }
-            
+            await this.props.getTransactions(this.props.filters);
         } catch (error) {
             this.setState({
                 alert: true,

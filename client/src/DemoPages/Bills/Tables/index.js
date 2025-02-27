@@ -17,6 +17,7 @@ import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
 const statusList = [
+    { value: 0, name: "Tất cả" },
     { value: 1, name: "Đang xử lý" },
     { value: 2, name: "Thành công" },
     { value: 3, name: "Hủy" },
@@ -82,10 +83,22 @@ class BillsTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
-            this.props.getBills(this.props.filters);
+            if (this.state.search) {
+                this.props.searchBills({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getBills(this.props.filters);
         }
         if (prevProps.filters.limit !== this.props.filters.limit) {
-            this.props.getBills(this.props.filters);
+            if (this.state.search) {
+                this.props.searchBills({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getBills(this.props.filters);
         }
     }
 
@@ -151,6 +164,37 @@ class BillsTable extends Component {
         }
     }
 
+    handleStatus = async (value) => {
+        try {
+            if (value === 0) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: false, 
+                });
+            } else if (value !== 4) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [value], 
+                    hasNotes: false, 
+                });
+                
+            } else {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: true, 
+                });
+            }
+            await this.props.getBills(this.props.filters);
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -206,9 +250,10 @@ class BillsTable extends Component {
                                     value={statusList
                                         .map(option => ({ value: option.value, label: option.name }))
                                         .find(option => option.value === this.state.status) || null}
-                                    onChange={selected => this.setState(prevState => ({
-                                        status: selected?.value 
-                                    }))}
+                                    onChange={selected => {
+                                        this.setState(prevState => ({ status: selected?.value }))
+                                        this.handleStatus(selected?.value)
+                                    }}
                                     options={statusList.map(option => ({
                                         value: option.value,
                                         label: option.name

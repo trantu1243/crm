@@ -71,12 +71,12 @@ async function deleteBoxAndRelatedData() {
 
 async function importExcelToMongo() {
     // await deleteDocumentsWithoutInitialId()
-    await bankAccountToMongo();
-    await bankApiToMongo();
-    await staffToMongo();
-    await boxTransactionToMongo();
-    await feeTransactionToMongo();
-    await billToMongo();
+    // await bankAccountToMongo();
+    // await bankApiToMongo();
+    // await staffToMongo();
+    // await boxTransactionToMongo();
+    // await feeTransactionToMongo();
+    // await billToMongo();
     await transactionToMongo();
     await deleteBoxAndRelatedData()
 }
