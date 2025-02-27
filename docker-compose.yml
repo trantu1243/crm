@@ -5,6 +5,8 @@ services:
     volumes:
       - ./db/:/data/db
     environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin036203
       MONGO_INITDB_DATABASE: crm_main
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
@@ -33,7 +35,6 @@ services:
          ]
       })
       '
-    
   traefik:
     image: traefik:v3.2
     container_name: traefik
