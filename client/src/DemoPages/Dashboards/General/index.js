@@ -603,7 +603,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                {new Intl.NumberFormat('en-US').format(billStats?.totalBillToday)}
+                                                                {new Intl.NumberFormat('en-US').format(billStats?.totalBillToday)}&nbsp;
                                                                 <small className="opacity-5 text-muted">vnd</small>
                                                                 </div>
                                                             </div>

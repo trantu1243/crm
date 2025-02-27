@@ -1372,9 +1372,9 @@ const getStatisticBill = async (req, res) => {
         return res.status(200).json({
             message: "Thống kê bill",
             date: `${day}-${month}-${year}`,
-            totalBillToday,
-            totalBillMonth,
-            totalBillLastMonth,
+            totalBillToday: totalBillToday[0]? totalBillToday[0].total : 0,
+            totalBillMonth: totalBillMonth[0]? totalBillMonth[0].total : 0,
+            totalBillLastMonth: totalBillLastMonth[0]? totalBillLastMonth[0].total : 0,
             countBillToday,
             countBillMonth,
             countBillLastMonth,
