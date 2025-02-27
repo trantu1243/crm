@@ -503,6 +503,12 @@ export default class General extends Component {
                                         </Card>
                                     </Col>
                                 </Row>
+                                <CardHeader className="mbg-3 h-auto ps-0 pe-0 bg-transparent no-border">
+                                    <div className="card-header-title fsize-2 text-capitalize fw-normal">
+                                        Thống kê bill thanh khoản
+                                    </div>
+                                    
+                                </CardHeader>
                             </>)}
                             
                         </div>

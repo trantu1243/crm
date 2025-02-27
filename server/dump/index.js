@@ -78,7 +78,7 @@ async function importExcelToMongo() {
     // await feeTransactionToMongo();
     // await billToMongo();
     // await transactionToMongo();
-    deleteBoxAndRelatedData()
+    // deleteBoxAndRelatedData()
 }
 
 module.exports = {

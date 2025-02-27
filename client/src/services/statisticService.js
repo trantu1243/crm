@@ -211,3 +211,27 @@ export const getTotalBillServiceByStaffDaily = async ({ staffId, day, month, yea
         throw error.response?.data?.message || "Failed to fetch daily stats!";
     }
 };
+
+export const getTotalBillServiceByDaily = async ({ day, month, year } = {}) => {
+    try {
+        const response = await axios.get(`${API_URL}/bill`, {
+            params: { day, month, year },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily stats", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch daily stats!";
+    }
+};
