@@ -1,31 +1,39 @@
 name: crm
 services:
   mongodb:
-    image: mongo
-    container_name: mongodb-container
-    restart: always
+    image: mongo:8
+    volumes:
+      - ./db/:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: crm_main
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     ports:
       - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin036203
-      MONGO_INITDB_DATABASE: crm_main
-    command: ["mongod", "--bind_ip_all", "--replSet", "rs0", "--keyFile", "/data/keyfile"]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
-      timeout: 30s
-      start_period: 0s
-      start_interval: 1s
-      retries: 30
-    volumes:
-      - "./db/:/data/db"
-      - "mongo_config:/data/configdb"
-      - ./mongo-keyfile:/data/keyfile
+    command: "--bind_ip_all --quiet --logpath /dev/null --replSet rs0"
     networks:
       - crm_network
+  mongo-init:
+    image: mongo:8
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: >
+      mongosh --host mongodb:27017 --eval
+      '
+      rs.initiate( {
+         _id : "rs0",
+         members: [
+            { _id: 0, host: "localhost:27017" }
+         ]
+      })
+      '
+    
   traefik:
     image: traefik:v3.2
     container_name: traefik
