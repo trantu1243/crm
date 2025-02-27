@@ -307,33 +307,47 @@ const getBalance = async (req, res) => {
                 }
             }
         ]);
-
-        const box = await BoxTransaction.find({amount: { $gt: 0 }});
-
+        
         const boxes = await BoxTransaction.find({ amount: { $gt: 0 } });
-
+        
         const updatedBoxes = await Promise.all(boxes.map(async (box) => {
             const transaction = await Transaction.findOne({ boxId: box._id }).populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
             ]);
-            return { _id: box._id, bankId: transaction ? transaction.bankId._id : null, bankName: transaction ? transaction.bankId.bankName : null, amount: box.amount };
+            
+            return {
+                _id: box._id,
+                bankId: transaction ? transaction.bankId._id.toString() : null,
+                bankName: transaction ? transaction.bankId.bankName : null,
+                amount: box.amount
+            };
         }));
-
-        // Nhóm và tính tổng amount theo bankId
+        
+        // Nhóm và tính tổng amount theo bankId, đồng thời lưu cả bankName
         const amountByBank = updatedBoxes.reduce((acc, box) => {
             if (box.bankId) {
                 const bankIdStr = box.bankId.toString();
-                acc[bankIdStr] = (acc[bankIdStr] || 0) + box.amount;
+                if (!acc[bankIdStr]) {
+                    acc[bankIdStr] = {
+                        bankId: bankIdStr,
+                        bankName: box.bankName,
+                        totalAmount: 0
+                    };
+                }
+                acc[bankIdStr].totalAmount += box.amount;
             }
             return acc;
         }, {});
-
-
+        
+        // Chuyển object về mảng để dễ đọc
+        const resultArray = Object.values(amountByBank);
+        
         res.status(200).json({
             message: 'Bank Accounts fetched successfully',
-            data: amountByBank,
-            total: totalAmount
+            data: resultArray,
+            total: totalAmount[0]?.totalAmount || 0
         });
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
