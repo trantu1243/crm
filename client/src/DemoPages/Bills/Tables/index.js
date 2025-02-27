@@ -5,7 +5,7 @@ import React, { Component } from "react";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { getBills, getBillsNoLoad, searchBills, setFilters } from "../../../reducers/billsSlice";
+import { getBills, getBillsNoLoad, searchBills, searchBillsNoload, setFilters } from "../../../reducers/billsSlice";
 import { connect } from "react-redux";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
@@ -93,7 +93,14 @@ class BillsTable extends Component {
         try {    
             this.setState({loading: true});              
             const res = await confirmBillService(this.state.confirmBill?._id);
-            this.props.getBillsNoLoad(this.props.filters);
+            if (this.state.search) {
+                await this.props.searchBillsNoload({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getBillsNoLoad(this.props.filters);
+            
             this.toggleConfirmBill()  
             this.setState({loading: false});
         } catch (error) {
@@ -110,7 +117,13 @@ class BillsTable extends Component {
         try {     
             this.setState({loading: true}); 
             const res = await cancelBillService(this.state.cancelBill?._id);
-            this.props.getBillsNoLoad(this.props.filters);
+            if (this.state.search) {
+                await this.props.searchBillsNoload({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else this.props.getBillsNoLoad(this.props.filters);
             this.toggleCancelBill();
             this.setState({loading: false});
         } catch (error) {
@@ -351,7 +364,8 @@ const mapDispatchToProps = {
     getBills,
     getBillsNoLoad,
     setFilters,
-    searchBills
+    searchBills,
+    searchBillsNoload
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(BillsTable);

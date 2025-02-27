@@ -6,7 +6,7 @@ import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { findTransactionsByStatus, getTransactions, getTransactionsNoLoad, searchTransactions, setFilters } from "../../../reducers/transactionsSlice";
+import { findTransactionsByStatus, getTransactions, getTransactionsNoLoad, searchTransactions, searchTransactionsNoload, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
@@ -257,7 +257,13 @@ class TransactionsTable extends Component {
             this.setState({loading: true});          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
-                this.props.getTransactionsNoLoad(this.props.filters)
+                if (this.state.search) {
+                    await this.props.searchTransactionsNoload({
+                        search: this.state.search, 
+                        page: this.props.filters.page, 
+                        limit: this.props.filters.limit
+                    })
+                } else await this.props.getTransactionsNoLoad(this.props.filters)
             }
             this.toggleConfirmTransaction();  
             this.setState({loading: false});
@@ -307,7 +313,13 @@ class TransactionsTable extends Component {
                 updateTransaction: res.transaction,
                 textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\nNội dung: ${res.transaction.content}`,
             });
-            await this.props.getTransactionsNoLoad(this.props.filters)
+            if (this.state.search) {
+                await this.props.searchTransactionsNoload({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else await this.props.getTransactionsNoLoad(this.props.filters)
             this.setState({loading: false});
            
         } catch(error) {
@@ -324,7 +336,13 @@ class TransactionsTable extends Component {
         try{
             this.setState({loading: true});
             await this.props.undoBox(this.state.undoTransaction?.boxId._id);
-            await this.props.getTransactionsNoLoad(this.props.filters);
+            if (this.state.search) {
+                await this.props.searchTransactionsNoload({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else await this.props.getTransactionsNoLoad(this.props.filters)
             this.toggleUndo()    
             this.setState({loading: false});
         } catch (error) {
@@ -341,7 +359,13 @@ class TransactionsTable extends Component {
         try {          
             this.setState({loading: true});
             await cancelTransaction(this.state.cancelTransaction._id);
-            this.props.getTransactionsNoLoad(this.props.filters);
+            if (this.state.search) {
+                await this.props.searchTransactionsNoload({
+                    search: this.state.search, 
+                    page: this.props.filters.page, 
+                    limit: this.props.filters.limit
+                })
+            } else await this.props.getTransactionsNoLoad(this.props.filters)
             this.toggleCancel();          
             this.setState({loading: false});
         } catch (error) {
@@ -1458,7 +1482,8 @@ const mapDispatchToProps = {
     setFilters,
     undoBox,
     searchTransactions,
-    findTransactionsByStatus
+    findTransactionsByStatus,
+    searchTransactionsNoload
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionsTable);

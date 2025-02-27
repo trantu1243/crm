@@ -327,7 +327,7 @@ const mapStateToProps = (state) => ({
   
 const mapDispatchToProps = {
     getBills,
-    setFilters
+    setFilters,
 };
   
 export default connect(mapStateToProps, mapDispatchToProps)(Bills);
