@@ -31,19 +31,22 @@ const getTransactions = async (req, res) => {
             if (minAmount) filter.amount.$gte = Number(minAmount);
             if (maxAmount) filter.amount.$lte = Number(maxAmount);
         }
-        if (startDate && endDate && startDate === endDate) {
-            const start = new Date(startDate);
-            const end = new Date(startDate);
-            end.setHours(23, 59, 59, 999);
-    
-            filter.createdAt.$gte = start;
-            filter.createdAt.$lte = end;
-        } else {
-            if (startDate) filter.createdAt.$gte = new Date(startDate);
-            if (endDate) {
-                const end = new Date(endDate);
+        if (startDate || endDate) {
+            filter.createdAt = {};
+        
+            if (startDate && endDate && startDate === endDate) {
+                const start = new Date(startDate);
+                const end = new Date(startDate);
                 end.setHours(23, 59, 59, 999);
-                filter.createdAt.$lte = end;
+        
+                filter.createdAt = { $gte: start, $lte: end };
+            } else {
+                if (startDate) filter.createdAt.$gte = new Date(startDate);
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    filter.createdAt.$lte = end;
+                }
             }
         }
         if (content) filter.content = { $regex: content, $options: 'i' };
