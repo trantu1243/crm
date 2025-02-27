@@ -23,7 +23,7 @@ async function boxTransactionToMongo() {
         let noteData = xlsx.utils.sheet_to_json(noteSheet);
 
         for (const item of data) {
-            if (Number(item.id) > 0) { 
+            if (Number(item.id) > 8000) { 
                 const existingAccount = await BoxTransaction.findOne({ initialId: item.id });
             
                 if (!existingAccount) {
