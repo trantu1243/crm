@@ -37,14 +37,14 @@ async function deleteDocumentsWithoutInitialId() {
 }
 
 async function importExcelToMongo() {
-    await deleteDocumentsWithoutInitialId()
+    // await deleteDocumentsWithoutInitialId()
     // await bankAccountToMongo();
     // await bankApiToMongo();
     // await staffToMongo();
-    // await boxTransactionToMongo();
+    await boxTransactionToMongo();
     // await feeTransactionToMongo();
-    // await billToMongo();
-    // await transactionToMongo();
+    await billToMongo();
+    await transactionToMongo();
 }
 
 module.exports = {
