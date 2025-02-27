@@ -730,6 +730,18 @@ const getTransactionStatsByStaff = async (req, res) => {
 
 async function listActiveBoxAmountByBank(req, res) {
     try {
+        const totalAmount = await BoxTransaction.aggregate([
+            { 
+                $match: { amount: { $gt: 0 } } // Lọc các box có amount > 0
+            },
+            {
+                $group: {
+                    _id: null, // Gom tất cả thành một nhóm
+                    totalAmount: { $sum: "$amount" } // Tính tổng amount
+                }
+            }
+        ]);
+
         const results = await Transaction.aggregate([
             {
                 $lookup: {
@@ -774,7 +786,8 @@ async function listActiveBoxAmountByBank(req, res) {
     
         res.status(200).json({
             message: "Danh sách ngân hàng + tổng Box.amount (active)",
-            data: results
+            data: results,
+            total: totalAmount
         });
     } catch (error) {
         console.error(error);
