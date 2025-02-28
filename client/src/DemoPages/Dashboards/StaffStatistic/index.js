@@ -177,7 +177,6 @@ class StaffStatistic extends Component {
             const lastMonthStats = await getMonthlyStatsServiceByStaff({ month: lastMonth, year: lastYear, staffId});
             const todayStats = await getDailyStatsServiceByStaff({ day: currentDay, month: currentMonth, year: currentYear, staffId });
             const transationStats = await getTransactionStatsServiceByStaff({ day: currentDay, month: currentMonth, year: currentYear, staffId });
-            const balanceStats = await getBalanceServiceByStaff({ day: currentDay, month: currentMonth, year: currentYear, staffId });
             
             const totalBillMonthly = await getTotalBillServiceByStaffMonthly({ month: currentMonth, year: currentYear, staffId});
             const lastTotalBillMonthly = await getTotalBillServiceByStaffMonthly({ month: lastMonth, year: lastYear, staffId});
