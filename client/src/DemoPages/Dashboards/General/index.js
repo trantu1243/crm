@@ -7,6 +7,11 @@ import {
   CardHeader,
   Card,
   CardBody,
+  DropdownToggle,
+  DropdownMenu,
+  Nav,
+  NavItem,
+  ButtonDropdown,
 } from "reactstrap";
 
 import Donut from "./Examples/Donut";
@@ -16,6 +21,7 @@ import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
 import { DatePicker } from "react-widgets/cjs";
 import DonutTransactionsChart from "../StaffStatistic/Component/DonutTranction";
+import { NavLink } from "react-router-dom";
 
 export default class General extends Component {
     constructor(props) {
@@ -344,35 +350,103 @@ export default class General extends Component {
                                         
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
-                                                    <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
-                                                            <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.currentMonth).reduce((sum, value) => sum + value, 0))}
+                                                <ButtonDropdown
+                                                    onMouseEnter={() => this.setState({isOpen: true})}
+                                                    onMouseLeave={() => this.setState({isOpen: false})}
+                                                    isOpen={this.state.isOpen}
+                                                >
+                                                    <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                        <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
+                                                        <div className="widget-chart-flex">
+                                                            <div className="widget-numbers mb-0 w-100">
+                                                                <div className="widget-chart-flex">
+                                                                    <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.currentMonth).reduce((sum, value) => sum + value, 0))}
+                                                                    </div>
                                                                 </div>
                                                             </div>
+
+                                                            <DropdownToggle style={{width: 0, height: 0, padding: 0, border: 'none'}}>
+
+                                                                </DropdownToggle>
+                                                                <DropdownMenu
+                                                                    container="body"
+                                                                    modifiers={[
+                                                                        { name: 'offset', options: { offset: [0, 18] } },
+                                                                    ]}
+                                                                    right={'false'}
+                                                                >
+                                                                    <Nav vertical>
+                                                                        <NavItem>
+                                                                        {Object.entries(totalTransaction?.currentMonth).map(([statusKey, item], index) => {
+                                                                            return (
+                                                                                <NavLink to="#" className="p-2" key={index} style={{display: 'block'}}>
+                                                                                    <i className="nav-link-icon pe-7s-graph me-2"> </i>
+                                                                                    <span>{item.name}</span>
+                                                                                    <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: 'right' }}>
+                                                                                        {item.count}
+                                                                                    </div>
+                                                                                </NavLink>
+                                                                            );
+                                                                        })}
+                                                                            
+                                                                        </NavItem>
+                                                                    </Nav>
+                                                                </DropdownMenu>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </ButtonDropdown>
                                             </div>
                                         </Card>
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
-                                                <div className="widget-chart-content">
-                                                    <h6 className="widget-subheading">Số lượng GD tháng trước</h6>
-                                                    <div className="widget-chart-flex">
-                                                        <div className="widget-numbers mb-0 w-100">
-                                                            <div className="widget-chart-flex">
-                                                                <div className="fsize-3">
-                                                                {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.lastMonth).reduce((sum, value) => sum + value, 0))}
+                                                <ButtonDropdown
+                                                    onMouseEnter={() => this.setState({isOpen1: true})}
+                                                    onMouseLeave={() => this.setState({isOpen1: false})}
+                                                    isOpen={this.state.isOpen1}
+                                                >
+                                                    <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                        <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
+                                                        <div className="widget-chart-flex">
+                                                            <div className="widget-numbers mb-0 w-100">
+                                                                <div className="widget-chart-flex">
+                                                                    <div className="fsize-3">
+                                                                    {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.lastMonth).reduce((sum, value) => sum + value, 0))}
+                                                                    </div>
                                                                 </div>
                                                             </div>
+
+                                                            <DropdownToggle style={{width: 0, height: 0, padding: 0, border: 'none'}}>
+
+                                                                </DropdownToggle>
+                                                                <DropdownMenu
+                                                                    container="body"
+                                                                    modifiers={[
+                                                                        { name: 'offset', options: { offset: [0, 18] } },
+                                                                    ]}
+                                                                    right={'false'}
+                                                                >
+                                                                    <Nav vertical>
+                                                                        <NavItem>
+                                                                        {Object.entries(totalTransaction?.lastMonth).map(([statusKey, item], index) => {
+                                                                            return (
+                                                                                <NavLink to="#" className="p-2" key={index} style={{display: 'block'}}>
+                                                                                    <i className="nav-link-icon pe-7s-graph me-2"> </i>
+                                                                                    <span>{item.name}</span>
+                                                                                    <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: 'right' }}>
+                                                                                        {item.count}
+                                                                                    </div>
+                                                                                </NavLink>
+                                                                            );
+                                                                        })}
+                                                                            
+                                                                        </NavItem>
+                                                                    </Nav>
+                                                                </DropdownMenu>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </ButtonDropdown>
                                             </div>
                                         </Card>
                                     </Col>

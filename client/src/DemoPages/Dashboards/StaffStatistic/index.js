@@ -492,7 +492,7 @@ class StaffStatistic extends Component {
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
-                                            <ButtonDropdown
+                                                <ButtonDropdown
                                                     onMouseEnter={() => this.setState({isOpen1: true})}
                                                     onMouseLeave={() => this.setState({isOpen1: false})}
                                                     isOpen={this.state.isOpen1}
