@@ -60,7 +60,7 @@ services:
     container_name: server
     environment:
       - PORT=80
-      - MONGODB_URL=mongodb://mongodb:27017/crm_main?replicaSet=rs0
+      # - MONGODB_URL=mongodb://mongodb:27017/crm_main?replicaSet=rs0
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

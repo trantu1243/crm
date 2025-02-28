@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcryptjs");
 const { Staff } = require('../models');
+const { saveUserLogToQueue } = require('../services/log.service');
 require('dotenv').config();
 
 const login = async (req, res) => {
@@ -29,6 +30,8 @@ const login = async (req, res) => {
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '240h' }
         );
+
+        await saveUserLogToQueue(user._id, "LOGIN", "User logged in", req);
 
         res.json({ 
             message: 'Đăng nhập thành công', 
