@@ -538,7 +538,7 @@ const getStaffMonthlyStats = async (req, res) => {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAtVN: { $gte: startOfLastMonth, $lt: endOfLastMonth },
+                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
                     status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
