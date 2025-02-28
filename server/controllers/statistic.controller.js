@@ -1002,7 +1002,7 @@ async function getStaffShareInMonth(req, res) {
             year,
             month,
             totalBills: billCount[0]?.totalBills || 0,
-            totalAmount: billStats[0]?.totalAmount || 0,
+            totalAmount: billCount[0]?.totalAmount || 0,
             kpi: totalKPIMonth,
         });
     } catch (err) {
@@ -1083,7 +1083,7 @@ async function getDailyShareOfStaff(req, res) {
             date: `${day}-${month}-${year}`,
             staffId,
             totalBills: billCount[0]?.totalBills || 0,
-            totalAmount: billStats[0]?.totalAmount || 0,
+            totalAmount: billCount[0]?.totalAmount || 0,
             kpi: totalKPIDay,
         });
     } catch (err) {
