@@ -851,8 +851,10 @@ const getTransactionStatsByStaff = async (req, res) => {
 
         const transationBonus = await Transaction.aggregate([
             {
-                $match: { staffId: staffObjectId },
-                createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+                $match: { 
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+                },
             },
             {
                 $group: {
@@ -864,8 +866,10 @@ const getTransactionStatsByStaff = async (req, res) => {
 
         const billBonus = await Bill.aggregate([
             {
-                $match: { staffId: staffObjectId },
-                createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+                $match: { 
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+                },
             },
             {
                 $group: {
