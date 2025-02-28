@@ -100,6 +100,7 @@ const undoBox = async (req, res) => {
 
         // Nếu transaction mới nhất có status = 2 hoặc 8 -> Cập nhật lại hóa đơn (Bill) và số dư trong box
         if ([2, 8].includes(latestTransaction.status)) {
+            if (latestTransaction.status === 2) box.status = 'active';
             const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
 
             if (lastestBill) {
