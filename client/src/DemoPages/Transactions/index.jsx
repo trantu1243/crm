@@ -254,7 +254,7 @@ class Transactions extends Component {
                                                             selectsStart
                                                             startDate={filters?.startDate ? new Date(filters.startDate) : null}
                                                             endDate={filters?.endDate ? new Date(filters.endDate) : null}
-                                                            onChange={(date) =>{
+                                                            onChange={(date) => {
                                                                     date.setHours(0, 0, 0, 0)
                                                                     this.props.setFilters({
                                                                         ...filters,
@@ -273,14 +273,13 @@ class Transactions extends Component {
                                                             selectsEnd
                                                             startDate={filters?.startDate ? new Date(filters.startDate) : null}
                                                             endDate={filters?.endDate ? new Date(filters.endDate) : null}
-                                                            onChange={(date) =>{
-                                                                date.setHours(23, 59, 59, 999)
-                                                                this.props.setFilters({
-                                                                    ...filters,
-                                                                    endDate: date ? date.toISOString() : "",
-                                                                })
-                                                            }
-                                                                
+                                                            onChange={(date) => {
+                                                                    date.setHours(23, 59, 59, 999)
+                                                                    this.props.setFilters({
+                                                                        ...filters,
+                                                                        endDate: date ? date.toISOString() : "",
+                                                                    })
+                                                                }
                                                             }
                                                             dateFormat="yyyy-MM-dd"
                                                         />

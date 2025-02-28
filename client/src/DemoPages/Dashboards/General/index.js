@@ -356,6 +356,7 @@ export default class General extends Component {
                                                     onMouseEnter={() => this.setState({isOpen: true})}
                                                     onMouseLeave={() => this.setState({isOpen: false})}
                                                     isOpen={this.state.isOpen}
+                                                    disabled
                                                 >
                                                     <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                         <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
@@ -411,6 +412,7 @@ export default class General extends Component {
                                                     onMouseEnter={() => this.setState({isOpen1: true})}
                                                     onMouseLeave={() => this.setState({isOpen1: false})}
                                                     isOpen={this.state.isOpen1}
+                                                    disabled
                                                 >
                                                     <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                         <h6 className="widget-subheading">Số lượng GD trong tháng</h6>

@@ -263,7 +263,6 @@ const getTotalTransaction = async (req, res) => {
             currentMonth: convertToStatusMap(stats.currentMonth || []),
             lastMonth: convertToStatusMap(stats.lastMonth || []),
         };
-    
 
         res.json({
             data: responseData
@@ -849,11 +848,41 @@ const getTransactionStatsByStaff = async (req, res) => {
         ]);
     
         const [stats] = results;
+
+        const transationBonus = await Transaction.aggregate([
+            {
+                $match: { staffId: staffObjectId },
+                createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+            },
+            {
+                $group: {
+                    _id: null, 
+                    totalBonus: { $sum: "$bonus" } 
+                }
+            }
+        ]);
+
+        const billBonus = await Bill.aggregate([
+            {
+                $match: { staffId: staffObjectId },
+                createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+            },
+            {
+                $group: {
+                    _id: null, 
+                    totalBonus: { $sum: "$bonus" } 
+                }
+            }
+        ]);
     
         const responseData = {
             today: convertToStatusMap(stats.today || []),
             currentMonth: convertToStatusMap(stats.currentMonth || []),
             lastMonth: convertToStatusMap(stats.lastMonth || []),
+            bonus: [
+                { name: "GDTG", value: transationBonus.length > 0 ? transationBonus[0].totalBonus : 0 },
+                { name: "Thanh khoản", value: billBonus.length > 0 ? billBonus[0].totalBonus : 0 }
+            ],
           };
     
         return res.status(200).json({
@@ -1241,6 +1270,8 @@ const transactionTotal = async (start, end) => {
 const getStatisticBill = async (req, res) => {
     try {
         let { day, month, year } = req.query;
+
+        const today = new Date();
 
         day = day ? parseInt(day) : today.getDate();
         month = month ? parseInt(month) : today.getMonth() + 1;
