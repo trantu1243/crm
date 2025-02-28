@@ -111,6 +111,8 @@ export default class General extends Component {
                 },
                 labels: ["Percent"],
             },
+            isOpen: false,
+            isOpen1: false,
             seriesRadial: [76],
             currentMonthStats: null,
             lastMonthStats: null,
@@ -164,7 +166,7 @@ export default class General extends Component {
                 lastMonthStats,
                 todayStats,
                 billStats,
-                totalTransaction,
+                totalTransaction: totalTransaction.data,
                 loading: false,
             });
         } catch (error) {
@@ -361,7 +363,11 @@ export default class General extends Component {
                                                             <div className="widget-numbers mb-0 w-100">
                                                                 <div className="widget-chart-flex">
                                                                     <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.currentMonth).reduce((sum, value) => sum + value, 0))}
+                                                                    {new Intl.NumberFormat('en-US').format(
+                                                                        totalTransaction?.currentMonth 
+                                                                        ? Object.values(totalTransaction.currentMonth).reduce((sum, item) => sum + item.count, 0) 
+                                                                        : 0 
+                                                                    )}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -378,17 +384,17 @@ export default class General extends Component {
                                                                 >
                                                                     <Nav vertical>
                                                                         <NavItem>
-                                                                        {Object.entries(totalTransaction?.currentMonth).map(([statusKey, item], index) => {
-                                                                            return (
-                                                                                <NavLink to="#" className="p-2" key={index} style={{display: 'block'}}>
-                                                                                    <i className="nav-link-icon pe-7s-graph me-2"> </i>
-                                                                                    <span>{item.name}</span>
-                                                                                    <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: 'right' }}>
-                                                                                        {item.count}
-                                                                                    </div>
-                                                                                </NavLink>
-                                                                            );
-                                                                        })}
+                                                                        {totalTransaction?.currentMonth &&
+                                                                        Object.entries(totalTransaction.currentMonth).map(([statusKey, item], index) => (
+                                                                            <NavLink to="#" className="p-2" key={index} style={{ display: "block" }}>
+                                                                            <i className="nav-link-icon pe-7s-graph me-2"> </i>
+                                                                            <span>{item.name}</span>
+                                                                            <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: "right" }}>
+                                                                                {item.count}
+                                                                            </div>
+                                                                            </NavLink>
+                                                                        ))}
+
                                                                             
                                                                         </NavItem>
                                                                     </Nav>
@@ -412,7 +418,11 @@ export default class General extends Component {
                                                             <div className="widget-numbers mb-0 w-100">
                                                                 <div className="widget-chart-flex">
                                                                     <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.lastMonth).reduce((sum, value) => sum + value, 0))}
+                                                                    {new Intl.NumberFormat('en-US').format(
+                                                                        totalTransaction?.lastMonth 
+                                                                        ? Object.values(totalTransaction.lastMonth).reduce((sum, item) => sum + item.count, 0) 
+                                                                        : 0 
+                                                                    )}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -429,17 +439,17 @@ export default class General extends Component {
                                                                 >
                                                                     <Nav vertical>
                                                                         <NavItem>
-                                                                        {Object.entries(totalTransaction?.lastMonth).map(([statusKey, item], index) => {
-                                                                            return (
-                                                                                <NavLink to="#" className="p-2" key={index} style={{display: 'block'}}>
-                                                                                    <i className="nav-link-icon pe-7s-graph me-2"> </i>
-                                                                                    <span>{item.name}</span>
-                                                                                    <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: 'right' }}>
-                                                                                        {item.count}
-                                                                                    </div>
-                                                                                </NavLink>
-                                                                            );
-                                                                        })}
+                                                                        {totalTransaction?.lastMonth &&
+                                                                        Object.entries(totalTransaction.lastMonth).map(([statusKey, item], index) => (
+                                                                            <NavLink to="#" className="p-2" key={index} style={{ display: "block" }}>
+                                                                            <i className="nav-link-icon pe-7s-graph me-2"> </i>
+                                                                            <span>{item.name}</span>
+                                                                            <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: "right" }}>
+                                                                                {item.count}
+                                                                            </div>
+                                                                            </NavLink>
+                                                                        ))}
+
                                                                             
                                                                         </NavItem>
                                                                     </Nav>

@@ -24,7 +24,7 @@ const convertToStatusMap = (arr) => {
 
     arr.forEach((item) => {
         const status = item._id;
-        const count = item.totalAmount;
+        const count = item.amount;
         if (result[status]) {
         result[status].count = count;
         }
@@ -216,7 +216,7 @@ const getTotalTransaction = async (req, res) => {
                     today: [
                         { 
                             $match: {
-                                createdAt: { $gte: startOfMonthUTC, $lt: endOfDayUTC }
+                                createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC }
                             }
                         },
                         {
@@ -262,7 +262,7 @@ const getTotalTransaction = async (req, res) => {
             today: convertToStatusMap(stats.today || []),
             currentMonth: convertToStatusMap(stats.currentMonth || []),
             lastMonth: convertToStatusMap(stats.lastMonth || []),
-          };
+        };
     
 
         res.json({
