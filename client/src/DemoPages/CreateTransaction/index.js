@@ -128,12 +128,20 @@ class CreateTransaction extends Component {
 
     copyImageToClipboard = async () => {
         try {
-            const response = await fetch(this.state.linkQr);
-            const blob = await response.blob();
-            const data = [new ClipboardItem({ [blob.type]: blob })];
+            if (this.state.linkQr === '') {
+                this.setState({
+                    alert: true,
+                    errorMsg: "Vui lòng đợi ảnh tải xong"
+                })
+            } else {
+                const response = await fetch(this.state.linkQr);
+                const blob = await response.blob();
+                const data = [new ClipboardItem({ [blob.type]: blob })];
 
-            await navigator.clipboard.write(data);
-            this.setState({imageCopied: true})
+                await navigator.clipboard.write(data);
+                this.setState({imageCopied: true})
+            }
+            
         } catch (error) {
             console.error(error);
             this.setState({
@@ -448,10 +456,8 @@ class CreateTransaction extends Component {
                                                 </Row>
                                                 {this.state.isCreated && <Row>
                                                     <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 2em', position: 'relative'}}>
-                                                        <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}}></img>
-                                                        <div style={{ position: "absolute", right: 0, top: 0 }}>
-                                                            
-                                                        </div>
+                                                        <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}} onClick={this.copyImageToClipboard}></img>
+                                                        
                                                     </div>
                                                     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
                                                         <Button color="link" onClick={this.copyImageToClipboard}>
