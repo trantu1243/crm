@@ -1056,10 +1056,23 @@ async function getStaffShareInMonth(req, res) {
                 }
             },
             {
-                $group: {
-                    _id: "$boxId",
-                    count: { $sum: 1 },
-                    bills: { $push: "$_id" }
+                $lookup: {
+                    from: "bills", 
+                    localField: "boxId", 
+                    foreignField: "boxId",
+                    as: "allBillsInBox" 
+                }
+            },
+            {
+                $addFields: {
+                    totalBillsInBox: { $size: "$allBillsInBox" }
+                }
+            },
+            {
+                $project: {
+                    _id: 1, 
+                    boxId: 1,
+                    totalBillsInBox: 1,
                 }
             }
         ]);
@@ -1082,8 +1095,8 @@ async function getStaffShareInMonth(req, res) {
         
         let totalKPIMonth = 0;
         for (const box of billsMonth) {
-            const kpiPerBill = 1 / box.count; 
-            totalKPIMonth += kpiPerBill * box.count; 
+            const kpiPerBill = 1 / box.totalBillsInBox; 
+            totalKPIMonth += kpiPerBill; 
         }
     
         return res.status(200).json({
@@ -1130,7 +1143,7 @@ async function getDailyShareOfStaff(req, res) {
         const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         
 
-        const billsDay = await Bill.aggregate([
+        const billsDay =  await Bill.aggregate([
             {
                 $match: {
                     staffId: staffObjectId,
@@ -1138,18 +1151,31 @@ async function getDailyShareOfStaff(req, res) {
                 }
             },
             {
-                $group: {
-                    _id: "$boxId",
-                    count: { $sum: 1 },
-                    bills: { $push: "$_id" }
+                $lookup: {
+                    from: "bills", 
+                    localField: "boxId", 
+                    foreignField: "boxId",
+                    as: "allBillsInBox" 
+                }
+            },
+            {
+                $addFields: {
+                    totalBillsInBox: { $size: "$allBillsInBox" }
+                }
+            },
+            {
+                $project: {
+                    _id: 1, 
+                    boxId: 1,
+                    totalBillsInBox: 1,
                 }
             }
         ]);
 
         let totalKPIDay = 0;
         for (const box of billsDay) {
-            const kpiPerBill = 1 / box.count; 
-            totalKPIDay += kpiPerBill * box.count; 
+            const kpiPerBill = 1 / box.totalBillsInBox; 
+            totalKPIDay += kpiPerBill; 
         }
 
         const billCount = await Bill.aggregate([
