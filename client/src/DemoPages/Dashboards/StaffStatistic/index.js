@@ -495,7 +495,7 @@ class StaffStatistic extends Component {
                                                 >
                                                     <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     
-                                                        <h6 className="widget-subheading">Số lượng GD trong tháng</h6>
+                                                        <h6 className="widget-subheading">Số lượng GD tháng trước</h6>
                                                         <div className="widget-chart-flex">
                                                             <div className="widget-numbers mb-0 w-100">
                                                                 <div className="widget-chart-flex">
