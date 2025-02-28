@@ -184,6 +184,87 @@ const getMonthlyStats = async (req, res) => {
     }
 };
 
+const getTotalTransaction = async (req, res) => {
+    try {
+        let { day, month, year } = req.query;
+        const today = new Date();
+
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0); // Bắt đầu ngày 00:00:00 giờ Việt Nam
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59); // Kết thúc ngày 23:59:59 giờ Việt Nam
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+
+        const lastMonth = month === 1 ? 12 : month - 1;
+        const lastYear = month === 1 ? year - 1 : year;
+        const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
+        const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
+
+        const results = await Transaction.aggregate([
+            {
+                $facet: {
+                    today: [
+                        { 
+                            $match: {
+                                createdAt: { $gte: startOfMonthUTC, $lt: endOfDayUTC }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",             
+                                amount: { $sum: 1 }
+                            }
+                        }
+                        ],
+                        currentMonth: [
+                        {
+                            $match: {
+                                createdAt: { $gte: startOfMonthUTC, $lt: endOfMonthUTC }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",
+                                amount: { $sum: 1 }
+                            }
+                        }
+                        ],
+                        lastMonth: [
+                        {
+                            $match: {
+                                createdAt: { $gte: startOfLastMonthUTC, $lt: endOfLastMonthUTC }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: "$status",
+                                amount: { $sum: 1 }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+
+        res.json({
+            results
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Lỗi khi lấy thống kê theo tháng" });
+    }
+};
 
 const getDailyStats = async (req, res) => {
     try {
@@ -1193,5 +1274,6 @@ module.exports = {
     listActiveBoxAmountByStaff,
     getStaffShareInMonth,
     getDailyShareOfStaff,
-    getStatisticBill
+    getStatisticBill,
+    getTotalTransaction
 }

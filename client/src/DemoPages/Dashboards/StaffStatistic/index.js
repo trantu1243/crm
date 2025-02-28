@@ -656,7 +656,7 @@ class StaffStatistic extends Component {
 
                                     <Col sm="12" md="6" lg="6">
                                         <Row>
-                                            <Col md="6" lg="4">
+                                            <Col md="6" lg="6">
                                                 
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
                                                     <div className="widget-chat-wrapper-outer">
@@ -676,8 +676,9 @@ class StaffStatistic extends Component {
                                                         </div>
                                                     </div>
                                                 </Card>
-                                            
-                                            
+                                            </Col>
+
+                                            <Col md="6" lg="6">
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
                                                     <div className="widget-chat-wrapper-outer">
                                                         <div className="widget-chart-content" style={{ zIndex: 0 }}>
@@ -699,7 +700,10 @@ class StaffStatistic extends Component {
                                                 
                                             </Col>
 
-                                            <Col md="6" lg="4">
+                                        </Row>
+
+                                        <Row>
+                                            <Col md="6" lg="6">
                                                 
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                                     <div className="widget-chat-wrapper-outer">
@@ -719,8 +723,9 @@ class StaffStatistic extends Component {
                                                         </div>
                                                     </div>
                                                 </Card>
-                                            
-                                            
+                                            </Col>
+
+                                            <Col md="6" lg="6">
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                                     <div className="widget-chat-wrapper-outer">
                                                         <div className="widget-chart-content" style={{ zIndex: 0 }}>
@@ -742,7 +747,10 @@ class StaffStatistic extends Component {
                                                 
                                             </Col>
 
-                                            <Col md="6" lg="4">
+                                        </Row>
+
+                                        <Row>
+                                            <Col md="6" lg="6">
                                                 
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                                     <div className="widget-chat-wrapper-outer">
@@ -762,8 +770,9 @@ class StaffStatistic extends Component {
                                                         </div>
                                                     </div>
                                                 </Card>
-                                            
-                                            
+                                            </Col>
+
+                                            <Col md="6" lg="6">
                                                 <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                                     <div className="widget-chat-wrapper-outer">
                                                         <div className="widget-chart-content" style={{ zIndex: 0 }}>
@@ -784,6 +793,7 @@ class StaffStatistic extends Component {
                                                 </Card>
                                                 
                                             </Col>
+
                                         </Row>
                                     </Col>
                                 </Row>

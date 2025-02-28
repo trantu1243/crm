@@ -10,7 +10,7 @@ import {
 } from "reactstrap";
 
 import Donut from "./Examples/Donut";
-import { getBalanceService, getDailyStatsService, getMonthlyStatsService, getTotalBillServiceByDaily } from "../../../services/statisticService";
+import { getBalanceService, getDailyStatsService, getMonthlyStatsService, getTotalBillServiceByDaily, getTotalTransactionService } from "../../../services/statisticService";
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
@@ -111,6 +111,7 @@ export default class General extends Component {
             todayStats: null,
             billStats: null,
             loading: false,
+            totalTransaction: null,
             balance: []
         };
         this.onDismiss = this.onDismiss.bind(this);
@@ -151,11 +152,13 @@ export default class General extends Component {
             const lastMonthStats = await getMonthlyStatsService({ month: lastMonth, year: lastYear });
             const todayStats = await getDailyStatsService({ day: currentDay, month: currentMonth, year: currentYear });
             const billStats = await getTotalBillServiceByDaily({ day: currentDay, month: currentMonth, year: currentYear });
+            const totalTransaction = await getTotalTransactionService({ day: currentDay, month: currentMonth, year: currentYear });
             this.setState({
                 currentMonthStats,
                 lastMonthStats,
                 todayStats,
                 billStats,
+                totalTransaction,
                 loading: false,
             });
         } catch (error) {
