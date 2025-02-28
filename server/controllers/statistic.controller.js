@@ -112,7 +112,7 @@ const getMonthlyStats = async (req, res) => {
             },
             {
                 $match: {
-                    createdAtVN: { $gte: startOfMonthUTC, $lt: endOfMonthUTC },
+                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
                     status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
