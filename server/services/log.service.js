@@ -1,8 +1,9 @@
 const logQueue = require("../queues/logQueue");
 
-const saveUserLogToQueue = async (userId, action, details, req) => {
+const saveUserLogToQueue = async (userId, targetId, action, details, req) => {
     await logQueue.add({
         userId,
+        targetId,
         action,
         details,
         ipAddress: req.ip,

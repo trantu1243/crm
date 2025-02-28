@@ -1,6 +1,7 @@
 
 const mongoose = require('mongoose');
 const { Role, Staff } = require('../models');
+const { saveUserLogToQueue } = require('../services/log.service');
   
 const getRoles = async (req, res) => {
     try {
@@ -62,6 +63,9 @@ const createRole = async (req, res) => {
             { $addToSet: { roles: role._id } } 
         );
 
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, role._id, "CREATE_ROLE", "Tạo role", req);
+
         return res.json({ status: true, message: "Tạo role thành công", role });
     } catch (error) {
         console.error("❌ Lỗi khi tạo role:", error);
@@ -101,6 +105,9 @@ const updateRole = async (req, res) => {
             );
         }
 
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, role._id, "UPDATE_ROLE", "Chỉnh sửa role", req);
+
         return res.json({ status: true, message: "Cập nhật Role thành công", role });
     } catch (error) {
         console.error("❌ Lỗi khi cập nhật Role:", error);
@@ -124,6 +131,9 @@ const deleteRole = async (req, res) => {
 
         // Xóa Role
         await Role.findByIdAndDelete(id);
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, role._id, "DELETE_ROLE", "Xóa role", req);
 
         return res.json({ status: true, message: "Xóa Role thành công" });
     } catch (error) {

@@ -8,9 +8,9 @@ const logQueue = new Queue("userLogs", {
 
 // Xử lý log từ hàng đợi và lưu vào MongoDB
 logQueue.process(async (job) => {
-    const { userId, action, details, ipAddress, userAgent } = job.data;
+    const { userId, targetId, action, details, ipAddress, userAgent } = job.data;
     try {
-        const log = new UserLog({ userId, action, details, ipAddress, userAgent });
+        const log = new UserLog({ userId, targetId, action, details, ipAddress, userAgent });
         await log.save();
     } catch (error) {
         console.error("❌ Error saving user log:", error);

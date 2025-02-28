@@ -2,6 +2,7 @@ const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = requ
 const { getPermissions } = require("../services/permission.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
+const { saveUserLogToQueue } = require("../services/log.service");
 
 const getTransactions = async (req, res) => {
     try {
@@ -192,8 +193,14 @@ const createTransaction = async (req, res) => {
                         { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
                     ]);
                 if (tran && tran.bankId.bankCode !== bank.bankCode) {
+
+                    await session.abortTransaction();
+                    session.endSession();
                     return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
                 }
+            } else {
+                box.status = 'active';
+                await box.save();
             }
         }
         
@@ -210,6 +217,8 @@ const createTransaction = async (req, res) => {
             typeFee,
             bonus: Number(bonus)
         });
+
+        await saveUserLogToQueue(user._id, newTransaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);
 
         const io = getSocket();
 
@@ -320,6 +329,22 @@ const updateTransaction = async (req, res) => {
             // Khi dùng .create() với session, cần truyền mảng + object session
             // Kết quả trả về cũng là mảng, ta destruct để lấy doc
             box = box[0];
+        } else {
+            if (box.status === 'active') {
+                const tran = await Transaction.findOne({ boxId: box._id }).sort({ createdAt: -1 }).populate(
+                    [
+                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                    ]);
+                if (tran && tran.bankId.bankCode !== bank.bankCode) {
+
+                    await session.abortTransaction();
+                    session.endSession();
+                    return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
+                }
+            } else {
+                box.status = 'active';
+                await box.save();
+            }
         }
 
         if (tran.status === 6 && tran.amount !== oriAmount) {
@@ -354,6 +379,8 @@ const updateTransaction = async (req, res) => {
         // 9. Commit transaction
         await session.commitTransaction();
         session.endSession();
+
+        await saveUserLogToQueue(user._id, updatedTran._id, "UPDATE_TRANSACTION", "Chỉnh sửa GDTG", req);
 
         // 10. Socket thông báo
         const io = getSocket();
@@ -438,6 +465,9 @@ const confirmTransaction = async (req, res) => {
         await session.commitTransaction();
         session.endSession();
 
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, transaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);
+
         const io = getSocket();
 
         io.emit('confirm_transaction', {
@@ -482,8 +512,11 @@ const cancelTransaction = async (req, res) => {
         transaction.status = 3;
         await transaction.save();
 
-        const io = getSocket();
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, transaction._id, "CANCEL_TRANSACTION", "Hủy GDTG", req);
 
+        const io = getSocket();
+        
         io.emit('cancel_transaction', {
             transaction
         });

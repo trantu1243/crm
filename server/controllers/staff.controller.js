@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require("bcryptjs");
 const { Staff } = require('../models');
+const { saveUserLogToQueue } = require('../services/log.service');
 
 const createAccount = async (req, res) => {
     try {
@@ -34,6 +35,9 @@ const createAccount = async (req, res) => {
             password: hashedPassword,
             permission_bank
         });
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, newStaff._id, "CREATE_STAFF", "Tạo nhân viên", req);
 
         return res.status(201).json({ message: "Tạo nhân viên thành công!", staff: newStaff });
     } catch (error) {
@@ -81,6 +85,9 @@ const updateAccount = async (req, res) => {
 
         await staff.save();
 
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, staff._id, "UPDATE_STAFF", "Chỉnh sửa nhân viên", req);
+
         return res.status(200).json({ message: "Cập nhật nhân viên thành công!", staff });
     } catch (error) {
         console.error("Lỗi khi cập nhật nhân viên:", error);
@@ -104,6 +111,9 @@ const toggleAccountStatus = async (req, res) => {
         else updatedStaff.status = 'active';
 
         await updatedStaff.save();
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, updatedStaff._id, "TOGGLE_STAFF", "Bật/tắt nhân viên", req);
     
         return res.status(200).json({ message: `Account toggle status successfully`, staff: updatedStaff });
     } catch (error) {

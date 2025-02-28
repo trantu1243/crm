@@ -31,7 +31,7 @@ const login = async (req, res) => {
             { expiresIn: '240h' }
         );
 
-        await saveUserLogToQueue(user._id, "LOGIN", "User logged in", req);
+        await saveUserLogToQueue(user._id, user._id, "LOGIN", "User logged in", req);
 
         res.json({ 
             message: 'Đăng nhập thành công', 

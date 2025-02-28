@@ -3,6 +3,7 @@ const { getPermissions } = require("../services/permission.service");
 const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
+const { saveUserLogToQueue } = require("../services/log.service");
 
 const getBills = async (req, res) => {
     try {
@@ -231,6 +232,8 @@ const createBill = async (req, res) => {
             sellerBill
         });
 
+        await saveUserLogToQueue(staff._id, buyerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
+
         return res.status(201).json({
             message: 'Bill created successfully',
             buyerBill,
@@ -312,6 +315,16 @@ const confirmBill = async (req, res) => {
         if (bill.billId?.status === 1) {
             await session.commitTransaction();
             session.endSession();
+            
+            const staff = await Staff.findById(req.user.id);
+            await saveUserLogToQueue(staff._id, bill._id, "CONFIRM_BILL", "Xác nhận thanh khoản", req);
+
+            const io = getSocket();
+
+            io.emit('confirm_bill', {
+                bill,
+                box
+            });
             return res.status(200).json({ status: true, message: "Bill confirmed successfully" });
         }
 
@@ -348,6 +361,9 @@ const confirmBill = async (req, res) => {
         // ✅ Commit transaction nếu mọi thứ thành công
         await session.commitTransaction();
         session.endSession();
+
+        const staff = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(staff._id, bill._id, "CONFIRM_BILL", "Xác nhận thanh khoản", req);
 
         const io = getSocket();
 
@@ -430,6 +446,9 @@ const updateBill = async (req, res) => {
         bill.linkQr = `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`;
 
         await bill.save();
+
+        const staff = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(staff._id, bill._id, "UPDATE_BILL", "Chỉnh sửa thanh khoản", req);
 
         return res.status(200).json({
             status: true,
@@ -529,6 +548,9 @@ const cancelBill = async (req, res) => {
             box
         });
 
+        const staff = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(staff._id, bill._id, "CANCEL_BILL", "Hủy thanh khoản", req);
+
         return res.status(200).json({
             status: true,
             message: 'Bill canceled successfully',
@@ -612,6 +634,9 @@ const switchBills = async (req, res) => {
         sideBill.typeTransfer = typeTranfer;
         await sideBill.save();
         await bill.save();
+
+        const staff = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(staff._id, bill._id, "SWITCH_BILL", "Đảo thanh khoản", req);
 
         const io = getSocket();
 

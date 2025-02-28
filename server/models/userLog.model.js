@@ -3,6 +3,7 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 
 const userLogSchema = new mongoose.Schema({
     userId: { type: mongoose.Types.ObjectId, ref: 'Staff', required: true },
+    targetId: { type: mongoose.Types.ObjectId },
     action: { type: String, required: true },
     details: { type: Object },
     ipAddress: { type: String },

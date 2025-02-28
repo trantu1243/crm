@@ -1,4 +1,5 @@
 const { Transaction, BoxTransaction, Bill, Customer, Staff } = require("../models");
+const { saveUserLogToQueue } = require("../services/log.service");
 const { getPermissions } = require("../services/permission.service");
 const { getSocket } = require("../socket/socketHandler");
 
@@ -311,6 +312,8 @@ const undoBox = async (req, res) => {
             box
         });
         
+        await saveUserLogToQueue(user._id, box._id, "UNDO_BOX", "Hoàn tác box", req);
+
         return res.json({ 
             status: true,
             message: 'Undo box success',
@@ -340,6 +343,9 @@ const addNote = async (req, res) => {
 
         box.notes.push(note);
         await box.save();
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, box._id, "ADD_NOTE", "Thêm note", req);
 
         const io = getSocket();
 
@@ -382,6 +388,9 @@ const deleteNote = async (req, res) => {
         }
 
         await box.save();
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, box._id, "DELETE_NOTE", "Xóa note", req);
 
         const io = getSocket();
 
@@ -494,6 +503,8 @@ const updateBox = async (req, res) => {
         if (name) box.name = name;
         await box.save();
 
+        await saveUserLogToQueue(user._id, box._id, "UPDATE_BOX", "Chỉnh sửa box", req);
+
         const io = getSocket();
 
         io.emit('update_box', {
@@ -536,6 +547,9 @@ const switchLock = async (req, res) => {
         }
 
         await box.save();
+
+        const user = await Staff.findById(req.user.id);
+        await saveUserLogToQueue(user._id, box._id, "SWITCH_LOCK", "Mở/Khóa box", req);
 
         const io = getSocket();
 
