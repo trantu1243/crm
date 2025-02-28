@@ -442,15 +442,11 @@ class StaffStatistic extends Component {
                                                             <div className="widget-numbers mb-0 w-100">
                                                                 <div className="widget-chart-flex">
                                                                     <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(currentMonthStats?.totalStats.totalTransactions)}
-                                                                    </div>
-                                                                    <div className="ms-auto">
-                                                                        <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
-                                                                        <span className={currentMonthStats?.totalStats.percentChangeTransactions >= 0 ? "text-success ps-2" : "text-danger ps-2"}>
-                                                                                {currentMonthStats?.totalStats.percentChangeTransactions >= 0 ? "+" : ""}
-                                                                                {currentMonthStats?.totalStats.percentChangeTransactions}%
-                                                                            </span>
-                                                                        </div>
+                                                                    {new Intl.NumberFormat('en-US').format(
+                                                                        this.state.transationStats?.currentMonth
+                                                                        ? Object.values(this.state.transationStats.currentMonth).reduce((sum, item) => sum + item.count, 0) 
+                                                                        : 0 
+                                                                    )}
                                                                     </div>
                                                                     
                                                                 </div>
@@ -504,16 +500,11 @@ class StaffStatistic extends Component {
                                                             <div className="widget-numbers mb-0 w-100">
                                                                 <div className="widget-chart-flex">
                                                                     <div className="fsize-3">
-                                                                    {new Intl.NumberFormat('en-US').format(lastMonthStats?.totalStats.totalTransactions)}
-                                                                    </div>
-                                                                    <div className="ms-auto">
-                                                                        <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
-                                                                            <span className={lastMonthStats?.totalStats.percentChangeTransactions >= 0 ? "text-success ps-2" : "text-danger ps-2"}>
-                                                                                {lastMonthStats?.totalStats.percentChangeTransactions >= 0 ? "+" : ""}
-                                                                                {lastMonthStats?.totalStats.percentChangeTransactions}%
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
+                                                                    {new Intl.NumberFormat('en-US').format(
+                                                                        this.state.transationStats?.lastMonth 
+                                                                        ? Object.values(this.state.transationStats.lastMonth).reduce((sum, item) => sum + item.count, 0) 
+                                                                        : 0 
+                                                                    )}                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <DropdownToggle style={{width: 0, height: 0, padding: 0, border: 'none'}}>
