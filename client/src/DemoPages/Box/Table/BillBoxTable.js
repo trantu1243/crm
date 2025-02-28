@@ -573,7 +573,15 @@ class BillsTable extends Component {
                         {bills.map((item) => <tr>
                             <td className="text-center ">{item._id.slice(-8)}</td>
                             <td className="text-center ">{formatDate(item.createdAt)}</td>
-                            <td className="text-center ">{item.bankCode}</td>
+                            <td
+                                className="text-center"
+                                title={item.stk}
+                                onClick={() => {
+                                    navigator.clipboard.writeText(item.stk);
+                                }}
+                            >
+                                {item.bankCode}
+                            </td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                             <td className="text-center ">{item.content}</td>

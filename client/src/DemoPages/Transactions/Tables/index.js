@@ -744,7 +744,15 @@ class TransactionsTable extends Component {
                             return <tr className={rowClass}>
                                 <td className="text-center">{item._id.slice(-8)}</td>
                                 <td className="text-center">{formatDate(item.createdAt)}</td>
-                                <td className="text-center">{item.bankId.bankCode}</td>
+                                <td
+                                    className="text-center"
+                                    title={item.bankId.bankAccount}
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(item.bankId.bankAccount);
+                                    }}
+                                >
+                                    {item.bankId.bankCode}
+                                </td>
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.totalAmount)}</td>
