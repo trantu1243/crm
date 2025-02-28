@@ -256,8 +256,17 @@ const getTotalTransaction = async (req, res) => {
             }
         ]);
 
+        const [stats] = results;
+    
+        const responseData = {
+            today: convertToStatusMap(stats.today || []),
+            currentMonth: convertToStatusMap(stats.currentMonth || []),
+            lastMonth: convertToStatusMap(stats.lastMonth || []),
+          };
+    
+
         res.json({
-            results
+            data: responseData
         });
 
     } catch (error) {

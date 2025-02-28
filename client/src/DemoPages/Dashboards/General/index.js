@@ -14,8 +14,8 @@ import { getBalanceService, getDailyStatsService, getMonthlyStatsService, getTot
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
-import DonutTransactionChart from "./Examples/DonutTransaction";
 import { DatePicker } from "react-widgets/cjs";
+import DonutTransactionsChart from "../StaffStatistic/Component/DonutTranction";
 
 export default class General extends Component {
     constructor(props) {
@@ -178,7 +178,7 @@ export default class General extends Component {
     }
 
     render() {
-        const { loading, currentMonthStats, lastMonthStats, todayStats, billStats } = this.state;
+        const { loading, currentMonthStats, lastMonthStats, todayStats, billStats, totalTransaction } = this.state;
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
@@ -350,15 +350,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                {new Intl.NumberFormat('en-US').format(currentMonthStats?.totalStats.totalTransactions)}
-                                                                </div>
-                                                                <div className="ms-auto">
-                                                                    <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
-                                                                    <span className={currentMonthStats?.totalStats.percentChangeTransactions >= 0 ? "text-success ps-2" : "text-danger ps-2"}>
-                                                                            {currentMonthStats?.totalStats.percentChangeTransactions >= 0 ? "+" : ""}
-                                                                            {currentMonthStats?.totalStats.percentChangeTransactions}%
-                                                                        </span>
-                                                                    </div>
+                                                                {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.currentMonth).reduce((sum, value) => sum + value, 0))}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -375,15 +367,7 @@ export default class General extends Component {
                                                         <div className="widget-numbers mb-0 w-100">
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
-                                                                {new Intl.NumberFormat('en-US').format(lastMonthStats?.totalStats.totalTransactions)}
-                                                                </div>
-                                                                <div className="ms-auto">
-                                                                    <div className="widget-title ms-auto font-size-lg fw-normal text-muted">
-                                                                        <span className={lastMonthStats?.totalStats.percentChangeTransactions >= 0 ? "text-success ps-2" : "text-danger ps-2"}>
-                                                                            {lastMonthStats?.totalStats.percentChangeTransactions >= 0 ? "+" : ""}
-                                                                            {lastMonthStats?.totalStats.percentChangeTransactions}%
-                                                                        </span>
-                                                                    </div>
+                                                                {new Intl.NumberFormat('en-US').format(Object.values(totalTransaction?.lastMonth).reduce((sum, value) => sum + value, 0))}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -502,7 +486,7 @@ export default class General extends Component {
                                             
                                             </CardHeader>
                                             <CardBody className="p-4" style={{ minHeight: 350 }}>
-                                                <DonutTransactionChart bankStats={todayStats?.bankStats} />
+                                                <DonutTransactionsChart bankStats={totalTransaction?.today} />
                                                 
                                             </CardBody>
                                         </Card>
