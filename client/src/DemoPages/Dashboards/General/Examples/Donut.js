@@ -4,6 +4,20 @@ import Chart from "react-apexcharts";
 const DonutChart = ({ bankStats }) => {
   const [series, setSeries] = useState([]);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  
+  const updateScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+  };
+
+  useEffect(() => {
+      window.addEventListener("resize", updateScreenSize);
+
+      return () => {
+          window.removeEventListener("resize", updateScreenSize);
+      };
+  }, []);
+
   const [options, setOptions] = useState({
     chart: {
       sparkline: { enabled: false }
@@ -25,7 +39,7 @@ const DonutChart = ({ bankStats }) => {
       formatter: (val) => `${val.toFixed(1)}%`,
     },
     legend: {
-      position: "right",
+      position: isMobile ? "bottom" : "right",
       horizontalAlign: 'center',
       formatter: function (label, opts) {
         const seriesVal = opts.w.globals.series[opts.seriesIndex];
@@ -56,6 +70,17 @@ const DonutChart = ({ bankStats }) => {
       }
     }
   });
+
+  useEffect(() => {
+    setOptions((prev) => ({
+      ...prev,
+      legend: {
+        ...prev.legend,
+        position: isMobile ? "bottom" : "right",
+      },
+    }));
+  }, [isMobile]);
+  
 
   useEffect(() => {
     if (!bankStats) return;

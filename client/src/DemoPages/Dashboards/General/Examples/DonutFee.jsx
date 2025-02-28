@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 
 const DonutFeeChart = ({ bankStats }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    
+    const updateScreenSize = () => {
+        setIsMobile(window.innerWidth < 768);
+    };
+  
+    useEffect(() => {
+        window.addEventListener("resize", updateScreenSize);
+  
+        return () => {
+            window.removeEventListener("resize", updateScreenSize);
+        };
+    }, []);
+
   const [options, setOptions] = useState({
     chart: {
       sparkline: { enabled: false }
@@ -32,7 +46,7 @@ const DonutFeeChart = ({ bankStats }) => {
       formatter: (val) => `${val.toFixed(1)}%`,
     },
     legend: {
-      position: "right",
+      position: isMobile ? "bottom" : "right",
       horizontalAlign: 'center',
       // Nếu muốn hiển thị series dạng 1,000 trong legend, có thể thêm formatter:
       formatter: function (label, opts) {
@@ -64,6 +78,16 @@ const DonutFeeChart = ({ bankStats }) => {
       }
     }
   });
+
+  useEffect(() => {
+      setOptions((prev) => ({
+        ...prev,
+        legend: {
+          ...prev.legend,
+          position: isMobile ? "bottom" : "right",
+        },
+      }));
+    }, [isMobile]);
 
   const [series, setSeries] = useState([]);
 
