@@ -73,7 +73,7 @@ class CreateTransaction extends Component {
 
 
     updateScreenSize = () => {
-        this.setState({ isMobile: window.innerWidth < 768 });
+        this.setState({ isMobile: window.innerWidth < 576 });
     };
 
     getFee = async () => {
@@ -237,12 +237,12 @@ class CreateTransaction extends Component {
                                     <CardTitle></CardTitle>
                                     <CardBody>
                                         <Row>
-                                            <Col md={6}>
+                                            <Col sm={6}>
                                                 <Row className="mb-4">
-                                                    <Col md={3} xs={6}>
+                                                    <Col sm={3} xs={6}>
                                                         <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
                                                     </Col>
-                                                    <Col md={3} xs={6}>
+                                                    <Col sm={3} xs={6}>
                                                         <div className="switch has-switch mb-2 me-2" data-on-label="ON"
                                                             data-off-label="OFF" onClick={this.handleClick}>
                                                             <div className={cx("switch-animate", {
@@ -256,7 +256,7 @@ class CreateTransaction extends Component {
                                                             </div>
                                                         </div>
                                                     </Col>
-                                                    <Col md={6} xs={12}>
+                                                    <Col sm={6} xs={12}>
                                                         <Select
                                                             value={['facebook']
                                                                 .map(platform => ({ value: platform, label: platform }))
@@ -274,7 +274,7 @@ class CreateTransaction extends Component {
                                                 </Row>
 
                                                 <Row className="mb-4">
-                                                    <Col md={12} xs={12}>
+                                                    <Col sm={12} xs={12}>
                                                         <Select
                                                             value={this.state.bankAccounts
                                                                 .map(bank => ({ value: bank._id, label: bank.bankName }))
@@ -303,7 +303,7 @@ class CreateTransaction extends Component {
                                                 </Row>
                                                 <Row className="mb-4">
                                                 
-                                                    <Col md={4} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                                    <Col sm={4} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                                         <Label>Số tiền</Label>
                                                         <Input
                                                             type="text"
@@ -317,7 +317,7 @@ class CreateTransaction extends Component {
                                                             }}
                                                         />
                                                     </Col>
-                                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                    <Col sm={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                         <Label>Phí</Label>
                                                         <Input
                                                             type="text"
@@ -337,7 +337,7 @@ class CreateTransaction extends Component {
                                                         />
 
                                                     </Col>    
-                                                    <Col md={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                    <Col sm={4} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                         <Label>Tiền tip</Label>
                                                         <Input
                                                             type="text"
@@ -359,7 +359,7 @@ class CreateTransaction extends Component {
                                                     </Col>           
                                                 </Row>
                                                 <Row className="mb-4">
-                                                    <Col md={12} xs={12}>
+                                                    <Col sm={12} xs={12}>
                                                         <Label for="content">Nội dung chuyển khoản</Label>
                                                         <Input
                                                             type="text"
@@ -372,7 +372,7 @@ class CreateTransaction extends Component {
                                                     </Col>
                                                 </Row>
                                                 <Row className="mb-4">
-                                                    <Col md={6} xs={12} className={cx("mb-4", { "pe-2": !this.state.isMobile })}>
+                                                    <Col sm={6} xs={12} className={cx("mb-4", { "pe-2": !this.state.isMobile })}>
                                                         <Input
                                                             type="text"
                                                             name="messengerId"
@@ -387,7 +387,7 @@ class CreateTransaction extends Component {
                                                             }}
                                                         />
                                                     </Col>
-                                                    <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                    <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
                                                         <Select
                                                             value={typeFee
                                                                 .map(option => ({ value: option.value, label: option.name }))
@@ -413,7 +413,7 @@ class CreateTransaction extends Component {
                                                         </div>        
                                                     </Row>}
                                                     <Row className="mb-4">
-                                                        <Col md={12} xs={12} style={{position: 'relative'}}>
+                                                        <Col sm={12} xs={12} style={{position: 'relative'}}>
                                                             <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
                                                             <div style={{position: 'absolute', right: 0, top: 0}}>
                                                                 <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
@@ -430,12 +430,12 @@ class CreateTransaction extends Component {
                                                     </Row>
                                                 </>}
                                             </Col>
-                                            <Col md={6} xs={12}>
+                                            <Col sm={6} xs={12}>
                                                 <Row>
-                                                    <Col md={6}>
+                                                    <Col sm={6}>
 
                                                     </Col>
-                                                    <Col md={6} xs={12}>
+                                                    <Col sm={6} xs={12}>
                                                         <InputGroup>
                                                             <Input value={this.state.linkQr} placeholder="Link QR" disabled/>
                                                             <CopyToClipboard text={this.state.linkQr}>
@@ -447,14 +447,18 @@ class CreateTransaction extends Component {
                                                     </Col>
                                                 </Row>
                                                 {this.state.isCreated && <Row>
-                                                    <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 5em', position: 'relative'}}>
+                                                    <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 2em', position: 'relative'}}>
                                                         <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}}></img>
                                                         <div style={{ position: "absolute", right: 0, top: 0 }}>
-                                                            <Button color="link" onClick={this.copyImageToClipboard}>
-                                                                <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg" />
-                                                            </Button>
+                                                            
                                                         </div>
                                                     </div>
+                                                    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
+                                                        <Button color="link" onClick={this.copyImageToClipboard}>
+                                                            <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg" />
+                                                        </Button>
+                                                    </div>
+
                                                     {this.state.imageCopied ? (
                                                         <div className="text-center" style={{width: '100%'}}>
                                                             <FormText color="success">Image has been copied.</FormText>
