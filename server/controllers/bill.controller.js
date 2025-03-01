@@ -232,8 +232,9 @@ const createBill = async (req, res) => {
             sellerBill
         });
 
-        await saveUserLogToQueue(staff._id, buyerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
-
+        if (buyer) await saveUserLogToQueue(staff._id, buyerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
+        else await saveUserLogToQueue(staff._id, sellerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
+        
         return res.status(201).json({
             message: 'Bill created successfully',
             buyerBill,
