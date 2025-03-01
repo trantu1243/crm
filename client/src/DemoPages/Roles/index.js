@@ -5,18 +5,18 @@ import { Container } from "reactstrap";
 
 import AppSidebar from "../../Layout/AppSidebar";
 import AppHeader from "../../Layout/AppHeader";
-import RoleTable from "./Tables";
+import FeeTable from "./Tables";
 import { connect } from "react-redux";
 
 export const dummyData = [
   {
     name: "Danh sách quyền",
-    content: <RoleTable />,
+    content: <FeeTable />,
   },
 ];
 
 
-class Roles extends Component {
+class Fees extends Component {
     constructor(props) {
         super(props);
     
@@ -84,4 +84,4 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
 };
   
-export default connect(mapStateToProps, mapDispatchToProps)(Roles);
+export default connect(mapStateToProps, mapDispatchToProps)(Fees);

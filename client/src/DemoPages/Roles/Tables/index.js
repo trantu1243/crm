@@ -130,7 +130,7 @@ class RoleTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await deleteRole(this.state.roleId, this.state.update);
+            const res = await deleteRole(this.state.roleId);
             this.setState({createLoading: false});
             this.toggleDelete();
             this.getRoles();

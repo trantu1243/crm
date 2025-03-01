@@ -20,6 +20,7 @@ import { getTransactionsNoLoad } from "../../reducers/transactionsSlice";
 import { getBoxByIdNoLoad } from "../../reducers/boxSlice";
 import { getBillByIdNoLoad, getBillsNoLoad } from "../../reducers/billsSlice";
 import ChangePassword from "../../DemoPages/ChangePassword";
+import FeeConfig from "../../DemoPages/FeeConfig";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -354,6 +355,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/role" render={() => isAuth ? <Roles /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/fee" render={() => isAuth ? <FeeConfig /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
