@@ -557,11 +557,6 @@ const getStaffMonthlyStats = async (req, res) => {
         const totalAmountThisMonth = currentMonthStats[0]?.totalAmount || 0;
         const totalAmountLastMonth = lastMonthStats[0]?.totalAmount || 0;
 
-        console.log(daysPassedThisMonth);
-        console.log(daysInLastMonth);
-        console.log(totalAmountThisMonth);
-        console.log(totalAmountLastMonth);
-
         const totalFeeThisMonth = currentMonthStats[0]?.totalFee || 0;
         const totalFeeLastMonth = lastMonthStats[0]?.totalFee || 0;
 
@@ -571,8 +566,6 @@ const getStaffMonthlyStats = async (req, res) => {
         // 🔹 Tính trung bình mỗi ngày
         const avgPerDayAmountThisMonth = totalAmountThisMonth / daysPassedThisMonth;
         const avgPerDayAmountLastMonth = totalAmountLastMonth / daysInLastMonth;
-        console.log(avgPerDayAmountThisMonth);
-        console.log(avgPerDayAmountLastMonth);
 
         const avgPerDayFeeThisMonth = totalFeeThisMonth / daysPassedThisMonth;
         const avgPerDayFeeLastMonth = totalFeeLastMonth / daysInLastMonth;
