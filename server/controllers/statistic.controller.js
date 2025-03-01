@@ -56,10 +56,14 @@ const getMonthlyStats = async (req, res) => {
 
         const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
         const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
-        // Lấy số ngày đã qua trong tháng hiện tại (theo giờ Việt Nam)
-        const daysPassedThisMonth = new Date(year, month - 1, today.getDate() > 1 ? today.getDate() : 1).getDate();
+       
+        let daysPassedThisMonth;
+        if (month === today.getMonth() + 1 && year === today.getFullYear()) {
+            daysPassedThisMonth = today.getDate();
+        } else {
+            daysPassedThisMonth = new Date(year, month, 0).getDate();
+        }
 
-        // Lấy tổng số ngày của tháng trước
         const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();
        
         // Thống kê tổng trong tháng hiện tại
@@ -479,9 +483,13 @@ const getStaffMonthlyStats = async (req, res) => {
         const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
         const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
 
-        // Lấy số ngày đã qua trong tháng hiện tại
-        const daysPassedThisMonth = new Date(year, month - 1, today.getDate() > 1 ? today.getDate() : 1).getDate();
-        // Lấy tổng số ngày của tháng trước
+        let daysPassedThisMonth;
+        if (month === today.getMonth() + 1 && year === today.getFullYear()) {
+            daysPassedThisMonth = today.getDate();
+        } else {
+            daysPassedThisMonth = new Date(year, month, 0).getDate();
+        }
+
         const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();
 
         // 🔹 Thống kê tháng hiện tại
