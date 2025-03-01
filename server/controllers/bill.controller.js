@@ -315,7 +315,7 @@ const confirmBill = async (req, res) => {
         if (bill.billId?.status === 1) {
             await session.commitTransaction();
             session.endSession();
-            
+
             const staff = await Staff.findById(req.user.id);
             await saveUserLogToQueue(staff._id, bill._id, "CONFIRM_BILL", "Xác nhận thanh khoản", req);
 
@@ -611,6 +611,9 @@ const switchBills = async (req, res) => {
             if (bill.typeTransfer === "buyer") bill.typeTransfer = "seller";
             else bill.typeTransfer = "buyer";
             await bill.save();
+
+            const staff = await Staff.findById(req.user.id);
+            await saveUserLogToQueue(staff._id, bill._id, "SWITCH_BILL", "Đảo thanh khoản", req);
 
             const io = getSocket();
 
