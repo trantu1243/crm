@@ -234,7 +234,7 @@ const createBill = async (req, res) => {
 
         if (buyer) await saveUserLogToQueue(staff._id, buyerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
         else await saveUserLogToQueue(staff._id, sellerBill._id, "CREATE_BILL", "Tạo thanh khoản", req);
-        
+
         return res.status(201).json({
             message: 'Bill created successfully',
             buyerBill,
@@ -578,7 +578,6 @@ const getById = async (req, res) => {
             data: bill,
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }

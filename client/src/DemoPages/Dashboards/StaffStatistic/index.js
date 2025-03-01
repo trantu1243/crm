@@ -734,7 +734,7 @@ class StaffStatistic extends Component {
                                                 </div>
                                             </div>
                                         </Card>
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số tiền thanh khoản tháng trước</h6>
@@ -756,7 +756,7 @@ class StaffStatistic extends Component {
                                     
                                     </Col>
                                     <Col md="6" lg="4">
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số lệnh trong tháng</h6>
