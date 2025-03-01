@@ -23,6 +23,7 @@ const transactionSchema = new mongoose.Schema({
         required: true
     },
     bonus: { type: Number, default: 0 },
+    flags: { type: Number, default: 1 },
     decodeQr: { type: String },
 }, {
     timestamps: true,

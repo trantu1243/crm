@@ -14,7 +14,8 @@ const billSchema = new mongoose.Schema({
     status: { type: Number, default: 1 },
     staffId: { type: mongoose.Types.ObjectId, ref: 'Staff', index: true },
     isCompleted: { type: Boolean, default: false },
-    billId: { type: mongoose.Types.ObjectId, ref: 'Bill' }
+    billId: { type: mongoose.Types.ObjectId, ref: 'Bill' },
+    flags: { type: Number, default: 1 },
 }, {
     timestamps: true,
 });

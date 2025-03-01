@@ -99,9 +99,8 @@ const undoBox = async (req, res) => {
 
         const latestTransaction = transactions[0]; // Giao dịch mới nhất
 
-        // Nếu transaction mới nhất có status = 2 hoặc 8 -> Cập nhật lại hóa đơn (Bill) và số dư trong box
-        if ([2, 8].includes(latestTransaction.status)) {
-            if (latestTransaction.status === 2) box.status = 'active';
+        // Nếu transaction mới nhất có status = 8 -> Cập nhật lại hóa đơn (Bill) và số dư trong box
+        if (latestTransaction.status === 8) {
             const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
 
             if (lastestBill) {
@@ -123,7 +122,7 @@ const undoBox = async (req, res) => {
             await box.save();
 
             // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7
-            await Transaction.updateMany({ boxId: box._id, status: { $in: [2, 6, 8], $ne: 3 } }, { status: 7 });
+            await Transaction.updateMany({ boxId: box._id, status: { $in: [ 6, 8], $ne: 3 } }, { status: 7 });
         }
 
         // Nếu transaction mới nhất có status = 7
@@ -143,9 +142,9 @@ const undoBox = async (req, res) => {
             } else {
                 await Bill.deleteMany({ boxId: box._id, status: { $in: 1, $ne: 3}});
 
-                // Tổng hợp số tiền từ tất cả transaction có trạng thái 2, 6, 7, 8
+                // Tổng hợp số tiền từ tất cả transaction có trạng thái 6, 7, 8
                 const result = await Transaction.aggregate([
-                    { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
+                    { $match: { boxId: box._id, status: { $in: [6, 7, 8] } } },
                     { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
                 ]);
                 const totalAmount = result.length > 0 ? result[0].totalAmount : 0;

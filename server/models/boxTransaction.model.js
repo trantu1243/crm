@@ -18,6 +18,7 @@ const boxTransactionSchema = new mongoose.Schema({
         type: [{ type: String }],
         default: []
     },
+    flag: { type: Number, default: 1 },
 }, {
     timestamps: true,
 });

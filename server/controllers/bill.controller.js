@@ -223,7 +223,7 @@ const createBill = async (req, res) => {
             await sellerBill.save();
         }
 
-        const bills = await Transaction.updateMany({ boxId: boxId, status: { $in: [2, 6, 8] }}, {status: 7});
+        const transactions = await Transaction.updateMany({ boxId: boxId, status: { $in: [ 6, 8] }}, {status: 7});
         
         const io = getSocket();
 
