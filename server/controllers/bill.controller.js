@@ -288,9 +288,9 @@ const confirmBill = async (req, res) => {
             return res.status(404).json({ message: "Box not found" });
         }
 
-        // 📌 Tính tổng tiền có thể sử dụng từ các transaction có status 2, 6, 7, 8
+        // 📌 Tính tổng tiền có thể sử dụng từ các transaction có status 6, 7, 8
         const result = await Transaction.aggregate([
-            { $match: { boxId: box._id, status: { $in: [2, 6, 7, 8] } } },
+            { $match: { boxId: box._id, status: { $in: [ 6, 7, 8] } } },
             { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
         ]).session(session);
 
