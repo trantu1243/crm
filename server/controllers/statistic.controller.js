@@ -571,6 +571,8 @@ const getStaffMonthlyStats = async (req, res) => {
         // 🔹 Tính trung bình mỗi ngày
         const avgPerDayAmountThisMonth = totalAmountThisMonth / daysPassedThisMonth;
         const avgPerDayAmountLastMonth = totalAmountLastMonth / daysInLastMonth;
+        console.log(avgPerDayAmountThisMonth);
+        console.log(avgPerDayAmountLastMonth);
 
         const avgPerDayFeeThisMonth = totalFeeThisMonth / daysPassedThisMonth;
         const avgPerDayFeeLastMonth = totalFeeLastMonth / daysInLastMonth;
