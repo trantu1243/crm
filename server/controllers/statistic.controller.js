@@ -557,6 +557,11 @@ const getStaffMonthlyStats = async (req, res) => {
         const totalAmountThisMonth = currentMonthStats[0]?.totalAmount || 0;
         const totalAmountLastMonth = lastMonthStats[0]?.totalAmount || 0;
 
+        console.log(daysPassedThisMonth);
+        console.log(daysInLastMonth);
+        console.log(totalAmountThisMonth);
+        console.log(totalAmountLastMonth);
+
         const totalFeeThisMonth = currentMonthStats[0]?.totalFee || 0;
         const totalFeeLastMonth = lastMonthStats[0]?.totalFee || 0;
 
