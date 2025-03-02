@@ -36,15 +36,11 @@ const getBills = async (req, res) => {
         if (startDate || endDate) {
             filter.createdAt = {};
           
-            if (startDate) {
-                const start = new Date(startDate);
-                start.setHours(-7, 0, 0, 0);
-                filter.createdAt.$gte = start;
+            if (startDate) {                
+                filter.createdAt.$gte = startDate;
             }
             if (endDate) {
-                const end = new Date(endDate);
-                end.setHours(16, 59, 59, 999);
-                filter.createdAt.$lte = end;
+                filter.createdAt.$lte = endDate;
             }
             
         }
