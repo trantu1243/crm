@@ -194,8 +194,6 @@ const createTransaction = async (req, res) => {
                     ]);
                 if (tran && tran.bankId.bankCode !== bank.bankCode) {
 
-                    await session.abortTransaction();
-                    session.endSession();
                     return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
                 }
             } else {
