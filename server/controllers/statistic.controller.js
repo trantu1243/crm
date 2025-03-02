@@ -1105,16 +1105,16 @@ async function getStaffShareInMonth(req, res) {
             }
         ]);
 
-        const bills = await Bill.find({ staffId: staffObjectId, createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC } });
+        const bills = await Bill.find({ staffId: staffObjectId, status: 2, createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC } });
         
         let totalKPI = 0;
 
         for (const bill of bills) {
             const { boxId, flag } = bill;
 
-            const billCount = await Bill.countDocuments({ boxId, flag });
+            const billCount = await Bill.countDocuments({ boxId, flag, status: 2 });
 
-            const transactionCount = await Transaction.countDocuments({ boxId, flag });
+            const transactionCount = await Transaction.countDocuments({ boxId, flag, status: { $nin: [3] } });
 
             if (billCount > 0) {
                 const kpi = (1 / billCount) * transactionCount;
@@ -1166,16 +1166,16 @@ async function getDailyShareOfStaff(req, res) {
         const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         
 
-        const bills = await Bill.find({ staffId: staffObjectId, createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } });
+        const bills = await Bill.find({ staffId: staffObjectId, status: 2, createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } });
         
         let totalKPI = 0;
 
         for (const bill of bills) {
             const { boxId, flag } = bill;
 
-            const billCount = await Bill.countDocuments({ boxId, flag });
+            const billCount = await Bill.countDocuments({ boxId, flag, status: 2 });
 
-            const transactionCount = await Transaction.countDocuments({ boxId, flag });
+            const transactionCount = await Transaction.countDocuments({ boxId, flag, status: { $nin: [3] } });
 
             if (billCount > 0) {
                 const kpi = (1 / billCount) * transactionCount;
