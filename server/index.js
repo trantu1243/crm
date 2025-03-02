@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // seedPermissions();
     // resetPass();
 
-    updateFlag();
+    // updateFlag();
     // updateFlags()
 
 });
