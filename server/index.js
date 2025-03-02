@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // resetPass();
 
     // updateFlag();
-    // updateFlags()
+    updateFlags()
 
 });
 
