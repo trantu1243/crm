@@ -1089,35 +1089,6 @@ async function getStaffShareInMonth(req, res) {
 
         const staffObjectId = new mongoose.Types.ObjectId(staffId);
     
-        const billsMonth = await Bill.aggregate([
-            {
-                $match: {
-                    staffId: staffObjectId,
-                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
-                }
-            },
-            {
-                $lookup: {
-                    from: "bills", 
-                    localField: "boxId", 
-                    foreignField: "boxId",
-                    as: "allBillsInBox" 
-                }
-            },
-            {
-                $addFields: {
-                    totalBillsInBox: { $size: "$allBillsInBox" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1, 
-                    boxId: 1,
-                    totalBillsInBox: 1,
-                }
-            }
-        ]);
-
         const billCount = await Bill.aggregate([
             {
                 $match: {
@@ -1133,11 +1104,22 @@ async function getStaffShareInMonth(req, res) {
                 }
             }
         ]);
+
+        const bills = await Bill.find({ staffId: staffObjectId, createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC } });
         
-        let totalKPIMonth = 0;
-        for (const box of billsMonth) {
-            const kpiPerBill = 1 / box.totalBillsInBox; 
-            totalKPIMonth += kpiPerBill; 
+        let totalKPI = 0;
+
+        for (const bill of bills) {
+            const { boxId, flag } = bill;
+
+            const billCount = await Bill.countDocuments({ boxId, flag });
+
+            const transactionCount = await Transaction.countDocuments({ boxId, flag });
+
+            if (billCount > 0) {
+                const kpi = (1 / billCount) * transactionCount;
+                totalKPI += kpi;
+            }
         }
     
         return res.status(200).json({
@@ -1147,7 +1129,7 @@ async function getStaffShareInMonth(req, res) {
             month,
             totalBills: billCount[0]?.totalBills || 0,
             totalAmount: billCount[0]?.totalAmount || 0,
-            kpi: totalKPIMonth,
+            kpi: totalKPI,
         });
     } catch (err) {
         console.error(err);
@@ -1184,39 +1166,21 @@ async function getDailyShareOfStaff(req, res) {
         const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         
 
-        const billsDay =  await Bill.aggregate([
-            {
-                $match: {
-                    staffId: staffObjectId,
-                    createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC },
-                }
-            },
-            {
-                $lookup: {
-                    from: "bills", 
-                    localField: "boxId", 
-                    foreignField: "boxId",
-                    as: "allBillsInBox" 
-                }
-            },
-            {
-                $addFields: {
-                    totalBillsInBox: { $size: "$allBillsInBox" }
-                }
-            },
-            {
-                $project: {
-                    _id: 1, 
-                    boxId: 1,
-                    totalBillsInBox: 1,
-                }
-            }
-        ]);
+        const bills = await Bill.find({ staffId: staffObjectId, createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC } });
+        
+        let totalKPI = 0;
 
-        let totalKPIDay = 0;
-        for (const box of billsDay) {
-            const kpiPerBill = 1 / box.totalBillsInBox; 
-            totalKPIDay += kpiPerBill; 
+        for (const bill of bills) {
+            const { boxId, flag } = bill;
+
+            const billCount = await Bill.countDocuments({ boxId, flag });
+
+            const transactionCount = await Transaction.countDocuments({ boxId, flag });
+
+            if (billCount > 0) {
+                const kpi = (1 / billCount) * transactionCount;
+                totalKPI += kpi;
+            }
         }
 
         const billCount = await Bill.aggregate([
@@ -1241,7 +1205,7 @@ async function getDailyShareOfStaff(req, res) {
             staffId,
             totalBills: billCount[0]?.totalBills || 0,
             totalAmount: billCount[0]?.totalAmount || 0,
-            kpi: totalKPIDay,
+            kpi: totalKPI,
         });
     } catch (err) {
         console.error(err);
