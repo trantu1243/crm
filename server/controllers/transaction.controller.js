@@ -131,7 +131,6 @@ const createTransaction = async (req, res) => {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
-        console.log(req.body)
         const {
             bankId,
             typeBox,
@@ -161,8 +160,6 @@ const createTransaction = async (req, res) => {
         let box = await BoxTransaction.findOne({messengerId: messengerId});
 
         if (box && box.status === 'lock') {
-            await session.abortTransaction();
-            session.endSession();
             return res.status(404).json({ message: 'Box is locked' })
         }
 
@@ -198,6 +195,8 @@ const createTransaction = async (req, res) => {
                 }
             } else {
                 box.status = 'active';
+                box.flag += 1;
+
                 await box.save();
             }
         }
@@ -213,7 +212,8 @@ const createTransaction = async (req, res) => {
             messengerId,
             staffId: user._id,
             typeFee,
-            bonus: Number(bonus)
+            bonus: Number(bonus),
+            flag: box.flag ? box.flag : 1
         });
 
         await saveUserLogToQueue(user._id, newTransaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);
@@ -312,11 +312,7 @@ const updateTransaction = async (req, res) => {
             session.endSession();
             return res.status(404).json({ message: 'Box is locked' })
         }
-        if (box && box.status === 'lock') {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(404).json({ message: 'Box is locked' });
-        }
+
         if (!box) {
             box = await BoxTransaction.create([{
                 name: '',
@@ -341,6 +337,7 @@ const updateTransaction = async (req, res) => {
                 }
             } else {
                 box.status = 'active';
+                box.flag += 1;
                 await box.save();
             }
         }
@@ -366,7 +363,8 @@ const updateTransaction = async (req, res) => {
                 linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
                 messengerId,
                 typeFee,
-                bonus: Number(bonus)
+                bonus: Number(bonus),
+                flag: box.flag ? box.flag : 1
             },
             { new: true, session }
         ).populate([
@@ -455,9 +453,6 @@ const confirmTransaction = async (req, res) => {
         if (existingBill) {
             await Transaction.updateOne({ _id: transaction._id }, { status: 7 }, { session });
         }
-
-        // 🔥 Cập nhật tất cả giao dịch có status = 2 thành status = 8
-        await Transaction.updateMany({ boxId: box._id, status: 2 }, { status: 8 }, { session });
         
         // ✅ Commit transaction (lưu tất cả thay đổi)
         await session.commitTransaction();

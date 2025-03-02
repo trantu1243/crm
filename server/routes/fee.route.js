@@ -1,6 +1,7 @@
 const express = require('express');
 const { feeController } = require('../controllers');
 const authenticateToken = require('../middlewares/authenticateToken');
+const isAdmin = require('../middlewares/isAdmin');
 
 const router = express.Router();
 

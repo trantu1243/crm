@@ -14,14 +14,32 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction } = require('./models');
+const { Transaction, BoxTransaction, Bill } = require('./models');
+const { updateFlags } = require('./services/updateFlags')
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
     // importExcelToMongo();
     // seedPermissions();
     // resetPass();
+
+    updateFlag();
+    // updateFlags()
+
 });
+
+const updateFlag = async () =>{
+    try {
+        await BoxTransaction.updateMany({}, {flag: 1});
+        console.log('updated flag of box successfully')
+        await Transaction.updateMany({}, {flag: 1});
+        console.log('updated flag of transaction successfully')
+        await Bill.updateMany({}, {flag: 1});
+        console.log('updated flag of bill successfully')
+    } catch (e) {
+        console.log(e)
+    }
+}
 
 const app = express();
 const server = http.createServer(app);

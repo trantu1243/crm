@@ -1,4 +1,4 @@
-import { BoxTransaction, Transaction } from "../models"
+const { Transaction, BoxTransaction, Bill } = require('../models');
 
 
 const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
@@ -19,17 +19,19 @@ const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
     }
 
     // Tìm tổng khớp đầu tiên
+    let tranI = 0;
+    let billI = 0;
     for (let i = 0; i < transSums.length; i++) {
         const transSum = transSums[i];
         const billIndex = billsSums.indexOf(transSum);
         
         if (billIndex !== -1) {
             // Lấy số lượng transactions và bills cần cập nhật
-            const transCount = i + 1;
-            const billCount = billIndex + 1;
+            const transCount = i + 1 ;
+            const billCount = billIndex + 1 ;
 
             // Cập nhật transactions
-            const transToUpdate = transactions.slice(0, transCount);
+            const transToUpdate = transactions.slice(tranI, transCount);
             const transIds = transToUpdate.map(t => t._id);
             await Transaction.updateMany(
                 { _id: { $in: transIds } },
@@ -42,9 +44,9 @@ const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
             );
 
             // Cập nhật bills
-            const billsToUpdate = bills.slice(0, billCount);
+            const billsToUpdate = bills.slice(billI, billCount);
             const billIds = billsToUpdate.map(b => b._id);
-            await Transaction.updateMany(
+            await Bill.updateMany(
                 { _id: { $in: billIds } },
                 { 
                     $set: { 
@@ -53,52 +55,76 @@ const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
                 }
             );
 
-            // Tăng flag của box
             box.flag += 1;
-            
-            return {
-                found: true,
-                updatedTransactions: transCount,
-                updatedBills: billCount,
-                newFlag: box.flag
-            };
+            tranI = transCount;
+            billI = billCount;
+           
+        } else {
+            if (i === transSums.length - 1) {
+                const transToUpdate = transactions.slice(tranI, transSums.length);
+                const transIds = transToUpdate.map(t => t._id);
+                await Transaction.updateMany(
+                    { _id: { $in: transIds } },
+                    { 
+                        $set: { 
+                            flag: box.flag 
+                        }
+                    }
+                );
+
+                if (billI < billsSums.length) {
+                    const billsToUpdate = bills.slice(billI, billsSums.length);
+                    const billIds = billsToUpdate.map(b => b._id);
+                    await Bill.updateMany(
+                        { _id: { $in: billIds } },
+                        { 
+                            $set: { 
+                                flag: box.flag 
+                            }
+                        }
+                    );
+                }
+                
+            } 
         }
     }
 
-    return { found: false };
+    return box.flag;
 };
 
 const updateFlags = async () => {
-    const boxes = await BoxTransaction.find({});
+
+    const boxes = await BoxTransaction.find({}).sort({createdAt: -1});
+
+    let i = 1;
 
     for (const box of boxes) {
         box.flag = 1;
-        const transactions = await Transaction.find({ boxId: box._id, status: { $nin: [3] } }).sort({createdAt: 1});
+        const transactions = await Transaction.find({ boxId: box._id, status: { $nin: [3, 1, 6] } }).sort({createdAt: 1});
 
-        const bills = await Transaction.find({ boxId: box._id, status: { $nin: [3] } }).sort({createdAt: 1});
+        const bills = await Bill.find({ boxId: box._id, status: { $nin: [3, 1] } }).sort({createdAt: 1});
 
+        if (transactions.length && bills.length) {
+            const result = await checkAndUpdateConsecutiveSums(transactions, bills, box);
+        
+            box.flag = result;
 
-        if (!transactions.length || !bills.length) {
-            console.log(`Box ${box._id}: Không có dữ liệu để so sánh`);
-            continue;
+            if (box.amount === 0) box.flag-=1;
+            await box.save();
+
+            await Transaction.updateMany({ boxId: box._id, status: { $in: [3, 1, 6] } }, {flag: box.flag})
+            await Bill.updateMany({ boxId: box._id, status: { $in: [3, 1] } }, {flag: box.flag})
+
         }
     
-        // Thực hiện kiểm tra và cập nhật
-        const result = await checkAndUpdateConsecutiveSums(transactions, bills, box);
-        
-        if (result.found) {
-            console.log(`Box ${box._id}: Đã cập nhật thành công!`);
-            console.log(`Số transactions được cập nhật: ${result.updatedTransactions}`);
-            console.log(`Số bills được cập nhật: ${result.updatedBills}`);
-            console.log(`Flag mới của box: ${result.newFlag}`);
-            
-            // Cập nhật box trong database
-            await box.save();
-        } else {
-            console.log(`Box ${box._id}: Không tìm thấy tổng bằng nhau`);
-        }
-
+       
+        if (i % 100 === 0) console.log(i)
+        i++;
     }
 
     
+}
+
+module.exports = {
+    updateFlags
 }

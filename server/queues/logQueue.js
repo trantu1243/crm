@@ -1,12 +1,13 @@
 const Queue = require("bull");
 const { UserLog } = require("../models");
 
-// Kết nối đến Redis trong Docker
+const redisHost = process.env.NODE_ENV === "production" ? "redis" : "127.0.0.1";
+const redisPort = 6379;
+
 const logQueue = new Queue("userLogs", {
-    redis: { host: "redis", port: 6379 }
+    redis: { host: redisHost, port: redisPort }
 });
 
-// Xử lý log từ hàng đợi và lưu vào MongoDB
 logQueue.process(async (job) => {
     const { userId, targetId, action, details, ipAddress, userAgent } = job.data;
     try {

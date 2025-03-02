@@ -5,31 +5,42 @@ const verifySocketConnection = async (socket, next) => {
     try {
         const { initDataUnsafe } = socket.handshake.query;
 
-        const initData = JSON.parse(initDataUnsafe);
-    
-        if (!initData) {
-            console.log("Invalid data")
+        if (!initDataUnsafe) {
+            console.log("Invalid data");
             return next(new Error("Invalid data"));
         }
-    
+
+        let initData;
+        try {
+            initData = JSON.parse(initDataUnsafe);
+        } catch (error) {
+            console.log("Failed to parse initData");
+            return next(new Error("Invalid data format"));
+        }
+
         const token = initData.token && initData.token.split(' ')[1];
         if (!token) {
-                return res.status(401).json({ message: 'Access token is required' });
+            console.log("Access token is required");
+            return next(new Error("Access token is required"));
         }
-    
+
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
             if (err) {
-                return res.status(403).json({ message: 'Invalid or expired token' });
+                console.log("Invalid or expired token");
+                return next(new Error("Invalid or expired token"));
             }
-            
+
+            // Nếu token hợp lệ, lưu thông tin user vào socket
+            socket.user = user;
             next(); 
         });
 
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        console.error("Socket authentication error:", error);
+        return next(new Error("Internal server error"));
     }
-}
+};
 
 module.exports = {
     verifySocketConnection
-}
+};

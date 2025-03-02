@@ -171,7 +171,8 @@ const createBill = async (req, res) => {
                 typeTransfer: 'buyer',
                 boxId: box._id,
                 linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`,
-                staffId: staff._id
+                staffId: staff._id,
+                flag: box.flag
             };
         }
 
@@ -209,7 +210,8 @@ const createBill = async (req, res) => {
                 typeTransfer: 'seller',
                 boxId: box._id,
                 linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`,
-                staffId: staff._id
+                staffId: staff._id,
+                flag: box.flag
             };
         }
 
