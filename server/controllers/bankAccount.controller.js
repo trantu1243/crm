@@ -146,6 +146,7 @@ const deleteBankAccount = async (req, res) => {
             data: deletedBankAccount
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: 'Lỗi khi xóa tài khoản ngân hàng',
