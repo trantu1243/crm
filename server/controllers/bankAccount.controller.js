@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const { BankAccount, BankApi } = require('../models');
   
 const getBankAccounts = async (req, res) => {
