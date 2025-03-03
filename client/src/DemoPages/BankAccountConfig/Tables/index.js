@@ -52,7 +52,6 @@ class BankAccountTable extends Component {
     getBankAccounts = async () => {
         this.setState({loading: true});
         const res = await fetchBankAccounts();
-        console.log(res.data)
         this.setState({bankAccounts: res.data, loading: false});
     }
 

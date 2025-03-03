@@ -9,6 +9,7 @@ import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { createFee, deleteFee, fetchFee, updateFee } from "../../../services/feeService";
 import cx from "classnames";
+import { fetchSetting, toggleFeeSetting } from "../../../services/settingService";
 
 class FeeTable extends Component {
     constructor(props) {
@@ -47,6 +48,7 @@ class FeeTable extends Component {
 
     componentDidMount() {
         this.getFees();
+        this.getSetting();
     }
 
     handleClick = () => {
@@ -56,12 +58,24 @@ class FeeTable extends Component {
                 isOn: !prevState.feeSetting.isOn
             }
         }));
+        this.handleToggle();
     };
+
+    handleToggle = async () => {
+        await toggleFeeSetting({ amount: this.state.feeSetting.amount });
+        await this.getFees();
+        await this.getSetting();
+    }
 
     getFees = async () => {
         this.setState({loading: true});
         const res = await fetchFee();
         this.setState({fees: res.data, loading: false});
+    }
+
+    getSetting = async () => {
+        const res = await fetchSetting();
+        this.setState({ feeSetting: res.data.fee });
     }
 
     toggleCreate() {
@@ -237,17 +251,15 @@ class FeeTable extends Component {
                             <span className="fw-bold text-danger">Ngày lễ</span> ?
                         </Label>
 
-                        <div className="me-3">
-                            <div className="switch has-switch" data-on-label="ON" data-off-label="OFF" onClick={this.handleClick}>
-                                <div className={cx("switch-animate", {
-                                    "switch-on": this.state.feeSetting.isOn,
-                                    "switch-off": !this.state.feeSetting.isOn,
-                                })}>
-                                    <input type="checkbox" />
-                                    <span className="switch-left bg-info">ON</span>
-                                    <label>&nbsp;</label>
-                                    <span className="switch-right bg-info">OFF</span>
-                                </div>
+                        <div className="switch has-switch me-3" data-on-label="ON" data-off-label="OFF" onClick={this.handleClick}>
+                            <div className={cx("switch-animate", {
+                                "switch-on": this.state.feeSetting.isOn,
+                                "switch-off": !this.state.feeSetting.isOn,
+                            })}>
+                                <input type="checkbox" />
+                                <span className="switch-left bg-info">ON</span>
+                                <label>&nbsp;</label>
+                                <span className="switch-right bg-info">OFF</span>
                             </div>
                         </div>
 
