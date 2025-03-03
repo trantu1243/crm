@@ -1093,7 +1093,8 @@ async function getStaffShareInMonth(req, res) {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC }
+                    createdAt: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
+                    status: 2
                 }
             },
             {
@@ -1187,7 +1188,8 @@ async function getDailyShareOfStaff(req, res) {
             {
                 $match: {
                     staffId: staffObjectId,
-                    createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC }
+                    createdAt: { $gte: startOfDayUTC, $lte: endOfDayUTC },
+                    status: 2
                 }
             },
             {
