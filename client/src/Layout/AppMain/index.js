@@ -21,6 +21,7 @@ import { getBoxByIdNoLoad } from "../../reducers/boxSlice";
 import { getBillByIdNoLoad, getBillsNoLoad } from "../../reducers/billsSlice";
 import ChangePassword from "../../DemoPages/ChangePassword";
 import FeeConfig from "../../DemoPages/FeeConfig";
+import BankAccountConfig from "../../DemoPages/BankAccountConfig";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -55,9 +56,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                localStorage.removeItem("token");
-                dispatch(logout());
-                setIsAuth(false);
+                // localStorage.removeItem("token");
+                // dispatch(logout());
+                // setIsAuth(false);
             }
         };
 
@@ -424,6 +425,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/config/fee" render={() => isAdmin ? <FeeConfig /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/config/bank-account" render={() => isAdmin ? <BankAccountConfig /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

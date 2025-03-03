@@ -11,6 +11,6 @@ router.post('/create', authenticateToken, isAdmin, bankAccountController.createB
 
 router.post('/:id/update', authenticateToken, isAdmin, bankAccountController.getBankAccounts);
 
-router.post('/:id/delete', authenticateToken, isAdmin, bankAccountController.getBankAccounts);
+router.post('/:id/delete', authenticateToken, isAdmin, bankAccountController.deleteBankAccount);
 
 module.exports = router;

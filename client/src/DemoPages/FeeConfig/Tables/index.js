@@ -46,7 +46,6 @@ class FeeTable extends Component {
     getFees = async () => {
         this.setState({loading: true});
         const res = await fetchFee();
-        console.log(res.data)
         this.setState({fees: res.data, loading: false});
     }
 
@@ -130,7 +129,7 @@ class FeeTable extends Component {
                         <FontAwesomeIcon icon={faPlus}></FontAwesomeIcon>
                     </Button>
                     <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-lg" style={{marginTop: '10rem'}}>
-                        <ModalHeader toggle={this.toggleCreate}>Tạo nhóm quyền</ModalHeader>
+                        <ModalHeader toggle={this.toggleCreate}>Thêm phí</ModalHeader>
                         <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleSubmit(e)}>
                             <Row className="mb-4">
                                 <Col md={3}>
@@ -230,9 +229,9 @@ class FeeTable extends Component {
                     
                         {this.state.fees.map((item) => <tr>
                             <td className="text-center text-muted">{item._id.slice(-8)}</td>
-                            <td className="text-center text-muted">{item.min}</td>
-                            <td className="text-center text-muted">{item.max}</td>
-                            <td className="text-center text-muted">{item.feeDefault}</td>
+                            <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.min)}</td>
+                            <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.max)}</td>
+                            <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.feeDefault)}</td>
                             <td className="text-center text-muted">
                                 <button 
                                     className="btn btn-sm btn-info me-1 mb-1" 
