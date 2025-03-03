@@ -8,7 +8,6 @@ import { Combobox } from "react-widgets/cjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from 'react-bootstrap-sweetalert';
-import { createFee, deleteFee, fetchFee, updateFee } from "../../../services/feeService";
 import { createBankAccount, deleteBankAccount, fetchBankAccounts, updateBankAccount } from "../../../services/bankAccountService";
 import { fetchBankApi } from "../../../services/bankApiService";
 
@@ -19,6 +18,7 @@ class BankAccountTable extends Component {
             loading: false,
             createLoading: false,
             createModal: false,
+            deleteModal: false,
             updateModal: false,
             bankAccountId: null,
             bankAccounts: [],
@@ -26,6 +26,7 @@ class BankAccountTable extends Component {
             alert: false,
             errorMsg: '',
             name: '',
+            selectedBank: null,
             input: {
                 bankId: '',
                 bankAccount: '',
@@ -40,7 +41,7 @@ class BankAccountTable extends Component {
 
         this.toggleCreate = this.toggleCreate.bind(this);
         this.toggleUpdate = this.toggleUpdate.bind(this);
-
+        this.toggleDelete = this.toggleDelete.bind(this)
     }
 
     componentDidMount() {
@@ -74,6 +75,12 @@ class BankAccountTable extends Component {
         });
     }
 
+    toggleDelete() {
+        this.setState({
+            deleteModal: !this.state.deleteModal,
+        });
+    }
+
     handleSubmit = async (e) => {
         try{
             e.preventDefault();
@@ -93,6 +100,7 @@ class BankAccountTable extends Component {
                 errorMsg: error
             })
             this.setState({createLoading: false})
+            this.toggleCreate();
         }
     };
 
@@ -110,22 +118,25 @@ class BankAccountTable extends Component {
                 errorMsg: error
             })
             this.setState({createLoading: false})
+            this.toggleUpdate();
         }
     };
 
-    handleDelete = async (e, id) => {
+    handleDelete = async (e) => {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await deleteBankAccount(id);
+            const res = await deleteBankAccount(this.state.bankAccountId);
             this.setState({createLoading: false});
             this.getBankAccounts();
+            this.toggleDelete()
         } catch(error) {
             this.setState({
                 alert: true,
                 errorMsg: error
             })
             this.setState({createLoading: false})
+            this.toggleDelete()
         }
     };
 
@@ -257,7 +268,20 @@ class BankAccountTable extends Component {
                                 >
                                     <FontAwesomeIcon icon={faPen} color="#fff" size="3xs"/>
                                 </button>
-                                <button className="btn btn-sm btn-danger me-1 mb-1" title="Xóa" onClick={(e) => {this.handleDelete(e, item._id)}}>
+                                <button className="btn btn-sm btn-danger me-1 mb-1" title="Xóa" 
+                                    onClick={(e) => {
+                                        const selectedBank = this.state.banks.find(b => b.bankCode === item.bankCode);
+                                        this.setState({
+                                            bankAccountId: item._id,
+                                            selectedBank: {
+                                                bankName: selectedBank?.bankName || "",
+                                                bankAccount: item.bankAccount || "",
+                                                bankAccountName: item.bankAccountName || "",
+                                            }
+                                        })
+                                        this.toggleDelete();
+                                    }}
+                                >
                                     <FontAwesomeIcon icon={faTrash} color="#fff" size="3xs"/>
                                 </button>
                             </td>
@@ -360,7 +384,23 @@ class BankAccountTable extends Component {
                     </Button>{" "}
                 </ModalFooter>
             </Modal>
-            
+            <Modal isOpen={this.state.deleteModal} toggle={this.toggleDelete} className={this.props.className}>
+                <ModalHeader toggle={this.toggleDelete}><span style={{fontWeight: 'bold'}}>Xác nhận xóa ngân hàng</span></ModalHeader>
+                <ModalBody>
+                    Số tài khoản: {this.state.selectedBank?.bankAccount} <br />
+                    Ngân hàng: {this.state.selectedBank?.bankName} <br />
+                    Chủ tài khoản: {this.state.selectedBank?.bankAccountName} <br />
+                </ModalBody>
+
+                <ModalFooter>
+                    <Button color="link" onClick={this.toggleDelete}>
+                        Cancel
+                    </Button>
+                    <Button color="danger" onClick={this.handleDelete} disabled={this.state.loading}>
+                        {this.state.loading ? "Đang xóa..." : "Xóa"}
+                    </Button>{" "}
+                </ModalFooter>
+            </Modal>
             <SweetAlert title={this.state.errorMsg} show={this.state.alert}
                 type="error" onConfirm={() => this.setState({alert: false})}/>
         </Card>)

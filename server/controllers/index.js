@@ -9,3 +9,4 @@ module.exports.feeController = require('./fee.controller');
 module.exports.permissionController = require('./permission.controller');
 module.exports.roleController = require('./role.controller');
 module.exports.statisticController = require('./statistic.controller');
+module.exports.settingController = require('./setting.controller');

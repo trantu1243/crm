@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { createFee, deleteFee, fetchFee, updateFee } from "../../../services/feeService";
+import cx from "classnames";
 
 class FeeTable extends Component {
     constructor(props) {
@@ -22,6 +23,10 @@ class FeeTable extends Component {
             alert: false,
             errorMsg: '',
             name: '',
+            feeSetting: {
+                amount: 0,
+                isOn: false
+            },
             input: {
                 min: '0',
                 max: '0',
@@ -36,12 +41,22 @@ class FeeTable extends Component {
 
         this.toggleCreate = this.toggleCreate.bind(this);
         this.toggleUpdate = this.toggleUpdate.bind(this);
+        this.handleClick = this.handleClick.bind(this);
 
     }
 
     componentDidMount() {
         this.getFees();
     }
+
+    handleClick = () => {
+        this.setState((prevState) => ({
+            feeSetting: {
+                ...prevState.feeSetting,
+                isOn: !prevState.feeSetting.isOn
+            }
+        }));
+    };
 
     getFees = async () => {
         this.setState({loading: true});
@@ -67,7 +82,7 @@ class FeeTable extends Component {
             this.setState({createLoading: true});
             const res = await createFee(this.state.input);
             this.setState({createLoading: false});
-            this.toggleCreate();
+            this.toggleUpdate();
             this.setState({input: {
                 min: '0',
                 max: '0',
@@ -80,6 +95,7 @@ class FeeTable extends Component {
                 errorMsg: error
             })
             this.setState({createLoading: false})
+            this.toggleUpdate();
         }
     };
 
@@ -97,6 +113,7 @@ class FeeTable extends Component {
                 errorMsg: error
             })
             this.setState({createLoading: false})
+            this.toggleUpdate();
         }
     };
 
@@ -214,6 +231,48 @@ class FeeTable extends Component {
                             </Button>{" "}
                         </ModalFooter>
                     </Modal>
+                    <div className="btn-actions-pane-right">
+                    <div className="d-flex align-items-center">
+                        <Label className="me-3 mb-0" style={{ fontWeight: 'normal' }}>
+                            <span className="fw-bold text-danger">Ngày lễ</span> ?
+                        </Label>
+
+                        <div className="me-3">
+                            <div className="switch has-switch" data-on-label="ON" data-off-label="OFF" onClick={this.handleClick}>
+                                <div className={cx("switch-animate", {
+                                    "switch-on": this.state.feeSetting.isOn,
+                                    "switch-off": !this.state.feeSetting.isOn,
+                                })}>
+                                    <input type="checkbox" />
+                                    <span className="switch-left bg-info">ON</span>
+                                    <label>&nbsp;</label>
+                                    <span className="switch-right bg-info">OFF</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ width: '150px' }}>
+                            <Input
+                                type="text"
+                                name="amount"
+                                className="form-control"
+                                value={new Intl.NumberFormat('en-US').format(this.state.feeSetting.amount)}
+                                onChange={(e) => {
+                                    let rawValue = e.target.value.replace(/,/g, '');
+                                    let numericValue = parseInt(rawValue, 10) || 0;
+                                    this.setState((prevState) => ({
+                                        feeSetting: {
+                                            ...prevState.feeSetting,
+                                            amount: numericValue < 0 ? 0 : numericValue,
+                                        }
+                                    }));
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                        
+                    </div>
                 </CardHeader>
                 <Table responsive hover striped borderless className="align-middle mb-0">
                     <thead>

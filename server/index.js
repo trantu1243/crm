@@ -14,7 +14,7 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction, BoxTransaction, Bill } = require('./models');
+const { Transaction, BoxTransaction, Bill, Setting } = require('./models');
 const { updateFlags } = require('./services/updateFlags')
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
@@ -25,6 +25,9 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
     // updateFlag();
     // updateFlags()
+    Setting.create({
+        uniqueId: 1
+    })
 
 });
 
