@@ -279,82 +279,82 @@ class FeeTable extends Component {
                 </CardFooter>
             </>)}
             <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-lg" style={{marginTop: '10rem'}}>
-                <ModalHeader toggle={this.toggleUpdate}>Cập nhật nhóm quyền</ModalHeader>
-                <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Số tiền min</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="min"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.min)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
+                <ModalHeader toggle={this.toggleUpdate}>Cập nhật phí</ModalHeader>
+                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Số tiền min</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Input
+                                    type="text"
+                                    name="min"
+                                    value={new Intl.NumberFormat('en-US').format(this.state.update.min)}
+                                    onChange={(e) => {
+                                        let rawValue = e.target.value.replace(/,/g, '');
+                                        let numericValue = parseInt(rawValue, 10) || 0;
 
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    min: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Số tiền max</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="max"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.max)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
+                                        this.setState((prevState) => ({
+                                            update: {
+                                                ...prevState.update,
+                                                min: numericValue < 0 ? 0 : numericValue,
+                                            },
+                                        }));
+                                    }}
+                                    required
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Số tiền max</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Input
+                                    type="text"
+                                    name="max"
+                                    value={new Intl.NumberFormat('en-US').format(this.state.update.max)}
+                                    onChange={(e) => {
+                                        let rawValue = e.target.value.replace(/,/g, '');
+                                        let numericValue = parseInt(rawValue, 10) || 0;
 
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    max: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Phí</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="feDefault"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.feeDefault)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
+                                        this.setState((prevState) => ({
+                                            update: {
+                                                ...prevState.update,
+                                                max: numericValue < 0 ? 0 : numericValue,
+                                            },
+                                        }));
+                                    }}
+                                    required
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Phí</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Input
+                                    type="text"
+                                    name="feDefault"
+                                    value={new Intl.NumberFormat('en-US').format(this.state.update.feeDefault)}
+                                    onChange={(e) => {
+                                        let rawValue = e.target.value.replace(/,/g, '');
+                                        let numericValue = parseInt(rawValue, 10) || 0;
 
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    feeDefault: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-        
-                        </ModalBody>
+                                        this.setState((prevState) => ({
+                                            update: {
+                                                ...prevState.update,
+                                                feeDefault: numericValue < 0 ? 0 : numericValue,
+                                            },
+                                        }));
+                                    }}
+                                    required
+                                />
+                            </Col>
+                        </Row>
+    
+                    </ModalBody>
                 <ModalFooter>
                     <Button color="link" onClick={this.toggleUpdate}>
                         Hủy

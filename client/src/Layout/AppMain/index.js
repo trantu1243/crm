@@ -146,7 +146,7 @@ const AppMain = () => {
                     if (data.box?._id === box.box._id) {
                         dispatch(getBoxByIdNoLoad(box.box._id));
                     }
-                    if (bills.bill?._id === data.buyerBill?._id || bills.bill?._id === data.sellerBill?._id) {
+                    if (bills.bill && (bills.bill?._id === data.buyerBill?._id || bills.bill?._id === data.sellerBill?._id)) {
                         dispatch(getBillByIdNoLoad(bills.bill?._id));
                     }
                     if (bills.bills?.docs.length > 0) {

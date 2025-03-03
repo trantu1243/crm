@@ -9,7 +9,7 @@ router.get('/', authenticateToken, bankAccountController.getBankAccounts);
 
 router.post('/create', authenticateToken, isAdmin, bankAccountController.createBankAccount);
 
-router.post('/:id/update', authenticateToken, isAdmin, bankAccountController.getBankAccounts);
+router.post('/:id/update', authenticateToken, isAdmin, bankAccountController.updateBankAccount);
 
 router.post('/:id/delete', authenticateToken, isAdmin, bankAccountController.deleteBankAccount);
 

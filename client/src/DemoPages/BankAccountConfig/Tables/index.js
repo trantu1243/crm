@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { createFee, deleteFee, fetchFee, updateFee } from "../../../services/feeService";
-import { createBankAccount, deleteBankAccount, fetchBankAccounts } from "../../../services/bankAccountService";
+import { createBankAccount, deleteBankAccount, fetchBankAccounts, updateBankAccount } from "../../../services/bankAccountService";
 import { fetchBankApi } from "../../../services/bankApiService";
 
 class BankAccountTable extends Component {
@@ -20,7 +20,7 @@ class BankAccountTable extends Component {
             createLoading: false,
             createModal: false,
             updateModal: false,
-            feeId: null,
+            bankAccountId: null,
             bankAccounts: [],
             banks: [],
             alert: false,
@@ -100,7 +100,7 @@ class BankAccountTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await updateFee(this.state.feeId, this.state.update);
+            const res = await updateBankAccount(this.state.bankAccountId, this.state.update);
             this.setState({createLoading: false});
             this.toggleUpdate();
             this.getBankAccounts();
@@ -243,12 +243,13 @@ class BankAccountTable extends Component {
                                     className="btn btn-sm btn-info me-1 mb-1" 
                                     title="Chỉnh sửa" 
                                     onClick={() => {
+                                        const selectedBank = this.state.banks.find(b => b.bankCode === item.bankCode);
                                         this.setState({
-                                            feeId: item._id,
+                                            bankAccountId: item._id,
                                             update: {
-                                                min: item.min,
-                                                max: item.max,
-                                                feeDefault: item.feeDefault
+                                                bankId: selectedBank?._id || "",
+                                                bankAccount: item.bankAccount,
+                                                bankAccountName: item.bankAccountName
                                             }
                                         });
                                         this.toggleUpdate()
@@ -285,82 +286,71 @@ class BankAccountTable extends Component {
                 </CardFooter>
             </>)}
             <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-lg" style={{marginTop: '10rem'}}>
-                <ModalHeader toggle={this.toggleUpdate}>Cập nhật nhóm quyền</ModalHeader>
-                <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Số tiền min</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="min"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.min)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
-
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    min: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Số tiền max</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="max"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.max)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
-
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    max: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <Label>Phí</Label>
-                                </Col>
-                                <Col md={9}>
-                                    <Input
-                                        type="text"
-                                        name="feDefault"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.update.feeDefault)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
-
-                                            this.setState((prevState) => ({
-                                                update: {
-                                                    ...prevState.update,
-                                                    feeDefault: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                        required
-                                    />
-                                </Col>
-                            </Row>
-        
-                        </ModalBody>
+                <ModalHeader toggle={this.toggleUpdate}>Cập nhật ngân hàng</ModalHeader>
+                    <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.createLoading && this.handleUpdate(e)}>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Chọn ngân hàng</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Select
+                                    value={this.state.banks
+                                        .map(bank => ({ value: bank._id, label: bank.bankName }))
+                                        .find(option => option.value === this.state.update.bankId) || null}
+                                    onChange={selected => {
+                                            this.setState({ update: { ...this.state.update, bankId: selected.value } })
+                                        }
+                                    }
+                                    options={this.state.banks.map(bank => ({
+                                        value: bank._id,
+                                        label: bank.bankName
+                                    }))}
+                                    placeholder="Chọn ngân hàng"
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Số tài khoản</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Input
+                                    type="text"
+                                    name="bankAccount"
+                                    id="bankAccount"
+                                    value={this.state.update.bankAccount}
+                                    onChange={(e)=>{
+                                        const sanitizedValue = e.target.value.replace(/\s/g, '');
+                                        this.setState((prevState) => ({
+                                            update: { ...prevState.update, bankAccount: sanitizedValue }
+                                        }));
+                                    }}
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="mb-4">
+                            <Col md={3}>
+                                <Label>Tên chủ tài khoản</Label>
+                            </Col>
+                            <Col md={9}>
+                                <Input
+                                    type="text"
+                                    name="bankAccountName"
+                                    value={this.state.update.bankAccountName}
+                                    onChange={(e) => {
+                                        this.setState((prevState) => ({
+                                            update: {
+                                                ...prevState.update,
+                                                bankAccountName: e.target.value,
+                                            },
+                                        }));
+                                    }}
+                                    required
+                                />
+                            </Col>
+                        </Row>
+    
+                    </ModalBody>
                 <ModalFooter>
                     <Button color="link" onClick={this.toggleUpdate}>
                         Hủy
