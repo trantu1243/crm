@@ -118,11 +118,6 @@ const createBill = async (req, res) => {
             return res.status(400).json({ message: 'Có bill thanh khoản chưa được xử lý' });
         }
 
-        const existingTransaction = await Transaction.findOne({ boxId: box._id, status: { $in: [1, 7] } });
-        if (existingTransaction) {
-            return res.status(400).json({ message: 'Có giao dịch chưa nhận được tiền' });
-        }
-
         let boxAmount = box.amount;
         if (buyer) boxAmount -= Number(buyer.amount) - Number(buyer.bonus ? buyer.bonus  : 0);
         if (seller) boxAmount -= Number(seller.amount) - Number(seller.bonus ? seller.bonus  : 0);
