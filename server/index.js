@@ -46,7 +46,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ['https://thantai.tathanhan.com', 'http://localhost:3001'], 
+        origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'], 
         methods: ['GET', 'POST'],
         allowedHeaders: ['Content-Type', 'Authorization']
     }
@@ -55,7 +55,7 @@ const io = new Server(server, {
 io.use(verifySocketConnection);
 
 app.use(cors({
-	origin: ['https://thantai.tathanhan.com', 'http://localhost:3001'], 
+	origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'], 
 	methods: ['GET', 'POST', 'PUT', 'DELETE'], 
 	allowedHeaders: ['Content-Type', 'Authorization'], 
 }));
