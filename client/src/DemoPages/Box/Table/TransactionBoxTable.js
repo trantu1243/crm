@@ -375,6 +375,31 @@ class TransactionsTable extends Component {
             this.setState({loading: false});
         }
     }
+
+    copyImageToClipboard = async () => {
+        try {
+            if (!this.state.updateTransaction) {
+                this.setState({
+                    alert: true,
+                    errorMsg: "Vui lòng đợi ảnh tải xong"
+                })
+            } else {
+                const response = await fetch(this.state.updateTransaction.linkQr);
+                const blob = await response.blob();
+                const data = [new ClipboardItem({ [blob.type]: blob })];
+
+                await navigator.clipboard.write(data);
+                this.setState({imageCopied: true})
+            }
+            
+        } catch (error) {
+            console.error(error);
+            this.setState({
+                alert: true,
+                errorMsg: "Lỗi khi sao chép hình ảnh"
+            })
+        }
+    };
     
     render() { 
         const { transactions } = this.props;
@@ -951,7 +976,7 @@ class TransactionsTable extends Component {
                                         <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                             <Loader type="ball-spin-fade-loader" />
                                         </div> 
-                                        : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>} 
+                                        : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}} onClick={this.copyImageToClipboard}></img>} 
                                     </Row>
                                 </Col>
                             
@@ -1049,9 +1074,12 @@ class TransactionsTable extends Component {
                                                 name="buyerStk"
                                                 id="buyerStk"
                                                 value={buyer.stk}
-                                                onChange={(e)=>{this.setState((prevState) => ({
-                                                    buyer: { ...prevState.buyer, stk: e.target.value }
-                                                }));}}
+                                                onChange={(e)=>{
+                                                    const sanitizedValue = e.target.value.replace(/\s/g, '');
+                                                    this.setState((prevState) => ({
+                                                        buyer: { ...prevState.buyer, stk: sanitizedValue }
+                                                    }));
+                                                }}
                                             />
                                         </Col>
                                     </Row>
@@ -1210,9 +1238,12 @@ class TransactionsTable extends Component {
                                                 name="sellerStk"
                                                 id="sellerStk"
                                                 value={seller.stk}
-                                                onChange={(e)=>{this.setState((prevState) => ({
-                                                    seller: { ...prevState.seller, stk: e.target.value }
-                                                }));}}
+                                                onChange={(e)=>{
+                                                    const sanitizedValue = e.target.value.replace(/\s/g, '');
+                                                    this.setState((prevState) => ({
+                                                        seller: { ...prevState.seller, stk: sanitizedValue }
+                                                    }));
+                                                }}
                                             />
                                         </Col>
                                     </Row>

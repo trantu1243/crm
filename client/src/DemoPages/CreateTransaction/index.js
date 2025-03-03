@@ -42,7 +42,7 @@ class CreateTransaction extends Component {
             textCopy: '',
             linkQr: '',
             input: {
-                amount: '',
+                amount: 0,
                 bankId: '',
                 bonus: 0,
                 content: '',
@@ -167,8 +167,8 @@ class CreateTransaction extends Component {
                 })
                 this.setState({loading: false});
             } else {
-                const { amount, bankId, bonus = 0, content, fee = 0, typeFee } = this.state.input;
-                if (!amount || !bankId || !typeFee) {
+                const { amount = 0, bankId, bonus = 0, content, fee = 0, typeFee } = this.state.input;
+                if ((!bankId || !typeFee) || ( amount === 0 && bonus === 0)) {
                     this.setState({loading: false})
                     return this.setState({
                         alert: true,

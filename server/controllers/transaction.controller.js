@@ -125,7 +125,7 @@ const createTransaction = async (req, res) => {
             return res.status(400).json({ message: `Không đủ quyền` });
         }
 
-        const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee'];
+        const requiredFields = ['bankId', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 return res.status(400).json({ message: `${field} is required` });
@@ -134,13 +134,17 @@ const createTransaction = async (req, res) => {
         const {
             bankId,
             typeBox,
-            amount,
+            amount = 0,
             content,
             messengerId,
             typeFee,
             fee,
             bonus = 0
         } = req.body;
+
+        if (amount === 0 && bonus === 0) {
+            return res.status(400).json({ message: `Amount is required` });
+        }
 
         let oriAmount = Number(amount);
         let totalAmount = Number(amount);

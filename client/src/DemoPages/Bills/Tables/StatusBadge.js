@@ -6,7 +6,7 @@ const BillStatusBadge = ({ status }) => {
 
     switch (status) {
         case 1:
-            badgeClass = 'bg-secondary';
+            badgeClass = 'bg-warning';
             badgeText = 'Đang xử lý';
             break;
         case 2:

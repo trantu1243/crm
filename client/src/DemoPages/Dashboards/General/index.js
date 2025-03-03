@@ -214,17 +214,17 @@ export default class General extends Component {
                                         </div>
                                         <div className="page-title-actions">
                                             <Fragment>
-                                                <div className="d-inline-block pe-3">
-                                                <Fragment>
-                                                    <div className="d-inline-block pe-3">
-                                                        <DatePicker
-                                                            value={this.state.date}
-                                                            onChange={this.handleDateChange}
-                                                            format="YYYY-MM-DD"
-                                                            max={new Date()}
-                                                        />
-                                                    </div>
-                                                </Fragment>    
+                                                <div className="d-inline-block">
+                                                    <Fragment>
+                                                        <div className="d-inline-block pe-5">
+                                                            <DatePicker
+                                                                value={this.state.date}
+                                                                onChange={this.handleDateChange}
+                                                                format="YYYY-MM-DD"
+                                                                max={new Date()}
+                                                            />
+                                                        </div>
+                                                    </Fragment>    
                                                 </div>
                                             </Fragment>
                                         </div>

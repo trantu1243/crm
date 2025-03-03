@@ -280,9 +280,12 @@ class BillsTable extends Component {
                                                     name="buyerStk"
                                                     id="buyerStk"
                                                     value={buyer.stk}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        buyer: { ...prevState.buyer, stk: e.target.value }
-                                                    }));}}
+                                                    onChange={(e)=>{
+                                                        const sanitizedValue = e.target.value.replace(/\s/g, '');
+                                                        this.setState((prevState) => ({
+                                                            buyer: { ...prevState.buyer, stk: sanitizedValue }
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>
@@ -441,9 +444,12 @@ class BillsTable extends Component {
                                                     name="sellerStk"
                                                     id="sellerStk"
                                                     value={seller.stk}
-                                                    onChange={(e)=>{this.setState((prevState) => ({
-                                                        seller: { ...prevState.seller, stk: e.target.value }
-                                                    }));}}
+                                                    onChange={(e)=>{
+                                                        const sanitizedValue = e.target.value.replace(/\s/g, '');
+                                                        this.setState((prevState) => ({
+                                                            seller: { ...prevState.seller, stk: sanitizedValue}
+                                                        }));
+                                                    }}
                                                 />
                                             </Col>
                                         </Row>

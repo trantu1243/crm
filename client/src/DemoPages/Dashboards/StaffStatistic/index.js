@@ -261,7 +261,7 @@ class StaffStatistic extends Component {
                                                 </div>}
                                                 <div className="d-inline-block">
                                                     <Fragment>
-                                                        <div className="d-inline-block">
+                                                        <div className="d-inline-block pe-5">
                                                             <DatePicker
                                                                 value={this.state.date}
                                                                 onChange={this.handleDateChange}
