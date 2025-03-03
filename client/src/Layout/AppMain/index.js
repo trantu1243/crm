@@ -28,6 +28,7 @@ const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
 const AppMain = () => {
 
     const [isAuth, setIsAuth] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(null);
     const [tokenState] = useState(localStorage.getItem("token"));
     const dispatch = useDispatch();
     const transactions = useSelector(state => state.transactions);
@@ -38,6 +39,7 @@ const AppMain = () => {
         const checkAuth = async () => {
             if (!tokenState) {
                 setIsAuth(false);
+                setIsAdmin(false);
                 return;
             }
             try {
@@ -46,7 +48,10 @@ const AppMain = () => {
                     localStorage.removeItem("token");
                     dispatch(logout());
                     setIsAuth(false);
+                    setIsAdmin(false);
                 }
+
+                if (userData.user.is_admin === 1) setIsAdmin(true);
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
@@ -403,6 +408,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/change-password" render={() => isAuth ? <ChangePassword /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/config/fee" render={() => isAdmin ? <FeeConfig /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

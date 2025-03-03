@@ -46,7 +46,8 @@ class FeeTable extends Component {
     getFees = async () => {
         this.setState({loading: true});
         const res = await fetchFee();
-        this.setState({fee: res.data, loading: false});
+        console.log(res.data)
+        this.setState({fees: res.data, loading: false});
     }
 
     toggleCreate() {
@@ -69,9 +70,9 @@ class FeeTable extends Component {
             this.setState({createLoading: false});
             this.toggleCreate();
             this.setState({input: {
-                name: '',
-                staffId: [],
-                permissions: []
+                min: '0',
+                max: '0',
+                feeDefault: '0'
             },})
             this.getFees();
         } catch(error) {
@@ -106,7 +107,6 @@ class FeeTable extends Component {
             this.setState({createLoading: true});
             const res = await deleteFee(id);
             this.setState({createLoading: false});
-            this.toggleDelete();
             this.getFees();
         } catch(error) {
             this.setState({
@@ -187,7 +187,7 @@ class FeeTable extends Component {
                                 <Col md={9}>
                                     <Input
                                         type="text"
-                                        name="feDefault"
+                                        name="feeDefault"
                                         value={new Intl.NumberFormat('en-US').format(this.state.input.feeDefault)}
                                         onChange={(e) => {
                                             let rawValue = e.target.value.replace(/,/g, '');
@@ -222,7 +222,6 @@ class FeeTable extends Component {
                             <th className="text-center">ID</th>
                             <th className="text-center">Min</th>
                             <th className="text-center">Max</th>
-                            <th className="text-center">Min</th>
                             <th className="text-center">Phí</th>
                             <th className="text-center">#</th>
                         </tr>

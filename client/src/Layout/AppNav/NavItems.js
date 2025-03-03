@@ -62,22 +62,32 @@ export const MainNav = [
         ],
     },
     {
-        icon: "pe-7s-users",
-        label: "Phân quyền hệ thống",
-        content: [
-            {
-                label: "Quản lý nhóm quyền",
-                to: "/role",
-            },
-            {
-                label: "Quản lý nhân viên",
-                to: "/staff",
-            },
-            {
-                label: "Quản lý quyền thao tác",
-                to: "/permission",
-            }
-        ],
+      icon: "pe-7s-users",
+      label: "Phân quyền hệ thống",
+      content: [
+          {
+              label: "Quản lý nhóm quyền",
+              to: "/role",
+          },
+          {
+              label: "Quản lý nhân viên",
+              to: "/staff",
+          },
+          {
+              label: "Quản lý quyền thao tác",
+              to: "/permission",
+          }
+      ],
+    },
+    {
+      icon: "pe-7s-settings",
+      label: "Cấu hình hệ thống",
+      content: [
+          {
+              label: "Cấu hình phí",
+              to: "/config/fee",
+          }
+      ],
     },
     // {
     //   icon: "pe-7s-browser",

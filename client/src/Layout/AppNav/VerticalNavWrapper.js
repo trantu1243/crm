@@ -5,10 +5,6 @@ import MetisMenu from "react-metismenu";
 import { setEnableMobileMenu } from "../../reducers/ThemeOptions";
 import {
     MainNav,
-    ComponentsNav,
-    FormsNav,
-    WidgetsNav,
-    ChartsNav,
 } from "./NavItems";
 
 class Nav extends Component {
@@ -23,7 +19,7 @@ class Nav extends Component {
         const { user } = this.props;
 
         let filteredNav = MainNav.filter(item => {
-            if (item.label === "Phân quyền hệ thống") {
+            if (item.label === "Phân quyền hệ thống" || item.label === "Cấu hình hệ thống") {
                 return user?.is_admin === 1;
             }
             return true;

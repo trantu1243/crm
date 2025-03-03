@@ -10,13 +10,13 @@ import { connect } from "react-redux";
 
 export const dummyData = [
   {
-    name: "Danh sách quyền",
+    name: "Danh sách phí",
     content: <RoleTable />,
   },
 ];
 
 
-class Roles extends Component {
+class FeeConfig extends Component {
     constructor(props) {
         super(props);
     
@@ -84,4 +84,4 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
 };
   
-export default connect(mapStateToProps, mapDispatchToProps)(Roles);
+export default connect(mapStateToProps, mapDispatchToProps)(FeeConfig);
