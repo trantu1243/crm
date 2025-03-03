@@ -13,7 +13,6 @@ import { getBoxById, getBoxByIdNoLoad, undoBox } from "../../../reducers/boxSlic
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
 import cx from "classnames";
-import { fetchBankAccounts } from "../../../services/bankAccountService";
 import { fetchFee } from "../../../services/feeService";
 import { typeFee } from "../../CreateTransaction";
 import { SERVER_URL } from "../../../services/url";

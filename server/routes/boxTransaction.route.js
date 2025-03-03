@@ -15,7 +15,7 @@ router.post('/:id/undo', authenticateToken, boxTransactionController.undoBox);
 
 router.post('/:id/update', authenticateToken, boxTransactionController.updateBox);
 
-router.post('/:id/lock', authenticateToken, isAdmin, boxTransactionController.switchLock);
+router.post('/:id/lock', authenticateToken, boxTransactionController.switchLock);
 
 router.post('/:id/add-note', authenticateToken, boxTransactionController.addNote);
 

@@ -96,7 +96,7 @@ class FeeTable extends Component {
             this.setState({createLoading: true});
             const res = await createFee(this.state.input);
             this.setState({createLoading: false});
-            this.toggleUpdate();
+            this.toggleCreate();
             this.setState({input: {
                 min: '0',
                 max: '0',
@@ -109,7 +109,7 @@ class FeeTable extends Component {
                 errorMsg: error
             })
             this.setState({createLoading: false})
-            this.toggleUpdate();
+            this.toggleCreate();
         }
     };
 

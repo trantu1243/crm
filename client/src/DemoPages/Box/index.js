@@ -18,6 +18,7 @@ import { faCopy, faLock, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { addNoteService, deleteNoteService, lockBoxService } from "../../services/boxService";
 import CopyToClipboard from "react-copy-to-clipboard";
+import SweetAlert from 'react-bootstrap-sweetalert';
 
 export const dummyData = [
     {
@@ -45,6 +46,8 @@ class Box extends Component {
             selectedTabKey: 0,
             transformWidth: 400,
             loading: false,
+            errorMsg: '',
+            alert: false,
             value: [],
             note: '',
             input: {
@@ -447,6 +450,8 @@ class Box extends Component {
                         </div>
                     </div>
                 </div>
+                <SweetAlert title={this.state.errorMsg} show={this.state.alert}
+                    type="error" onConfirm={() => this.setState({alert: false})}/>
             </Fragment>
         );
     }    
