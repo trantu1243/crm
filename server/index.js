@@ -6,7 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const http = require('http');
 const { Server } = require("socket.io");
 require('dotenv').config();
-const { CronJob } = require('cron');
+// const { CronJob } = require('cron');
 
 const routes = require('./routes/index');
 const { importExcelToMongo } = require('./dump');
@@ -92,16 +92,16 @@ server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-const job = new CronJob(
-	'0 3 * * *', 
-	async () => {
-		const setting = await Setting.findOne({uniqueId: 1});
-        if (setting && setting.lockBox.isOn) {
-            await lockInactiveBoxes(setting.lockBox.numOfDay)
-        }
-	}, 
-	null, 
-	true, 
-    'Asia/Ho_Chi_Minh'
-);
+// const job = new CronJob(
+// 	'0 3 * * *', 
+// 	async () => {
+// 		const setting = await Setting.findOne({uniqueId: 1});
+//         if (setting && setting.lockBox.isOn) {
+//             await lockInactiveBoxes(setting.lockBox.numOfDay)
+//         }
+// 	}, 
+// 	null, 
+// 	true, 
+//     'Asia/Ho_Chi_Minh'
+// );
 
