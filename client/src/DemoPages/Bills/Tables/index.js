@@ -304,13 +304,15 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                             <td className="text-center text-muted">{item.content}</td>
                             <td className="text-center "> 
-                                <StatusBadge status={item.status} />&nbsp;
-                                {item.boxId.notes.length > 0 && 
+                                <StatusBadge status={item.status} />
+                                {item.boxId.notes.length > 0 && <>&nbsp;
                                 <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
-                                </FontAwesomeIcon>}
-                                {item.boxId.status === 'lock' && 
+                                </FontAwesomeIcon>
+                                </>}
+                                {item.boxId.status === 'lock' && <>&nbsp;
                                 <FontAwesomeIcon color="#d92550" title="Box bị khóa" icon={faLock}>
-                                </FontAwesomeIcon>}
+                                </FontAwesomeIcon>
+                                </>}
                             </td> 
                             <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
                             <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>

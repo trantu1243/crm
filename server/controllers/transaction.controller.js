@@ -341,12 +341,12 @@ const updateTransaction = async (req, res) => {
                     [
                         { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
                     ]);
-                if (tran && tran.bankId.bankCode !== bank.bankCode) {
+                // if (tran && tran.bankId.bankCode !== bank.bankCode) {
 
-                    await session.abortTransaction();
-                    session.endSession();
-                    return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
-                }
+                //     await session.abortTransaction();
+                //     session.endSession();
+                //     return res.status(400).json({ message: `Box đang hoạt động trên ngân hàng ${tran.bankId.bankName}` });
+                // }
             } else {
                 box.status = 'active';
                 box.flag += 1;
