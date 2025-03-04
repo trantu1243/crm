@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const http = require('http');
 const { Server } = require("socket.io");
 require('dotenv').config();
+const { CronJob } = require('cron');
 
 const routes = require('./routes/index');
 const { importExcelToMongo } = require('./dump');
@@ -15,7 +16,8 @@ const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
 const { Transaction, BoxTransaction, Bill, Setting } = require('./models');
-const { updateFlags } = require('./services/updateFlags')
+const { updateFlags } = require('./services/updateFlags');
+const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -25,9 +27,19 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
     // updateFlag();
     // updateFlags()
-   
+    updateSetting()
+    
 
 });
+
+const updateSetting = async () =>{
+    try {
+        const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {lockBox: {numOfDay: 30, isOn: false}});
+        console.log(setting)
+    } catch (e) {
+        console.log(e)
+    }
+}
 
 const updateFlag = async () =>{
     try {
@@ -80,5 +92,16 @@ server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-
+const job = new CronJob(
+	'0 3 * * *', 
+	async () => {
+		const setting = await Setting.findOne({uniqueId: 1});
+        if (setting && setting.lockBox.isOn) {
+            await lockInactiveBoxes(setting.lockBox.numOfDay)
+        }
+	}, 
+	null, 
+	true, 
+    'Asia/Ho_Chi_Minh'
+);
 

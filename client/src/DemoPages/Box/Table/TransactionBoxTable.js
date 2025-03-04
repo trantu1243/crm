@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faCopy, faExclamationTriangle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationTriangle, faLock, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { getBoxById, getBoxByIdNoLoad, undoBox } from "../../../reducers/boxSlice";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { withRouter } from "../../../utils/withRouter";
@@ -670,6 +670,8 @@ class TransactionsTable extends Component {
                                     <td className="text-center "> 
                                         <StatusBadge status={item.status} />&nbsp;
                                         {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                        </FontAwesomeIcon>}
+                                        {item.boxId.status === 'lock' && <FontAwesomeIcon color="#d92550" title="Box bị khóa " icon={faLock}>
                                         </FontAwesomeIcon>}
                                     </td>
                                     <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>

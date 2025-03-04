@@ -11,6 +11,16 @@ const settingSchema = new mongoose.Schema({
             amount: 0,
             isOn: false
         }
+    },
+    lockBox: {
+        type: {
+            numOfDay: Number,
+            isOn: Boolean
+        },
+        default: {
+            numOfDay: 0,
+            isOn: false
+        }
     }
 }, { 
     timestamps: true 

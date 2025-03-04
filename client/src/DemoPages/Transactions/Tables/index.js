@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
-import { faCheck, faCopy, faExclamationTriangle, faInfoCircle, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationTriangle, faInfoCircle, faLock, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
@@ -32,6 +32,7 @@ const statusList = [
     { value: 7, name: "Đang xử lý" },
     { value: 8, name: "Hoàn thành một phần" },
     { value: 4, name: "Có ghi chú chưa hoàn thành" },
+    { value: 5, name: "Box bị khóa" },
 ];
 
 class TransactionsTable extends Component {
@@ -412,22 +413,33 @@ class TransactionsTable extends Component {
                 await this.props.setFilters({
                     ...this.props.filters,
                     status: [], 
-                    hasNotes: false, 
+                    hasNotes: false,
+                    isLocked: false,
                 });
-            } else if (value !== 4) {
+            } else if (value === 4) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    isLocked: false,
+                    hasNotes: true, 
+                });
+            } else if (value === 5) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: false, 
+                    isLocked: true,
+                });
+            } else {
                 await this.props.setFilters({
                     ...this.props.filters,
                     status: [value], 
                     hasNotes: false, 
+                    isLocked: false,
                 });
                
-            } else {
-                await this.props.setFilters({
-                    ...this.props.filters,
-                    status: [], 
-                    hasNotes: true, 
-                });
-            }
+            } 
+
             await this.props.getTransactions(this.props.filters);
         } catch (error) {
             this.setState({
@@ -479,7 +491,6 @@ class TransactionsTable extends Component {
             limit: 10,
         };
         const { transactions } = this.props;
-        const input = this.state.input;
         const { isBuyerToggleOn, isSellerToggleOn, buyer, seller} = this.state;
         
         const totalAmount = transactions.docs.reduce((sum, item) => {
@@ -760,9 +771,14 @@ class TransactionsTable extends Component {
                                 <td className="text-center">{item.content}</td>
                                 <td className="text-center "> 
                                     <StatusBadge status={item.status} />
-                                        {item.boxId.notes?.length > 0 && <>&nbsp;<FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                    {item.boxId.notes?.length > 0 && <>&nbsp;
+                                    <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
                                     </FontAwesomeIcon></>}
-                                </td>                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                    {item.boxId.status === 'lock' && <>&nbsp;
+                                    <FontAwesomeIcon color="#d92550" title="Box bị khóa" icon={faLock}>
+                                    </FontAwesomeIcon></>}
+                                </td>
+                                <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                 <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center">
                                     {(item.status === 6 || item.status === 8) && <>

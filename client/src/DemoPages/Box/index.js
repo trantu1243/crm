@@ -14,7 +14,7 @@ import { addNote, deleteNote, getBoxById, getBoxByIdNoLoad, updateBox } from "..
 import { withRouter } from "../../utils/withRouter";
 import { formatDate } from "../Transactions/Tables/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faLock, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faLock, faLockOpen, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { addNoteService, deleteNoteService, lockBoxService } from "../../services/boxService";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -205,8 +205,8 @@ class Box extends Component {
                                                     {box.status === "lock" && <span className={`badge bg-danger`}>bị khóa</span>}
                                                 </CardTitle>
                                                 <div class="btn-actions-pane-right">
-                                                    <button class="btn btn-danger me-1" disabled={this.state.loading} onClick={this.handleLock}>
-                                                        <FontAwesomeIcon icon={faLock}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
+                                                    <button class={box.status !== 'lock' ? "btn btn-danger me-1" : "btn btn-success me-1"} disabled={this.state.loading} onClick={this.handleLock}>
+                                                        <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
                                                     </button>
                                                     <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading}>
                                                         <FontAwesomeIcon icon={faSave} /> {this.state.loading ? "Đang lưu ..." : "Lưu cập nhật thông tin"}

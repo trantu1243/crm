@@ -11,7 +11,7 @@ import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import PaginationTable from "../../Transactions/Tables/PaginationTable";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faExclamationTriangle, faInfoCircle, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faExclamationTriangle, faInfoCircle, faLock, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import { cancelBillService, confirmBillService } from "../../../services/billService";
 import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
@@ -22,6 +22,7 @@ const statusList = [
     { value: 2, name: "Thành công" },
     { value: 3, name: "Hủy" },
     { value: 4, name: "Có ghi chú chưa hoàn thành" },
+    { value: 5, name: "Box bị khóa" },
 ];
 
 class BillsTable extends Component {
@@ -170,22 +171,31 @@ class BillsTable extends Component {
                 await this.props.setFilters({
                     ...this.props.filters,
                     status: [], 
-                    hasNotes: false, 
+                    hasNotes: false,
+                    isLocked: false,
                 });
-            } else if (value !== 4) {
+            } else if (value === 4) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    isLocked: false,
+                    hasNotes: true, 
+                });
+            } else if (value === 5) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: false, 
+                    isLocked: true,
+                });
+            } else {
                 await this.props.setFilters({
                     ...this.props.filters,
                     status: [value], 
                     hasNotes: false, 
+                    isLocked: false,
                 });
-                
-            } else {
-                await this.props.setFilters({
-                    ...this.props.filters,
-                    status: [], 
-                    hasNotes: true, 
-                });
-            }
+            } 
             await this.props.getBills(this.props.filters);
         } catch (error) {
             this.setState({
@@ -295,7 +305,11 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{item.content}</td>
                             <td className="text-center "> 
                                 <StatusBadge status={item.status} />&nbsp;
-                                    {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                {item.boxId.notes.length > 0 && 
+                                <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                </FontAwesomeIcon>}
+                                {item.boxId.status === 'lock' && 
+                                <FontAwesomeIcon color="#d92550" title="Box bị khóa" icon={faLock}>
                                 </FontAwesomeIcon>}
                             </td> 
                             <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>

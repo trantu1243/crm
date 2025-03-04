@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import Loader from "react-loaders";
 import BillStatusBadge from "../../Bills/Tables/StatusBadge";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faCopy, faExclamationTriangle, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy, faExclamationTriangle, faLock, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import cx from "classnames";
 import { fetchBankApi } from "../../../services/bankApiService";
 import Select from "react-select";
@@ -595,7 +595,10 @@ class BillsTable extends Component {
                                 <BillStatusBadge status={item.status} />&nbsp;
                                 {item.boxId.notes.length > 0 && <FontAwesomeIcon title="Có ghi chú chưa hoàn thành" color="#d92550" icon={faExclamationTriangle}>
                                 </FontAwesomeIcon>}
-                            </td>                            <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                {item.boxId.status === 'lock' && <FontAwesomeIcon title="Box bị khóa" color="#d92550" icon={faLock}>
+                                </FontAwesomeIcon>}
+                            </td>                            
+                            <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                             <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center ">
                                 {item.status === 1 && <>

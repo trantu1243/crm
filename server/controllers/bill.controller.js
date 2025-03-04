@@ -19,7 +19,8 @@ const getBills = async (req, res) => {
             content,
             page = 1,
             limit = 10,
-            hasNotes, // Bộ lọc kiểm tra boxTransaction có notes
+            hasNotes,
+            isLocked
         } = req.query;
         
         const filter = {};
@@ -65,12 +66,20 @@ const getBills = async (req, res) => {
             filter.boxId = { $in: boxIdsWithNotes };
         }
 
+        if (isLocked === 'true') {
+            const lockedBoxes = await BoxTransaction.find({
+                status: 'lock'
+            }).select('_id');
+            const lockedBoxIds = lockedBoxes.map(box => box._id);
+            filter.boxId = { $in: lockedBoxIds };
+        }
+
         const bills = await Bill.paginate(filter, {
             page: Number(page),
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'boxId', select: 'amount messengerId notes' }
+                { path: 'boxId', select: 'amount messengerId notes status' }
             ],
             sort: { createdAt: -1 },
         });

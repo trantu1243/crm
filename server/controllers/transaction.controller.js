@@ -18,7 +18,8 @@ const getTransactions = async (req, res) => {
             content,
             page = 1,
             limit = 10,
-            hasNotes, // Bộ lọc mới để lấy transactions có notes trong boxTransaction
+            hasNotes,
+            isLocked
         } = req.query;
 
         const filter = {};
@@ -67,9 +68,16 @@ const getTransactions = async (req, res) => {
                   { notes: { $not: { $size: 0 } } }
                 ]
             });          
-            console.log(JSON.stringify(boxWithNotes, null, 2));
             const boxIdsWithNotes = boxWithNotes.map(box => box._id);
             filter.boxId = { $in: boxIdsWithNotes };
+        }
+
+        if (isLocked === 'true') {
+            const lockedBoxes = await BoxTransaction.find({
+                status: 'lock'
+            }).select('_id');
+            const lockedBoxIds = lockedBoxes.map(box => box._id);
+            filter.boxId = { $in: lockedBoxIds };
         }
 
         // Sử dụng mongoose-paginate-v2 để phân trang
@@ -79,7 +87,7 @@ const getTransactions = async (req, res) => {
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
-                { path: 'boxId', select: 'amount messengerId notes' }
+                { path: 'boxId', select: 'amount messengerId notes status' }
             ],
             sort: { createdAt: -1 },
         });
