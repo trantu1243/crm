@@ -127,22 +127,10 @@ class TransactionsTable extends Component {
     
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
-            if (this.state.search) {
-                this.props.searchTransactions({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else this.props.getTransactions(this.props.filters)
+            this.props.getTransactions(this.props.filters)
         }
         if (prevProps.filters.limit !== this.props.filters.limit) {
-            if (this.state.search) {
-                this.props.searchTransactions({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else this.props.getTransactions(this.props.filters)
+            this.props.getTransactions(this.props.filters)
         }
         if (prevProps.bankAccounts !== this.props.bankAccounts) {
             this.setState({bankAccounts: this.props.bankAccounts});
@@ -271,13 +259,7 @@ class TransactionsTable extends Component {
             this.setState({loading: true});          
             const res = await confirmTransaction(this.state.confirmTransaction._id);
             if (res.status) {
-                if (this.state.search) {
-                    await this.props.searchTransactionsNoload({
-                        search: this.state.search, 
-                        page: this.props.filters.page, 
-                        limit: this.props.filters.limit
-                    })
-                } else await this.props.getTransactionsNoLoad(this.props.filters)
+                await this.props.getTransactionsNoLoad(this.props.filters)
             }
             this.toggleConfirmTransaction();  
             this.setState({loading: false});
@@ -327,13 +309,7 @@ class TransactionsTable extends Component {
                 updateTransaction: res.transaction,
                 textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\nNội dung: ${res.transaction.content}`,
             });
-            if (this.state.search) {
-                await this.props.searchTransactionsNoload({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else await this.props.getTransactionsNoLoad(this.props.filters)
+            await this.props.getTransactionsNoLoad(this.props.filters)
             this.setState({loading: false});
            
         } catch(error) {
@@ -350,13 +326,7 @@ class TransactionsTable extends Component {
         try{
             this.setState({loading: true});
             await this.props.undoBox(this.state.undoTransaction?.boxId._id);
-            if (this.state.search) {
-                await this.props.searchTransactionsNoload({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else await this.props.getTransactionsNoLoad(this.props.filters)
+            await this.props.getTransactionsNoLoad(this.props.filters)
             this.toggleUndo()    
             this.setState({loading: false});
         } catch (error) {
@@ -373,13 +343,7 @@ class TransactionsTable extends Component {
         try {          
             this.setState({loading: true});
             await cancelTransaction(this.state.cancelTransaction._id);
-            if (this.state.search) {
-                await this.props.searchTransactionsNoload({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else await this.props.getTransactionsNoLoad(this.props.filters)
+            await this.props.getTransactionsNoLoad(this.props.filters)
             this.toggleCancel();          
             this.setState({loading: false});
         } catch (error) {
@@ -394,11 +358,15 @@ class TransactionsTable extends Component {
 
     handleSearch = async (e) => {
         try {
-            await this.props.searchTransactions({
-                search: this.state.search, 
-                page: this.props.filters.page, 
-                limit: this.props.filters.limit
-            })
+            await this.props.setFilters({
+                ...this.props.filters,
+                status: [], 
+                hasNotes: false,
+                isLocked: false,
+                search: this.state.search,
+                page: 1
+            });
+            await this.props.getTransactions(this.props.filters);
         } catch (error) {
             this.setState({
                 alert: true,
@@ -415,6 +383,8 @@ class TransactionsTable extends Component {
                     status: [], 
                     hasNotes: false,
                     isLocked: false,
+                    search: '',
+                    page: 1
                 });
             } else if (value === 4) {
                 await this.props.setFilters({
@@ -422,6 +392,8 @@ class TransactionsTable extends Component {
                     status: [], 
                     isLocked: false,
                     hasNotes: true, 
+                    search: '',
+                    page: 1
                 });
             } else if (value === 5) {
                 await this.props.setFilters({
@@ -429,6 +401,8 @@ class TransactionsTable extends Component {
                     status: [], 
                     hasNotes: false, 
                     isLocked: true,
+                    search: '',
+                    page: 1
                 });
             } else {
                 await this.props.setFilters({
@@ -436,8 +410,9 @@ class TransactionsTable extends Component {
                     status: [value], 
                     hasNotes: false, 
                     isLocked: false,
+                    search: '',
+                    page: 1
                 });
-               
             } 
 
             await this.props.getTransactions(this.props.filters);

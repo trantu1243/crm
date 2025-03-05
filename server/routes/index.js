@@ -11,6 +11,7 @@ const roleRoute = require('./role.route');
 const permissionRoute = require('./permission.route');
 const statisticRoutes = require('./statistic.route');
 const settingRoutes = require('./setting.route');
+const userLogRoutes = require('./userLog.route');
 
 const router = express.Router();
 
@@ -62,6 +63,10 @@ const defaultRoutes = [
     {
         path: '/setting',
         route: settingRoutes
+    },
+    {
+        path: '/logs',
+        route: userLogRoutes
     },
 ];
 

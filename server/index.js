@@ -27,15 +27,15 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
     // updateFlag();
     // updateFlags()
-    updateSetting()
+    // updateSetting()
     
 
 });
 
 const updateSetting = async () =>{
     try {
-        const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {lockBox: {numOfDay: 30, isOn: false}});
-        console.log(setting)
+        const transaction = await Transaction.findById('67c18bec421d30bf6365ac80');
+        console.log(transaction)
     } catch (e) {
         console.log(e)
     }

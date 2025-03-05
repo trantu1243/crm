@@ -610,8 +610,14 @@ const switchBills = async (req, res) => {
         }
 
         if (!bill.billId) {
-            if (bill.typeTransfer === "buyer") bill.typeTransfer = "seller";
-            else bill.typeTransfer = "buyer";
+            if (bill.typeTransfer === "buyer") {
+                bill.typeTransfer = "seller";
+                bill.content = `Thanh Khoan GDTG ${String(bill.boxId).slice(-8)}`
+            }
+            else {
+                bill.typeTransfer = "buyer";
+                bill.content = `Refund GDTG ${String(bill.boxId).slice(-8)}`
+            }
             await bill.save();
 
             const staff = await Staff.findById(req.user.id);
@@ -634,9 +640,12 @@ const switchBills = async (req, res) => {
         }
         
         const typeTranfer = bill.typeTransfer;
+        const content = bill.content;
         bill.typeTransfer = bill.billId.typeTransfer;
+        bill.content = bill.billId.content;
         const sideBill = await Bill.findById(bill.billId._id);
         sideBill.typeTransfer = typeTranfer;
+        sideBill.content = content;
         await sideBill.save();
         await bill.save();
 

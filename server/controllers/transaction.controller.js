@@ -471,7 +471,7 @@ const confirmTransaction = async (req, res) => {
         session.endSession();
 
         const user = await Staff.findById(req.user.id);
-        await saveUserLogToQueue(user._id, transaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);
+        await saveUserLogToQueue(user._id, transaction._id, "CONFIRM_TRANSACTION", "Tạo GDTG", req);
 
         const io = getSocket();
 

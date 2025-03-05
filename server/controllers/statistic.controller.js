@@ -38,30 +38,33 @@ const getMonthlyStats = async (req, res) => {
         let { month, year } = req.query;
         const today = new Date();
 
-        // Nếu không có param, mặc định là tháng hiện tại
-        month = month ? parseInt(month) : today.getMonth() + 1;
-        year = year ? parseInt(year) : today.getFullYear();
+        const vietnamOffset = 7 * 60 * 60 * 1000; // 7 giờ tính bằng mili giây
+        const todayVietnam = new Date(today.getTime() + vietnamOffset);
 
-        // ✅ Chuyển mốc thời gian về múi giờ Việt Nam (UTC+7)
+        // Nếu không có param, mặc định là tháng hiện tại
+        month = month ? parseInt(month) : todayVietnam.getMonth() + 1;
+        year = year ? parseInt(year) : todayVietnam.getFullYear();
+
+        // Tính startOfMonth và endOfMonth theo giờ local (không cần trừ thêm)
         const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
         const endOfMonth = new Date(year, month, 1, 0, 0, 0);
-        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
-        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - vietnamOffset);
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - vietnamOffset);
 
-        // ✅ Xác định tháng trước
+        // Tháng trước
         const lastMonth = month === 1 ? 12 : month - 1;
         const lastYear = month === 1 ? year - 1 : year;
         const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
         const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - vietnamOffset);
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - vietnamOffset);
 
-        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
-        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
-       
+        // Tính số ngày đã qua trong tháng
         let daysPassedThisMonth;
-        if (month === today.getMonth() + 1 && year === today.getFullYear()) {
-            daysPassedThisMonth = today.getDate();
+        if (month === todayVietnam.getMonth() + 1 && year === todayVietnam.getFullYear()) {
+            daysPassedThisMonth = todayVietnam.getDate(); // Đã đúng giờ Việt Nam
         } else {
-            daysPassedThisMonth = new Date(year, month, 0).getDate();
+            daysPassedThisMonth = new Date(year, month, 0).getDate(); // Tổng ngày trong tháng
         }
 
         const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();
@@ -465,29 +468,34 @@ const getStaffMonthlyStats = async (req, res) => {
         const staffObjectId = new mongoose.Types.ObjectId(staffId);
 
         const today = new Date();
-        month = month ? parseInt(month) : today.getMonth() + 1;
-        year = year ? parseInt(year) : today.getFullYear();
+        
+        const vietnamOffset = 7 * 60 * 60 * 1000; // 7 giờ tính bằng mili giây
+        const todayVietnam = new Date(today.getTime() + vietnamOffset);
 
-        // ✅ Chuyển về múi giờ Việt Nam (UTC+7)
+        // Nếu không có param, mặc định là tháng hiện tại
+        month = month ? parseInt(month) : todayVietnam.getMonth() + 1;
+        year = year ? parseInt(year) : todayVietnam.getFullYear();
+
+        // Tính startOfMonth và endOfMonth theo giờ local (không cần trừ thêm)
         const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
         const endOfMonth = new Date(year, month, 1, 0, 0, 0);
-        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
-        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - vietnamOffset);
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - vietnamOffset);
 
-        // ✅ Xác định tháng trước
+        // Tháng trước
         const lastMonth = month === 1 ? 12 : month - 1;
         const lastYear = month === 1 ? year - 1 : year;
         const startOfLastMonth = new Date(lastYear, lastMonth - 1, 1, 0, 0, 0);
         const endOfLastMonth = new Date(lastYear, lastMonth, 1, 0, 0, 0);
+        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - vietnamOffset);
+        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - vietnamOffset);
 
-        const startOfLastMonthUTC = new Date(startOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
-        const endOfLastMonthUTC = new Date(endOfLastMonth.getTime() - (7 * 60 * 60 * 1000));
-
+        // Tính số ngày đã qua trong tháng
         let daysPassedThisMonth;
-        if (month === today.getMonth() + 1 && year === today.getFullYear()) {
-            daysPassedThisMonth = today.getDate();
+        if (month === todayVietnam.getMonth() + 1 && year === todayVietnam.getFullYear()) {
+            daysPassedThisMonth = todayVietnam.getDate(); // Đã đúng giờ Việt Nam
         } else {
-            daysPassedThisMonth = new Date(year, month, 0).getDate();
+            daysPassedThisMonth = new Date(year, month, 0).getDate(); // Tổng ngày trong tháng
         }
 
         const daysInLastMonth = new Date(lastYear, lastMonth, 0).getDate();

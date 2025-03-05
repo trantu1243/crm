@@ -84,13 +84,7 @@ class BillsTable extends Component {
 
     componentDidUpdate(prevProps) {
         if (prevProps.filters.page !== this.props.filters.page) {
-            if (this.state.search) {
-                this.props.searchBills({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else this.props.getBills(this.props.filters);
+            this.props.getBills(this.props.filters);
         }
         if (prevProps.filters.limit !== this.props.filters.limit) {
             if (this.state.search) {
@@ -107,13 +101,7 @@ class BillsTable extends Component {
         try {    
             this.setState({loading: true});              
             const res = await confirmBillService(this.state.confirmBill?._id);
-            if (this.state.search) {
-                await this.props.searchBillsNoload({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else this.props.getBillsNoLoad(this.props.filters);
+            this.props.getBillsNoLoad(this.props.filters);
             
             this.toggleConfirmBill()  
             this.setState({loading: false});
@@ -131,13 +119,7 @@ class BillsTable extends Component {
         try {     
             this.setState({loading: true}); 
             const res = await cancelBillService(this.state.cancelBill?._id);
-            if (this.state.search) {
-                await this.props.searchBillsNoload({
-                    search: this.state.search, 
-                    page: this.props.filters.page, 
-                    limit: this.props.filters.limit
-                })
-            } else this.props.getBillsNoLoad(this.props.filters);
+            this.props.getBillsNoLoad(this.props.filters);
             this.toggleCancelBill();
             this.setState({loading: false});
         } catch (error) {
@@ -152,11 +134,15 @@ class BillsTable extends Component {
 
     handleSearch = async (e) => {
         try {
-            await this.props.searchBills({
-                search: this.state.search, 
-                page: this.props.filters.page, 
-                limit: this.props.filters.limit
-            })
+             await this.props.setFilters({
+                ...this.props.filters,
+                status: [], 
+                hasNotes: false,
+                isLocked: false,
+                search: this.state.search,
+                page: 1
+            });
+            await this.props.getBills(this.props.filters);
         } catch (error) {
             this.setState({
                 alert: true,
@@ -173,6 +159,8 @@ class BillsTable extends Component {
                     status: [], 
                     hasNotes: false,
                     isLocked: false,
+                    search: '',
+                    page: 1
                 });
             } else if (value === 4) {
                 await this.props.setFilters({
@@ -180,6 +168,8 @@ class BillsTable extends Component {
                     status: [], 
                     isLocked: false,
                     hasNotes: true, 
+                    search: '',
+                    page: 1
                 });
             } else if (value === 5) {
                 await this.props.setFilters({
@@ -187,6 +177,8 @@ class BillsTable extends Component {
                     status: [], 
                     hasNotes: false, 
                     isLocked: true,
+                    search: '',
+                    page: 1
                 });
             } else {
                 await this.props.setFilters({
@@ -194,6 +186,8 @@ class BillsTable extends Component {
                     status: [value], 
                     hasNotes: false, 
                     isLocked: false,
+                    search: '',
+                    page: 1
                 });
             } 
             await this.props.getBills(this.props.filters);

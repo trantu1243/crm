@@ -10,3 +10,4 @@ module.exports.permissionController = require('./permission.controller');
 module.exports.roleController = require('./role.controller');
 module.exports.statisticController = require('./statistic.controller');
 module.exports.settingController = require('./setting.controller');
+module.exports.userLogController = require('./userLog.controller');
