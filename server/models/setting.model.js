@@ -21,7 +21,31 @@ const settingSchema = new mongoose.Schema({
             numOfDay: 0,
             isOn: false
         }
-    }
+    },
+    cookie:{
+        type: {
+            value: String,
+            status: Boolean
+        },
+        default: {
+            numOfDay: 0,
+            isOn: false
+        }
+    },
+    accessToken: {
+        type: {
+            value: String,
+            status: Boolean
+        },
+        default: {
+            numOfDay: 0,
+            isOn: false
+        }
+    },
+    uuidFbs: {
+        type: [String],
+        default: []
+    },
 }, { 
     timestamps: true 
 });

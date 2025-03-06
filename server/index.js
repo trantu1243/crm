@@ -26,16 +26,16 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // resetPass();
 
     // updateFlag();
-    // updateFlags()
+    updateFlags()
     // updateSetting()
-    
+    // updateSetting()
 
 });
 
 const updateSetting = async () =>{
     try {
-        const transaction = await Transaction.findById('67c18bec421d30bf6365ac80');
-        console.log(transaction)
+        const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {cookie: {value: '', status: false}, accessToken: {value: '', status: false}, uuidFbs: []});
+        console.log(setting)
     } catch (e) {
         console.log(e)
     }

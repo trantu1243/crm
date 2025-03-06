@@ -15,6 +15,39 @@ const getSetting = async (req, res) => {
     }
 };
 
+const getSettings = async (req, res) => {
+    try {
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        res.status(200).json({
+            message: 'setting fetched successfully',
+            data: setting,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const updateSettings = async (req, res) => {
+    try {
+        const { amount } = req.body;
+        if (!amount) {
+            return res.status(400).json({ message: 'Amount is required' });
+        }
+        
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        res.status(200).json({
+            message: 'setting fetched successfully',
+            data: setting,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 const toggleFeeSetting = async (req, res) => {
     try {
         const { amount } = req.body;
@@ -47,4 +80,5 @@ const toggleFeeSetting = async (req, res) => {
 module.exports = { 
     getSetting,
     toggleFeeSetting,
+    getSettings
 };
