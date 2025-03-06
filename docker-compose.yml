@@ -133,8 +133,6 @@ services:
     ports:
       - "80"
     restart: always
-    depends_on:
-      - "mongodb"
     volumes:
        - ./server:/usr/src/server
        - /usr/src/server/node_modules
@@ -152,8 +150,6 @@ services:
     ports:
       - "80"
     restart: always
-    depends_on:
-      - "mongodb"
     volumes:
        - ./client:/usr/src/client
        - /usr/src/client/node_modules
