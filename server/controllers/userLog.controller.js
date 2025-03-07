@@ -2,7 +2,7 @@ const { UserLog } = require("../models");
 
 const getLogs = async (req, res) => {
     try {
-         const logs = await UserLog.find({}).sort({createdAt: -1}).limit(100);
+         const logs = await UserLog.find({}).sort({createdAt: -1}).limit(300);
 
         res.status(200).json({
             message: 'Logs fetched successfully',
