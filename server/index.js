@@ -29,7 +29,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateSetting()
     // updateSetting()
-
+    updateSetting()
 });
 
 const updateSetting = async () =>{
