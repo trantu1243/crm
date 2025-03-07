@@ -34,9 +34,9 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
 const updateSetting = async () =>{
     try {
-        const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {cookie: {value: '', status: false}, accessToken: {value: '', status: false}, uuidFbs: []});
-        console.log(setting);
-        await BoxTransaction.findOneAndUpdate({initialId: 61064}, {amount: 30080000})
+        // const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {cookie: {value: '', status: false}, accessToken: {value: '', status: false}, uuidFbs: []});
+        // console.log(setting);
+        await BoxTransaction.findByIdAndUpdate('67cb29451e53f873cca9e9a4', {status: 2})
     } catch (e) {
         console.log(e)
     }
