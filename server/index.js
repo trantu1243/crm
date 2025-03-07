@@ -28,14 +28,15 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlag();
     // updateFlags()
     // updateSetting()
-    // updateSetting()
+    updateSetting()
 
 });
 
 const updateSetting = async () =>{
     try {
         const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {cookie: {value: '', status: false}, accessToken: {value: '', status: false}, uuidFbs: []});
-        console.log(setting)
+        console.log(setting);
+        await BoxTransaction.findByIdAndUpdate({initialId: 61064}, {amount: 30080000})
     } catch (e) {
         console.log(e)
     }
