@@ -170,7 +170,7 @@ const createBill = async (req, res) => {
                 bonus: Number(bonus),
                 typeTransfer: 'buyer',
                 boxId: box._id,
-                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${Number(amount)}&addInfo=${content}&accountName=`,
                 staffId: staff._id,
                 flag: box.flag
             };
@@ -209,7 +209,7 @@ const createBill = async (req, res) => {
                 bonus: Number(bonus),
                 typeTransfer: 'seller',
                 boxId: box._id,
-                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${Number(amount)}&addInfo=${content}&accountName=`,
                 staffId: staff._id,
                 flag: box.flag
             };
