@@ -411,7 +411,7 @@ class Box extends Component {
                                                                 <Label>Số tiền đã giao dịch</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <p className="fw-bold text-success">{new Intl.NumberFormat('en-US').format(this.props.box.bills.reduce((sum, item) => sum + item.amount, 0))} vnd</p>
+                                                                <p className="fw-bold text-success">{new Intl.NumberFormat('en-US').format(this.props.box.bills.reduce((sum, item) => sum + (item.amount + item.bonus), 0))} vnd</p>
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
