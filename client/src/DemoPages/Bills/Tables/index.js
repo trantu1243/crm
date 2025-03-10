@@ -15,6 +15,7 @@ import { faCheck, faExclamationTriangle, faInfoCircle, faLock, faMinus, faMoneyB
 import { cancelBillService, confirmBillService } from "../../../services/billService";
 import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
+import { banks } from "./data";
 
 const statusList = [
     { value: 0, name: "Tất cả" },
@@ -100,7 +101,7 @@ class BillsTable extends Component {
     handleConfirmBill = async () => {
         try {    
             this.setState({loading: true});              
-            const res = await confirmBillService(this.state.confirmBill?._id);
+            await confirmBillService(this.state.confirmBill?._id);
             this.props.getBillsNoLoad(this.props.filters);
             
             this.toggleConfirmBill()  
@@ -118,7 +119,7 @@ class BillsTable extends Component {
     handleCancelBill = async () => {
         try {     
             this.setState({loading: true}); 
-            const res = await cancelBillService(this.state.cancelBill?._id);
+            await cancelBillService(this.state.cancelBill?._id);
             this.props.getBillsNoLoad(this.props.filters);
             this.toggleCancelBill();
             this.setState({loading: false});
@@ -292,7 +293,7 @@ class BillsTable extends Component {
                                     navigator.clipboard.writeText(item.stk);
                                 }}
                             >
-                                {item.bankCode}
+                                {banks.find(b => b.bankCode === item.bankCode).bankName}
                             </td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>

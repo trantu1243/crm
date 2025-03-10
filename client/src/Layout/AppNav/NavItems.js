@@ -62,7 +62,11 @@ export const MainNav = [
                 label: "Cấu hình phí",
                 to: "/config/fee",
             },
+            {
+                label: "Settings",
+                to: "/config/setting",
+            },
         ],
     },
-  ];
+];
 

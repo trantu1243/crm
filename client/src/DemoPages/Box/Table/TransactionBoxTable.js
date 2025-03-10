@@ -660,7 +660,7 @@ class TransactionsTable extends Component {
                                             navigator.clipboard.writeText(item.bankId.bankAccount);
                                         }}
                                     >
-                                        {item.bankId.bankCode}
+                                        {item.bankId.bankName}
                                     </td>
                                     <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                                     <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.fee)}</td>

@@ -389,9 +389,13 @@ class CreateTransaction extends Component {
                                                             value={input.messengerId}
                                                             onChange={(e) => {
                                                                 const value = e.target.value;
-                                                                if (/^\d*$/.test(value)) { 
-                                                                    this.handleInputChange(e);
-                                                                }
+                                                                const match = value.match(/(\d+)/);
+                                                                this.setState((prevState) => ({
+                                                                    input: {
+                                                                        ...prevState.input,
+                                                                        messengerId: match ? match[0] : "",
+                                                                    },
+                                                                }));
                                                             }}
                                                         />
                                                     </Col>

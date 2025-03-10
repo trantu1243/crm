@@ -22,6 +22,7 @@ import { getBillByIdNoLoad, getBillsNoLoad } from "../../reducers/billsSlice";
 import ChangePassword from "../../DemoPages/ChangePassword";
 import FeeConfig from "../../DemoPages/FeeConfig";
 import BankAccountConfig from "../../DemoPages/BankAccountConfig";
+import Setting from "../../DemoPages/Setting";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -441,6 +442,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/config/bank-account" render={() => isAdmin ? <BankAccountConfig /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/config/setting" render={() => isAdmin ? <Setting /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

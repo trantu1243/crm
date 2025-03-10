@@ -18,6 +18,7 @@ import { cancelBillService, confirmBillService, createBill } from "../../../serv
 import { getBoxById, getBoxByIdNoLoad } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
 import CopyToClipboard from "react-copy-to-clipboard";
+import { banks } from "../../Bills/Tables/data";
 
 class BillsTable extends Component {
     constructor(props) {
@@ -586,7 +587,7 @@ class BillsTable extends Component {
                                     navigator.clipboard.writeText(item.stk);
                                 }}
                             >
-                                {item.bankCode}
+                                {banks.find(b => b.bankCode === item.bankCode).bankName}
                             </td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>

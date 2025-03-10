@@ -56,7 +56,8 @@ const getBills = async (req, res) => {
 
             filter.$or = [
                 { content: { $regex: search, $options: "i" } },
-                { boxId: { $in: boxIds } }
+                { boxId: { $in: boxIds } },
+                { stk: { $regex: search, $options: "i" } }
             ];
         }
 

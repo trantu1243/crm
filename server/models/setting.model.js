@@ -28,8 +28,8 @@ const settingSchema = new mongoose.Schema({
             status: Boolean
         },
         default: {
-            numOfDay: 0,
-            isOn: false
+            value: '',
+            status: false
         }
     },
     accessToken: {
@@ -38,14 +38,24 @@ const settingSchema = new mongoose.Schema({
             status: Boolean
         },
         default: {
-            numOfDay: 0,
-            isOn: false
+            value: '',
+            status: false
         }
     },
     uuidFbs: {
-        type: [String],
+        type: [{ type: mongoose.Types.ObjectId, ref: 'Customer' }],
         default: []
     },
+    proxy: {
+        proxy: {
+            type: String,
+            default: ''
+        },
+        proxy_auth: {
+            type: String,
+            default: ''
+        }
+    }
 }, { 
     timestamps: true 
 });
