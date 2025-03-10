@@ -447,7 +447,7 @@ const updateBill = async (req, res) => {
         bill.content = content;
         bill.amount = amount;
         bill.bonus = bonus;
-        bill.linkQr = `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${(Number(amount) - Number(bonus)) > 0 ? (Number(amount) - Number(bonus)) : 0 }&addInfo=${content}&accountName=`;
+        bill.linkQr = `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${Number(amount)}&addInfo=${content}&accountName=`;
 
         await bill.save();
 
