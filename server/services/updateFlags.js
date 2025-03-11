@@ -1,4 +1,5 @@
 const { Transaction, BoxTransaction, Bill, Setting } = require('../models');
+const { getMessGroupInfo } = require('./facebookService');
 
 
 const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
