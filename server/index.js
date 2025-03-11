@@ -16,8 +16,9 @@ const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
 const { Transaction, BoxTransaction, Bill, Setting } = require('./models');
-const { updateFlags } = require('./services/updateFlags');
+const { updateFlags, updateCustomer } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
+const { getMessGroupInfo } = require('./services/facebookService');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -27,18 +28,8 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
     // updateFlag();
     // updateFlags()
-    // updateSetting()
-    // updateSetting()
+    updateCustomer()
 });
-
-const updateSetting = async () =>{
-    try {
-        // const setting = await Setting.findOneAndUpdate({uniqueId: 1}, {cookie: {value: '', status: false}, accessToken: {value: '', status: false}, uuidFbs: []});
-        // console.log(setting);
-    } catch (e) {
-        console.log(e)
-    }
-}
 
 const updateFlag = async () =>{
     try {

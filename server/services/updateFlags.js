@@ -1,4 +1,4 @@
-const { Transaction, BoxTransaction, Bill } = require('../models');
+const { Transaction, BoxTransaction, Bill, Setting } = require('../models');
 
 
 const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
@@ -125,6 +125,31 @@ const updateFlags = async () => {
     
 }
 
+const updateCustomer = async () =>{
+    try {
+        const setting = await Setting.findOne({uniqueId: 1});
+        const boxes = await BoxTransaction.find({}).sort({createdAt: -1});
+        let i = boxes.length;
+        console.log(i)
+        for (const box of boxes) {
+            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+                const senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+                
+                if (senders.length > 0) {
+                    box.senders = senders;
+                    await box.save();
+                }
+            }
+            console.log(i);
+            i--;
+        }
+
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 module.exports = {
-    updateFlags
+    updateFlags,
+    updateCustomer
 }
