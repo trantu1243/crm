@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import Tabs from "react-responsive-tabs";
 
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Input, InputGroup, Label, ListGroup, ListGroupItem } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, Label, ListGroup, ListGroupItem } from "reactstrap";
 import Loader from "react-loaders";
 
 import Row from "../Components/GuidedTours/Examples/Row";
@@ -14,9 +14,9 @@ import { addNote, deleteNote, getBoxById, getBoxByIdNoLoad, updateBox } from "..
 import { withRouter } from "../../utils/withRouter";
 import { formatDate } from "../Transactions/Tables/data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faLock, faLockOpen, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCloudDownloadAlt, faCopy, faLock, faLockOpen, faSave, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
-import { addNoteService, deleteNoteService, lockBoxService } from "../../services/boxService";
+import { addNoteService, deleteNoteService, getInfoService, lockBoxService, updateBoxService } from "../../services/boxService";
 import CopyToClipboard from "react-copy-to-clipboard";
 import SweetAlert from 'react-bootstrap-sweetalert';
 
@@ -50,15 +50,21 @@ class Box extends Component {
             alert: false,
             value: [],
             note: '',
+            buyerOpen: false,
+            sellerOpen: false,
+            buyerSender: null,
+            sellerSender: null,
+            sender: this.props.sender,
             input: {
                 name: this.props.box.name,
                 messengerId: this.props.box.messengerId,
-                buyerName: this.props.box.buyerCustomer?.nameCustomer || '',
-                buyerFb: this.props.box.buyerCustomer?.facebookId || '',
-                sellerName: this.props.box.sellerCustomer?.nameCustomer || '',
-                sellerFb: this.props.box.sellerCustomer?.facebookId || ''
-            }
+                sellerId: '',
+                buyerId: '',
+            },
         };
+
+        this.toggleBuyer = this.toggleBuyer.bind(this);
+        this.toggleSeller = this.toggleSeller.bind(this);
     }
 
     componentDidMount() {
@@ -77,18 +83,32 @@ class Box extends Component {
     componentDidUpdate(prevProps) {
         if (prevProps.box !== this.props.box && this.props.box._id) {
             this.setState({
+                buyerSender: this.props.box.buyer,
+                sellerSender: this.props.box.seller,
                 input: {
                     name: this.props.box.name || '',
                     messengerId: this.props.box.messengerId || '',
-                    buyerName: this.props.box.buyerCustomer?.nameCustomer || '',
-                    buyerFb: this.props.box.buyerCustomer?.facebookId || '',
-                    sellerName: this.props.box.sellerCustomer?.nameCustomer || '',
-                    sellerFb: this.props.box.sellerCustomer?.facebookId || ''
+                    buyerId: this.props.box.buyer ? this.props.box.buyer.facebookId : '',
+                    sellerId: this.props.box.seller ? this.props.box.seller.facebookId : '',
                 }
             });
         }
+        if (prevProps.sender !== this.props.sender) {
+            this.setState({ sender: this.props.sender })
+        }
     }
     
+    toggleBuyer() {
+        this.setState({
+            buyerOpen: !this.state.buyerOpen,
+        });
+    }
+
+    toggleSeller() {
+        this.setState({
+            sellerOpen: !this.state.sellerOpen,
+        });
+    }
 
     toggle(tab) {
         if (this.state.activeTab !== tab) {
@@ -118,18 +138,15 @@ class Box extends Component {
     handleSave = async () => {
         try{
             this.setState({loading: true});
-            await this.props.updateBox({ 
-                id: this.props.box._id, 
-                data: this.state.input 
-            });
+            await updateBoxService(this.props.box._id, this.state.input);
             await this.props.getBoxByIdNoLoad(this.props.box._id);
             this.setState({loading: false});
         } catch (error) {
             this.setState({
                 alert: true,
-                errorMsg: error
+                errorMsg: error,
+                loading: false
             })
-            this.setState({loading: false});
         }
     }
 
@@ -142,9 +159,24 @@ class Box extends Component {
         } catch (error) {
             this.setState({
                 alert: true,
-                errorMsg: error
+                errorMsg: error,
+                loading: false
             })
+        }
+    }
+
+    handleGetInfo = async () => {
+        try{
+            this.setState({loading: true});
+            await getInfoService(this.props.box._id);
+            await this.props.getBoxByIdNoLoad(this.props.box._id);
             this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error,
+                loading: false
+            })
         }
     }
 
@@ -208,6 +240,9 @@ class Box extends Component {
                                                     <button class={box.status !== 'lock' ? "btn btn-danger me-1" : "btn btn-success me-1"} disabled={this.state.loading} onClick={this.handleLock}>
                                                         <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
                                                     </button>
+                                                    <button class="btn btn-warning me-1" disabled={this.state.loading} onClick={this.handleGetInfo}>
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading ? "Đang lấy ..." : "Lấy thông tin khách hàng"}
+                                                    </button>
                                                     <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading}>
                                                         <FontAwesomeIcon icon={faSave} /> {this.state.loading ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
                                                     </button>
@@ -234,35 +269,76 @@ class Box extends Component {
                                                             <Col md={4} xs={12}>
                                                                 <Label>Bên mua</Label>
                                                             </Col>
-                                                            <Col md={4} xs={6} className="pe-2">
-                                                                <Input
-                                                                    type="text"
-                                                                    name="buyerName"
-                                                                    id="buyerName"
-                                                                    value={input.buyerName}
-                                                                    onChange={this.handleInputChange}
-                                                                />
+
+                                                            <Col md={4} xs={6} className="pe-1">
+                                                                <InputGroup>
+                                                                    <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                                        <img src={this.state.buyerSender ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                    </div>
+                                                                    <Input
+                                                                        type="text"
+                                                                        name="buyerName"
+                                                                        id="buyerName"
+                                                                        value={this.state.buyerSender?.nameCustomer}
+                                                                        disabled
+                                                                    />
+                                                                </InputGroup>
+                                                                
                                                             </Col>
-                                                            <Col md={4} xs={6} className="ps-2">
+                                                            <Col md={4} xs={6} className="ps-1">
                                                                 <InputGroup>
                                                                     <Input
                                                                         type="text"
-                                                                        name="buyerFb"
-                                                                        id="buyerFb"
-                                                                        value={input.buyerFb}
+                                                                        name="buyerId"
+                                                                        id="buyerId"
+                                                                        value={input.buyerId}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
-                                                                            if (/^\d*$/.test(value)) {
-                                                                                this.handleInputChange(e);
-                                                                            }
+                                                                            const match = value.match(/(\d+)/);
+                                                                            this.setState({ 
+                                                                                input: {
+                                                                                    ...this.state.input,
+                                                                                    buyerId: match ? match[0] : "" 
+                                                                                },
+                                                                                buyerOpen: false
+                                                                            });
                                                                         }}
+                                                                        onClick={this.toggleBuyer}
+                                                                        autoComplete="off"
                                                                     />
-                                                                    <div class="input-group-text">
-                                                                        <a href={`https://www.facebook.com/${box.buyerCustomer?.facebookId}`} rel="noreferrer" target="_blank">
+                                                                    <div className="input-group-text">
+                                                                        <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
                                                                             <FontAwesomeIcon icon={faFacebook} size="lg"/>
                                                                         </a>
                                                                     </div>
-                                                               </InputGroup>                                                                      
+                                                               </InputGroup>
+                                                                {this.state.sender.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer}>
+                                                                    <DropdownToggle 
+                                                                        style={{width: 0, height: 0, padding: 0}}
+                                                                    >
+                                                                     
+                                                                    </DropdownToggle>
+                                                                    <DropdownMenu>
+                                                                        {this.state.sender.map(sender => (
+                                                                            <DropdownItem 
+                                                                                key={sender.id} 
+                                                                                onClick={() => this.setState({
+                                                                                    buyerSender: sender, 
+                                                                                    input: {
+                                                                                        ...this.state.input,
+                                                                                        buyerId: sender.facebookId,
+                                                                                    }
+                                                                                })}
+                                                                            >
+                                                                                <img src={sender.avatar} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <div >
+                                                                                    <p style={{margin: 0}}>{sender.nameCustomer}</p>
+                                                                                    <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
+                                                                                </div>
+                                                                            </DropdownItem>
+                                                                        ))}
+                                                                    </DropdownMenu>
+                                                                </Dropdown>}                                                                      
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -359,35 +435,75 @@ class Box extends Component {
                                                             <Col md={4} xs={12}>
                                                                 <Label>Bên bán</Label>
                                                             </Col>
-                                                            <Col md={4} xs={6} className="pe-2">
-                                                                <Input
-                                                                    type="text"
-                                                                    name="sellerName"
-                                                                    id="sellerName"
-                                                                    value={input.sellerName}
-                                                                    onChange={this.handleInputChange}
-                                                                />
+                                                            <Col md={4} xs={6} className="pe-1">
+                                                                <InputGroup>
+                                                                    <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                                        <img src={this.state.sellerSender ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                    </div>
+                                                                    <Input
+                                                                        type="text"
+                                                                        name="sellerName"
+                                                                        id="sellerName"
+                                                                        value={this.state.sellerSender?.nameCustomer}
+                                                                        disabled
+                                                                    />
+                                                                </InputGroup>
+                                                                
                                                             </Col>
-                                                            <Col md={4} xs={6} className="ps-2">
+                                                            <Col md={4} xs={6} className="ps-1">
                                                                 <InputGroup>
                                                                     <Input
                                                                         type="text"
-                                                                        name="sellerFb"
-                                                                        id="sellerFb"
-                                                                        value={input.sellerFb}
+                                                                        name="sellerId"
+                                                                        id="sellerId"
+                                                                        value={input.sellerId}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
-                                                                            if (/^\d*$/.test(value)) { 
-                                                                                this.handleInputChange(e);
-                                                                            }
+                                                                            const match = value.match(/(\d+)/);
+                                                                            this.setState({ 
+                                                                                input: {
+                                                                                    ...this.state.input,
+                                                                                    sellerId: match ? match[0] : "" 
+                                                                                },
+                                                                                sellerOpen: false
+                                                                            });
                                                                         }}
+                                                                        onClick={this.toggleSeller}
+                                                                        autoComplete="off"
                                                                     />
-                                                                    <div class="input-group-text">
-                                                                        <a href={`https://www.facebook.com/${box.sellerCustomer?.facebookId}`} rel="noreferrer" target="_blank">
+                                                                    <div className="input-group-text">
+                                                                        <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
                                                                             <FontAwesomeIcon icon={faFacebook} size="lg"/>
                                                                         </a>
                                                                     </div>
-                                                               </InputGroup>                                                                      
+                                                               </InputGroup>
+                                                                {this.state.sender.length > 0 && <Dropdown isOpen={this.state.sellerOpen} toggle={this.toggleSeller}>
+                                                                    <DropdownToggle 
+                                                                        style={{width: 0, height: 0, padding: 0}}
+                                                                    >
+                                                                     
+                                                                    </DropdownToggle>
+                                                                    <DropdownMenu>
+                                                                        {this.state.sender.map(sender => (
+                                                                            <DropdownItem 
+                                                                                key={sender.id} 
+                                                                                onClick={() => this.setState({
+                                                                                    sellerSender: sender, 
+                                                                                    input: {
+                                                                                        ...this.state.input,
+                                                                                        sellerId: sender.facebookId,
+                                                                                    }
+                                                                                })}
+                                                                            >
+                                                                                <img src={sender.avatar} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <div >
+                                                                                    <p style={{margin: 0}}>{sender.nameCustomer}</p>
+                                                                                    <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
+                                                                                </div>
+                                                                            </DropdownItem>
+                                                                        ))}
+                                                                    </DropdownMenu>
+                                                                </Dropdown>}                                                                      
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
@@ -470,6 +586,7 @@ const mapStateToProps = (state) => ({
         transactions: [],
         bills: []
     },
+    sender: state.box.sender,
     loading: state.box.loading  || false,
 });
   

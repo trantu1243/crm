@@ -1,4 +1,5 @@
-const { Transaction, BoxTransaction, Bill, Customer, Staff } = require("../models");
+const { Transaction, BoxTransaction, Bill, Customer, Staff, Setting } = require("../models");
+const { getMessGroupInfo, getFBInfo } = require("../services/facebookService");
 const { saveUserLogToQueue } = require("../services/log.service");
 const { getPermissions } = require("../services/permission.service");
 const { getSocket } = require("../socket/socketHandler");
@@ -40,11 +41,26 @@ const getById = async (req, res) => {
         const box = await BoxTransaction.findById(id).populate(
             [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
+                { path: 'seller', select: 'nameCustomer facebookId avatar' },
             ]
         );
         if (!box) {
             return res.status(404).json({ message: 'Box not found' });
         }
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
+            let senders = []
+            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+            }
+            box.senders = senders;
+            await box.save();
+        }
+
+        const senderInfo = await Customer.find({ facebookId: { $in: box.senders}, _id: { $nin: setting.uuidFbs } });
+        
         const transactions = await Transaction.find({ boxId: id }).sort({ createdAt: -1 }).populate(
             [
                 { path: 'boxId', select: 'amount messengerId notes status' },
@@ -56,32 +72,21 @@ const getById = async (req, res) => {
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
             { path: 'boxId', select: 'amount messengerId notes status' }
         ]);
-        // let buyerCustomer = await Customer.findOne({
-        //     boxId: { $in: [box._id] },
-        //     type: 'buyer',
-        //     isDeleted: false,
-        // });
 
-        // let sellerCustomer = await Customer.findOne({
-        //     boxId: { $in: [box._id] },
-        //     type: 'seller',
-        //     isDeleted: false,
-        // });
         const boxObject = box.toObject();
         boxObject.transactions = transactions;
         boxObject.bills = bills;
-        // boxObject.buyerCustomer = buyerCustomer ? buyerCustomer : null;
-        // boxObject.sellerCustomer = sellerCustomer ? sellerCustomer : null;
+
         res.status(200).json({
-            message: 'Transaction fetched successfully',
+            message: 'Box fetched successfully',
             data: boxObject,
+            sender: senderInfo
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-
 
 const undoBox = async (req, res) => {
     try {
@@ -416,47 +421,69 @@ const updateBox = async (req, res) => {
 
         const name = req.body.name ? req.body.name : '';
         let messengerId = req.body.messengerId ? req.body.messengerId : '';
-        const buyerName = req.body.buyerName ? req.body.buyerName : '';
-        const buyerFb = req.body.buyerFb ? req.body.buyerFb : '';
-        const sellerName = req.body.sellerName ? req.body.sellerName : '';
-        const sellerFb = req.body.sellerFb ? req.body.sellerFb : '';
+        const buyerId = req.body.buyerId ? req.body.buyerId : '';
+        const sellerId = req.body.sellerId ? req.body.sellerId : '';
 
         if (box.messengerId === messengerId) messengerId = '';
         
         const transaction = await Transaction.findOne({ boxId: id, status: { $in: [2, 6, 7, 8]}});
         const user = await Staff.findById(req.user.id);
 
-        // let buyerCustomer = await Customer.findOne({
-        //     boxId: { $in: [box._id] },
-        //     type: 'buyer',
-        //     isDeleted: false,
-        // });
+        const setting = await Setting.findOne({ uniqueId: 1 });
 
-        // let sellerCustomer = await Customer.findOne({
-        //     boxId: { $in: [box._id] },
-        //     type: 'seller',
-        //     isDeleted: false,
-        // });
+        if(buyerId && sellerId && buyerId === sellerId) {
+            return res.status(400).json({ message: 'Bên mua và bên bán trùng nhau' });
+        }
 
-        // if (buyerFb) {
-        //     const customer = await Customer.findOne({
-        //         facebookId: buyerFb
-        //     });
-        //     if (customer) buyerCustomer = customer;
-        //     else buyerCustomer.facebookId = buyerFb;
-        //     if (buyerName) buyerCustomer.nameCustomer = buyerName;
-        //     await buyerCustomer.save();
-        // }
+        if (buyerId){
+            const buyer = await Customer.findOne({ facebookId: buyerId });
+            if (buyer) {
+                box.buyer = buyer._id;
+            } else {
+                const buyerInfo = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, buyerId);
+                let buyerCustomer;
+                if (buyerInfo) {
+                    buyerCustomer = await Customer.create({
+                        facebookId: buyerId,
+                        nameCustomer: buyerInfo.name,
+                        avatar: buyerInfo.picture.data.url
+                    })
+                } else {
+                    buyerCustomer = await Customer.create({
+                        facebookId: buyerId,
+                        nameCustomer: '',
+                        avatar: ''
+                    })
+                }
 
-        // if (sellerFb) {
-        //     const customer = await Customer.findOne({
-        //         facebookId: sellerFb
-        //     });
-        //     if (customer) sellerCustomer = customer;
-        //     else sellerCustomer.facebookId = sellerFb;
-        //     if (sellerName) sellerCustomer.nameCustomer = sellerName;
-        //     await sellerCustomer.await();
-        // }
+                box.buyer = buyerCustomer._id;
+            }
+        }
+        
+        if (sellerId){
+            const seller = await Customer.findOne({ facebookId: sellerId });
+            if (seller) {
+                box.seller = seller._id;
+            } else {
+                const sellerInfo = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, sellerId);
+                let sellerCustomer;
+                if (sellerInfo) {
+                    sellerCustomer = await Customer.create({
+                        facebookId: sellerId,
+                        nameCustomer: sellerInfo.name,
+                        avatar: sellerInfo.picture.data.url
+                    })
+                } else {
+                    sellerCustomer = await Customer.create({
+                        facebookId: sellerId,
+                        nameCustomer: '',
+                        avatar: ''
+                    })
+                }
+
+                box.seller = sellerCustomer._id;
+            }
+        }
         
         if (!transaction && messengerId) {
             const oldBox = await BoxTransaction.findOne({ messengerId: messengerId });
@@ -467,10 +494,7 @@ const updateBox = async (req, res) => {
                     staffId: user._id,
                     typeBox: box.typeBox
                 });
-                // buyerCustomer.boxId.push(newbox._id);
-                // sellerCustomer.boxId.push(newbox._id);
-                // await buyerCustomer.save();
-                // await sellerCustomer.save();
+          
                 await Transaction.updateMany({boxId: box._id}, {boxId: newbox._id});
                 await BoxTransaction.findByIdAndDelete(box._id);
                 return res.json({ 
@@ -479,12 +503,7 @@ const updateBox = async (req, res) => {
                     box: newbox
                 });
             } else {
-                // buyerCustomer.boxId.push(oldBox._id);
-                // buyerCustomer.nameCustomer = buyerName;
-                // sellerCustomer.boxId.push(oldBox._id);
-                // sellerCustomer.nameCustomer = sellerName;
-                // await buyerCustomer.save();
-                // await sellerCustomer.save();
+
                 await Transaction.updateMany({boxId: box._id}, {boxId: oldBox._id});
                 await BoxTransaction.findByIdAndDelete(box._id);
                 oldBox.name = name;
@@ -566,6 +585,42 @@ const switchLock = async (req, res) => {
     }
 }
 
+const regetMessInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'ID is required' });
+        }
+        const box = await BoxTransaction.findById(id);
+        if (!box) {
+            return res.status(404).json({ message: 'Box not found' });
+        }
+
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+            const senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+            
+            if (senders.length > 0) {
+                box.senders = senders;
+                await box.save();
+            } else {
+                return res.status(400).json({ message: 'Thông tin lấy được rỗng' });
+            }
+        } else {
+            return res.status(400).json({ message: 'Lỗi cookie hoặc token' });
+        }
+
+        res.status(200).json({
+            message: 'Get box info successfully',
+            data: box,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     undoBox,
     getTransactionsByBoxId,
@@ -574,5 +629,6 @@ module.exports = {
     addNote,
     updateBox,
     switchLock,
-    deleteNote
+    deleteNote,
+    regetMessInfo
 }

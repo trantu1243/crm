@@ -60,6 +60,7 @@ const initialState = {
         transactions: [],
         bills: []
     },
+    sender: [],
     loading: false,
     error: null,
 };
@@ -86,6 +87,7 @@ const boxSlice = createSlice({
             })
             .addCase(getBoxById.fulfilled, (state, action) => {
                 state.loading = false;
+                state.sender = action.payload.sender;
                 state.box = action.payload.data;
             })
             .addCase(getBoxById.rejected, (state, action) => {
@@ -96,6 +98,7 @@ const boxSlice = createSlice({
                 state.error = null;
             })
             .addCase(getBoxByIdNoLoad.fulfilled, (state, action) => {
+                state.sender = action.payload.sender;
                 state.box = action.payload.data;
             })
             .addCase(getBoxByIdNoLoad.rejected, (state, action) => {

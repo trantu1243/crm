@@ -14,11 +14,21 @@ const boxTransactionSchema = new mongoose.Schema({
     staffId: { type: mongoose.Types.ObjectId, ref: 'Staff', index: true },
     typeBox: { type: String, default: 'facebook'},
     amount: { type: Number, default: 0 },
+    buyer: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null },
+    seller: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null },
     notes: {
         type: [{ type: String }],
         default: []
     },
     flag: { type: Number, default: 1 },
+    senders: {
+        type: [String],
+        default: []
+    },
+    isEncrypted: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
 });

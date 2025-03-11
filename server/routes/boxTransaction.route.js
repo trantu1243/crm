@@ -21,4 +21,6 @@ router.post('/:id/add-note', authenticateToken, boxTransactionController.addNote
 
 router.post('/:id/delete-note', authenticateToken, boxTransactionController.deleteNote);
 
+router.post('/:id/get-info', authenticateToken, boxTransactionController.regetMessInfo);
+
 module.exports = router;

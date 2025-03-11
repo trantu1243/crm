@@ -92,7 +92,7 @@ server.listen(PORT, () => {
 });
 
 const job = new CronJob(
-	'0 3 * * *', 
+	'0 4 * * *', 
 	async () => {
 		const setting = await Setting.findOne({uniqueId: 1});
         if (setting && setting.lockBox.isOn) {

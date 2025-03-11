@@ -1,8 +1,9 @@
-const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill } = require("../models");
+const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill, Setting } = require("../models");
 const { getPermissions } = require("../services/permission.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
 const { saveUserLogToQueue } = require("../services/log.service");
+const { getMessGroupInfo } = require("../services/facebookService");
 
 const getTransactions = async (req, res) => {
     try {
@@ -87,7 +88,7 @@ const getTransactions = async (req, res) => {
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
-                { path: 'boxId', select: 'amount messengerId notes status' }
+                { path: 'boxId', select: 'amount messengerId notes status typeBox' }
             ],
             sort: { createdAt: -1 },
         });
@@ -176,11 +177,18 @@ const createTransaction = async (req, res) => {
         }
 
         if (!box) {
+            const setting = await Setting.findOne({uniqueId: 1});
+            let senders = []
+            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId)
+            }
+            
             box = await BoxTransaction.create({
                 name: '',
                 messengerId: messengerId,
                 staffId: user._id,
-                typeBox: typeBox
+                typeBox: typeBox,
+                senders
             });
             
             // const buyerCustomer = await Customer.create({
@@ -326,11 +334,17 @@ const updateTransaction = async (req, res) => {
         }
 
         if (!box) {
+            const setting = await Setting.findOne({uniqueId: 1});
+            let senders = []
+            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId)
+            }
             box = await BoxTransaction.create([{
                 name: '',
                 messengerId: messengerId,
                 staffId: user._id,
-                typeBox: typeBox
+                typeBox: typeBox,
+                senders
             }], { session });
             // Khi dùng .create() với session, cần truyền mảng + object session
             // Kết quả trả về cũng là mảng, ta destruct để lấy doc

@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from "react";
 
-import { Button, ButtonGroup, Card, CardBody, CardTitle, Col, Container, FormText, Input, InputGroup, Label, ListGroup, ListGroupItem } from "reactstrap";
-import Select from "react-select";
+import { Button, ButtonGroup, Card, CardBody, CardTitle, Col, Container, Input, InputGroup, Label, ListGroup, ListGroupItem } from "reactstrap";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -10,10 +9,8 @@ import { connect } from "react-redux";
 import cx from "classnames";
 
 import SweetAlert from 'react-bootstrap-sweetalert';
-import CopyToClipboard from "react-copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy, faTrash } from "@fortawesome/free-solid-svg-icons";
-import StatusBadge from "../Transactions/Tables/StatusBadge";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { addGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken } from "../../services/settingService";
 import { SERVER_URL } from "../../services/url";
 

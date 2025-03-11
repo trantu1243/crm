@@ -1,4 +1,4 @@
-const { Setting } = require("../models");
+const { Setting, Customer } = require("../models");
 const axios = require("axios");
 const qs = require('qs');
 
@@ -43,7 +43,6 @@ async function updateAccessToken() {
         }
 
         const accessToken = await getFacebookAccessToken(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth);
-        console.log(accessToken)
         if (accessToken) {
             setting.accessToken.value = accessToken;
             setting.accessToken.status = true;
@@ -84,12 +83,44 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
 
         const response = await axios.request(config);
 
-        if (typeof response.data === "string" && response.data.includes("HTTP Code 400")) {
-            return null;
+        if (typeof response.data === "string" && response.data.includes("cURL Error")) {
+            return null
         }
 
-        if (typeof response.data === "string" && response.data.includes("cURL Error")) {
-            return null;
+        if (typeof response.data === "string" && response.data.includes("HTTP Code 400")) {
+            
+            const jsonStartIndex = response.data.indexOf('{');
+            const jsonString = response.data.substring(jsonStartIndex);
+            const responseData = JSON.parse(jsonString);
+            const errorCode = responseData?.error?.code;
+
+            if (errorCode == 190) {
+                const setting = await updateAccessToken();
+                if (!setting.accessToken.status || !setting.cookie.status)  
+                    return null
+
+                data = qs.stringify({
+                    'cookie': setting.cookie.value,
+                    'proxy': setting.proxy.proxy,
+                    'proxy_auth': setting.proxy.proxy_auth,
+                    'token': setting.accessToken.value,
+                    'user_id': id
+                });
+
+                config = {
+                    method: 'post',
+                    maxBodyLength: Infinity,
+                    url: 'https://api.tathanhan.com/getInfo.php',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: data
+                };
+        
+                response = await axios.request(config);
+                if (typeof response.data === "string" && (response.data.includes("HTTP Code 400") || response.data.includes("cURL Error")))
+                    return null;
+            } else return null 
         }
 
         return response.data;
@@ -99,7 +130,104 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
     }
 }
 
+async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, box = null) {
+    let data = qs.stringify({
+        'cookie': cookie,
+        'proxy': proxy,
+        'proxy_auth': proxyAuth,
+        'token': token,
+        'message_id': messengerId
+    });
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://api.tathanhan.com/getTheard.php',
+        headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: data
+    };
+
+    try {
+        let response = await axios.request(config);
+        if (typeof response.data === "string" && response.data.includes("cURL Error")) {
+            return []
+        }
+
+        if (typeof response.data === "string" && response.data.includes("HTTP Code 400") ) {
+            const jsonStartIndex = response.data.indexOf('{');
+            const jsonString = response.data.substring(jsonStartIndex);
+            const responseData = JSON.parse(jsonString);
+            const errorCode = responseData?.error?.code;
+
+            if (errorCode == 190) {
+                const setting = await updateAccessToken();
+                if (!setting.accessToken.status || !setting.cookie.status)  
+                    return [];
+
+                data = qs.stringify({
+                    'cookie': setting.cookie.value,
+                    'proxy': setting.proxy.proxy,
+                    'proxy_auth': setting.proxy.proxy_auth,
+                    'token': setting.accessToken.value,
+                    'message_id': messengerId
+                });
+
+                config = {
+                    method: 'post',
+                    maxBodyLength: Infinity,
+                    url: 'https://api.tathanhan.com/getTheard.php',
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: data
+                };
+                response = await axios.request(config);
+
+                if (typeof response.data === "string" && (response.data.includes("HTTP Code 400") || response.data.includes("cURL Error")))
+                    return [];
+            } else if (errorCode == 100) {
+                if (box) {
+                    box.isEncrypted = true;
+                    await box.save();
+                    return []
+                }
+            } else return []
+        }
+
+        let senderIds = response.data.senders.data.map(sender => sender.id);
+
+        for (let value of senderIds) {
+            const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
+            
+            if (data) {
+                let customer = await Customer.findOne({facebookId: value});
+                if (!customer) {
+                    customer = await Customer.create({
+                        facebookId: data.id,
+                        nameCustomer: data.name,
+                        avatar: data.picture.data.url
+                    })
+                } else {
+                    customer.nameCustomer = data.name;
+                    customer.avatar = data.picture.data.url;
+                    await customer.save()
+                }
+            } else {
+                break;
+            }
+        }
+        
+        return senderIds;
+    } catch (error) {
+        console.error('Error fetching thread data:', error);
+        return [];
+    }
+}
+
 module.exports = {
     updateAccessToken,
-    getFBInfo
+    getFBInfo,
+    getMessGroupInfo
 }

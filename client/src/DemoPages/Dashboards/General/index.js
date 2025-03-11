@@ -375,31 +375,31 @@ export default class General extends Component {
 
                                                             <DropdownToggle style={{width: 0, height: 0, padding: 0, border: 'none'}}>
 
-                                                                </DropdownToggle>
-                                                                <DropdownMenu
-                                                                    container="body"
-                                                                    modifiers={[
-                                                                        { name: 'offset', options: { offset: [0, 18] } },
-                                                                    ]}
-                                                                    right={'false'}
-                                                                >
-                                                                    <Nav vertical>
-                                                                        <NavItem>
-                                                                        {totalTransaction?.currentMonth &&
-                                                                        Object.entries(totalTransaction.currentMonth).map(([statusKey, item], index) => (
-                                                                            <NavLink to="#" className="p-2" key={index} style={{ display: "block" }}>
-                                                                            <i className="nav-link-icon pe-7s-graph me-2"> </i>
-                                                                            <span>{item.name}</span>
-                                                                            <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: "right" }}>
-                                                                                {item.count}
-                                                                            </div>
-                                                                            </NavLink>
-                                                                        ))}
+                                                            </DropdownToggle>
+                                                            <DropdownMenu
+                                                                container="body"
+                                                                modifiers={[
+                                                                    { name: 'offset', options: { offset: [0, 18] } },
+                                                                ]}
+                                                                right={'false'}
+                                                            >
+                                                                <Nav vertical>
+                                                                    <NavItem>
+                                                                    {totalTransaction?.currentMonth &&
+                                                                    Object.entries(totalTransaction.currentMonth).map(([statusKey, item], index) => (
+                                                                        <NavLink to="#" className="p-2" key={index} style={{ display: "block" }}>
+                                                                        <i className="nav-link-icon pe-7s-graph me-2"> </i>
+                                                                        <span>{item.name}</span>
+                                                                        <div className="ms-auto badge rounded-pill bg-danger me-2" style={{ float: "right" }}>
+                                                                            {item.count}
+                                                                        </div>
+                                                                        </NavLink>
+                                                                    ))}
 
-                                                                            
-                                                                        </NavItem>
-                                                                    </Nav>
-                                                                </DropdownMenu>
+                                                                        
+                                                                    </NavItem>
+                                                                </Nav>
+                                                            </DropdownMenu>
                                                         </div>
                                                     </div>
                                                 </ButtonDropdown>
