@@ -199,24 +199,26 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
         let senderIds = response.data.senders.data.map(sender => sender.id);
 
         for (let value of senderIds) {
-            const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
+
+            if (value !== '100003277523201' && value !== '100004703820246') {
+                const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
             
-            if (data) {
-                let customer = await Customer.findOne({facebookId: value});
-                if (!customer) {
-                    customer = await Customer.create({
-                        facebookId: data.id,
-                        nameCustomer: data.name,
-                        avatar: data.picture.data.url
-                    })
-                } else {
-                    customer.nameCustomer = data.name;
-                    customer.avatar = data.picture.data.url;
-                    await customer.save()
+                if (data) {
+                    let customer = await Customer.findOne({facebookId: value});
+                    if (!customer) {
+                        customer = await Customer.create({
+                            facebookId: data.id,
+                            nameCustomer: data.name,
+                            avatar: data.picture.data.url
+                        })
+                    } else {
+                        customer.nameCustomer = data.name;
+                        customer.avatar = data.picture.data.url;
+                        await customer.save()
+                    }
                 }
-            } else {
-                break;
             }
+            
         }
         
         return senderIds;
