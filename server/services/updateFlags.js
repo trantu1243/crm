@@ -133,7 +133,7 @@ const updateCustomer = async () =>{
         let i = boxes.length;
         console.log(i)
         for (const box of boxes) {
-            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+            if (i < 63100 && setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
                 const senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
                 
                 if (senders.length > 0) {
