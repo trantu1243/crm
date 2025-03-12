@@ -46,6 +46,7 @@ class Box extends Component {
             selectedTabKey: 0,
             transformWidth: 400,
             loading: false,
+            loading2: false,
             errorMsg: '',
             alert: false,
             value: [],
@@ -137,45 +138,45 @@ class Box extends Component {
 
     handleSave = async () => {
         try{
-            this.setState({loading: true});
+            this.setState({loading2: true});
             await updateBoxService(this.props.box._id, this.state.input);
             await this.props.getBoxByIdNoLoad(this.props.box._id);
-            this.setState({loading: false});
+            this.setState({loading2: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error,
-                loading: false
+                loading2: false
             })
         }
     }
 
     handleLock = async () => {
         try{
-            this.setState({loading: true});
+            this.setState({loading2: true});
             await lockBoxService(this.props.box._id);
             await this.props.getBoxByIdNoLoad(this.props.box._id);
-            this.setState({loading: false});
+            this.setState({loading2: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error,
-                loading: false
+                loading2: false
             })
         }
     }
 
     handleGetInfo = async () => {
         try{
-            this.setState({loading: true});
+            this.setState({loading2: true});
             await getInfoService(this.props.box._id);
             await this.props.getBoxByIdNoLoad(this.props.box._id);
-            this.setState({loading: false});
+            this.setState({loading2: false});
         } catch (error) {
             this.setState({
                 alert: true,
                 errorMsg: error,
-                loading: false
+                loading2: false
             })
         }
     }
@@ -237,14 +238,14 @@ class Box extends Component {
                                                     {box.status === "lock" && <span className={`badge bg-danger`}>bị khóa</span>}
                                                 </CardTitle>
                                                 <div class="btn-actions-pane-right">
-                                                    <button class={box.status !== 'lock' ? "btn btn-danger me-1" : "btn btn-success me-1"} disabled={this.state.loading} onClick={this.handleLock}>
+                                                    <button class={box.status !== 'lock' ? "btn btn-danger me-1" : "btn btn-success me-1"} disabled={this.state.loading2} onClick={this.handleLock}>
                                                         <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
                                                     </button>
-                                                    <button class="btn btn-warning me-1" disabled={this.state.loading} onClick={this.handleGetInfo}>
-                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading ? "Đang lấy ..." : "Lấy thông tin khách hàng"}
+                                                    <button class="btn btn-warning me-1" disabled={this.state.loading2} onClick={this.handleGetInfo}>
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading2 ? "Đang lấy ..." : "Lấy thông tin khách hàng"}
                                                     </button>
-                                                    <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading}>
-                                                        <FontAwesomeIcon icon={faSave} /> {this.state.loading ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
+                                                    <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading2}>
+                                                        <FontAwesomeIcon icon={faSave} /> {this.state.loading2 ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
                                                     </button>
                                                 </div>
                                             </CardHeader>
@@ -273,7 +274,7 @@ class Box extends Component {
                                                             <Col md={4} xs={6} className="pe-1">
                                                                 <InputGroup>
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
-                                                                        <img src={this.state.buyerSender ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                        <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                     </div>
                                                                     <Input
                                                                         type="text"
@@ -438,7 +439,7 @@ class Box extends Component {
                                                             <Col md={4} xs={6} className="pe-1">
                                                                 <InputGroup>
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
-                                                                        <img src={this.state.sellerSender ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                        <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                     </div>
                                                                     <Input
                                                                         type="text"
