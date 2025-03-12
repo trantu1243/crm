@@ -205,7 +205,7 @@ const createTransaction = async (req, res) => {
             // });
         } else {
             if (box.status === 'active') {
-                const tran = await Transaction.findOne({ boxId: box._id }).sort({ createdAt: -1 }).populate(
+                const tran = await Transaction.findOne({ boxId: box._id, status: { $nin: [ 2, 3 ] } }).sort({ createdAt: -1 }).populate(
                     [
                         { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
                     ]);
@@ -241,12 +241,13 @@ const createTransaction = async (req, res) => {
         const io = getSocket();
 
         io.emit('create_transaction', {
-            transaction: newTransaction
+            transaction: newTransaction,
         });
         
         return res.status(201).json({
             message: 'Transaction created successfully',
             transaction: newTransaction,
+            box
         });
     } catch (error) {
         console.error(error);

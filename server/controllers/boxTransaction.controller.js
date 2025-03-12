@@ -32,6 +32,33 @@ const getTransactionsByBoxId = async (req, res) => {
     }
 };
 
+const getSenderInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
+            let senders = []
+            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+            }
+            box.senders = senders;
+            await box.save();
+        }
+
+        const senderInfo = await Customer.find({ facebookId: { $in: box.senders}, _id: { $nin: setting.uuidFbs } });
+
+        return res.status(200).json({ 
+            success: true, 
+            senders: senderInfo 
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
 const getById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -630,5 +657,6 @@ module.exports = {
     updateBox,
     switchLock,
     deleteNote,
-    regetMessInfo
+    regetMessInfo, 
+    getSenderInfo
 }

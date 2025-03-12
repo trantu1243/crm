@@ -41,6 +41,7 @@ class CreateTransaction extends Component {
             isCreated: false,
             textCopy: '',
             linkQr: '',
+            isCheck: false,
             input: {
                 amount: 0,
                 bankId: '',
@@ -52,6 +53,10 @@ class CreateTransaction extends Component {
                 typeBox: 'facebook',
                 isToggleOn: true,
             },
+            updateBox: {
+                buyerId: '',
+                sellerId: ''
+            }
         };
         this.handleClick = this.handleClick.bind(this);
     }
@@ -164,7 +169,9 @@ class CreateTransaction extends Component {
                     loading: false,
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
                     textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content}`
-                })
+                });
+                const box = res.box;
+                
                 this.setState({loading: false});
             } else {
                 const { amount = 0, bankId, bonus = 0, content, fee = 0, typeFee } = this.state.input;
