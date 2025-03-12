@@ -140,8 +140,9 @@ const updateCustomer = async () =>{
                     box.senders = senders;
                     await box.save();
                 }
+                console.log(i);
             }
-            console.log(i);
+            
             i--;
         }
 
