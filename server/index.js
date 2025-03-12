@@ -29,7 +29,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlag();
     // updateFlags()
     // updateCustomer()
-    // getFBInfoTest()
+    getFBInfoTest()
 });
 
 const updateFlag = async () =>{

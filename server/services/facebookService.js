@@ -251,32 +251,60 @@ const getFBInfoTest = async () => {
             }
         }
         console.log('complete 1')
-        const boxes = await BoxTransaction.find({}).sort({createdAt: -1});
 
-        for (const box of boxes) {
-            if (box.senders && box.senders.length > 0) {
-                for (const id of box.senders) {
-                    const customer = await Customer.findOne({facebookId: id});
-                    if (!customer) {
-                        const result = await getFBInfo(
-                            'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
-                            'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
-                            '14.225.60.143:50000',
-                            'MVN515491:xMsA5b5Q',
-                            id
-                        )
-                        if (result) {
-                            await Customer.create({
-                                facebookId: result.id,
-                                nameCustomer: result.name,
-                                avatar: result.picture.data.url
-                            })
-                        }
+        const result = await BoxTransaction.aggregate([
+            {
+                $unwind: "$senders" // Tách từng phần tử của mảng senders
+            },
+            {
+                $group: { 
+                    _id: null, 
+                    allSenders: { $addToSet: "$senders" } // Gom senders thành 1 mảng duy nhất, loại bỏ trùng lặp
+                }
+            },
+            {
+                $lookup: {
+                    from: "customers",
+                    localField: "allSenders",
+                    foreignField: "facebookId",
+                    as: "matchedCustomers"
+                }
+            },
+            {
+                $project: {
+                    allSenders: 1,
+                    matchedFacebookIds: "$matchedCustomers.facebookId" // Lấy danh sách facebookId của customers
+                }
+            },
+            {
+                $project: {
+                    uniqueSenders: {
+                        $setDifference: ["$allSenders", "$matchedFacebookIds"] // Loại bỏ các sender có trong danh sách facebookId
                     }
                 }
             }
+        ]);
 
+        const ids = result[0]?.uniqueSenders || [];
+        console.log(ids.length);
+
+        for (const id of ids) {
+            const result = await getFBInfo(
+                'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
+                'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
+                '14.225.60.143:50000',
+                'MVN515491:xMsA5b5Q',
+                id
+            )
+            if (result) {
+                await Customer.create({
+                    facebookId: result.id,
+                    nameCustomer: result.name,
+                    avatar: result.picture.data.url
+                })
+            }
         }
+
         console.log('complete 2')
 
     } catch (e) {
