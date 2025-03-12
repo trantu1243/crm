@@ -29,7 +29,9 @@ class Setting extends Component {
                 cookie: '',
                 accessToken: '',
                 proxy: '',
-                proxy_auth: ''
+                proxy_auth: '',
+                numOfDay: 0,
+                isOn: false
             },
         };
         this.handleClick = this.handleClick.bind(this);
@@ -58,6 +60,8 @@ class Setting extends Component {
             input: {
                 cookie: data.data.cookie.value,
                 accessToken: data.data.accessToken.value,
+                numOfDay: data.data.lockBox.numOfDay,
+                isOn: data.data.lockBox.isOn,
                 proxy: data.data.proxy.proxy,
                 proxy_auth: data.data.proxy.proxy_auth,
             },
@@ -69,7 +73,7 @@ class Setting extends Component {
         this.setState((prevState) => ({
             input: {
                 ...prevState.input,
-                isToggleOn: !prevState.input.isToggleOn
+                isOn: !prevState.input.isOn
             }
         }));
     };
@@ -210,6 +214,48 @@ class Setting extends Component {
 
                                         <Row className="mb-3">
                                             <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                                <Row>
+                                                    <Label>Khóa box (sau ? ngày)</Label>
+                                                </Row>
+                                                <Row>
+                                                    <Col sm={3} xs={3}>
+                                                        <div className="switch has-switch mb-2 me-2" data-on-label="ON"
+                                                            data-off-label="OFF" onClick={this.handleClick}>
+                                                            <div className={cx("switch-animate", {
+                                                                    "switch-on": this.state.input.isOn,
+                                                                    "switch-off": !this.state.input.isOn,
+                                                                })}>
+                                                                <input type="checkbox" />
+                                                                <span className="switch-left bg-info">ON</span>
+                                                                <label>&nbsp;</label>
+                                                                <span className="switch-right bg-info">OFF</span>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                    <Col sm={9} xs={9}>
+                                                        <Input
+                                                            type="number"
+                                                            name="numOfDay"
+                                                            id="id"
+                                                            value={String(this.state.input.numOfDay)}
+                                                            onChange={(e) => {
+                                                                let value = e.target.value;
+                                                    
+                                                                value = value.replace(/^0+/, '') || '0';
+
+                                                                this.setState({ 
+                                                                    input: {
+                                                                        ...this.state.input,
+                                                                        numOfDay: Number(value)
+                                                                    }
+                                                                });
+                                                            }}                                                            
+                                                            onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleAdd()}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                            <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
                                                 <Row className="mb-3">
                                                     <Label for="content">Tài khoản Facebook GDTG</Label>
                                                     <InputGroup>

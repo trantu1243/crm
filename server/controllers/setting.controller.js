@@ -37,7 +37,7 @@ const getSettings = async (req, res) => {
 
 const updateSettings = async (req, res) => {
     try {
-        const { lockBox, cookie, accessToken, uuidFbs, proxy, proxy_auth } = req.body;
+        const { lockBox, cookie, accessToken, uuidFbs, proxy, proxy_auth, numOfDay, isOn } = req.body;
         
         let setting = await Setting.findOne({ uniqueId: 1 });
 
@@ -74,6 +74,14 @@ const updateSettings = async (req, res) => {
 
         if (typeof uuidFbs !== "undefined") {
             setting.uuidFbs = uuidFbs;
+        }
+
+        if (typeof numOfDay !== "undefined") {
+            setting.lockBox.numOfDay = numOfDay;
+        }
+
+        if (typeof isOn !== "undefined") {
+            setting.lockBox.isOn = isOn;
         }
 
         await setting.save();

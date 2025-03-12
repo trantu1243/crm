@@ -1,38 +1,22 @@
 const { BoxTransaction, Transaction } = require("../models");
 
-const lockInactiveBoxes = async (daysInactive = 30) => {
+const lockInactiveBoxes = async (daysInactive = 45) => {
     try {
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - daysInactive);
 
-        const activeBoxes = await BoxTransaction.find({
-            status: 'active',
-            isDeleted: false
-        }).select('_id');
-
-        const boxIds = activeBoxes.map(box => box._id);
-
-        const latestTransactions = await Transaction.aggregate([
-            { $match: { boxId: { $in: boxIds } } },
-            { $group: {
-                _id: '$boxId',
-                latestTransactionDate: { $max: '$createdAt' }
-            } },
-            { $match: { latestTransactionDate: { $lt: cutoffDate } } }
+        const inactiveBoxIds = await Transaction.aggregate([
+            { $match: { status: { $in: [6, 8] } } },
+            { $sort: { createdAt: -1 } },
+            { $group: { _id: "$boxId", lastTransaction: { $first: "$createdAt" } } },
+            { $match: { lastTransaction: { $lt: cutoffDate } } },
+            { $project: { _id: 1 } }
         ]);
 
-        const boxesToLock = latestTransactions.map(t => t._id);
-
-        if (boxesToLock.length > 0) {
-            const updateResult = await BoxTransaction.updateMany(
-                { _id: { $in: boxesToLock }, status: 'active' },
-                { $set: { status: 'lock' } }
-            );
-
-            console.log(`Đã khóa ${updateResult.modifiedCount} box không hoạt động quá ${daysInactive} ngày.`);
-        } else {
-            console.log(`Không có box nào không hoạt động quá ${daysInactive} ngày cần khóa.`);
-        }
+        await BoxTransaction.updateMany(
+            { _id: { $in: inactiveBoxIds.map(t => t._id) }, status: 'active', isDeleted: false },
+            { status: 'lock' }
+        );
     } catch (error) {
         console.error('Lỗi khi khóa các box:', error);
     }

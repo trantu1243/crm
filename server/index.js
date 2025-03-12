@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
     // updateFlag();
     // updateFlags()
-    updateCustomer()
+    // updateCustomer()
 });
 
 const updateFlag = async () =>{
@@ -87,7 +87,8 @@ const job = new CronJob(
 	async () => {
 		const setting = await Setting.findOne({uniqueId: 1});
         if (setting && setting.lockBox.isOn) {
-            await lockInactiveBoxes(setting.lockBox.numOfDay)
+            await lockInactiveBoxes(setting.lockBox.numOfDay);
+            await Bill.deleteMany({ status: 3});
         }
 	}, 
 	null, 
