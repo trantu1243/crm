@@ -18,7 +18,7 @@ const { initSocket } = require('./socket/socketHandler');
 const { Transaction, BoxTransaction, Bill, Setting } = require('./models');
 const { updateFlags, updateCustomer } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
-const { getMessGroupInfo } = require('./services/facebookService');
+const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -29,6 +29,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlag();
     // updateFlags()
     // updateCustomer()
+    getFBInfoTest()
 });
 
 const updateFlag = async () =>{

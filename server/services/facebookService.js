@@ -1,4 +1,4 @@
-const { Setting, Customer } = require("../models");
+const { Setting, Customer, BoxTransaction } = require("../models");
 const axios = require("axios");
 const qs = require('qs');
 
@@ -231,8 +231,64 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
     }
 }
 
+const getFBInfoTest = async () => {
+    try{
+        const customers = await Customer.find({});
+        for (let customer of customers) {
+            if (!customer.nameCustomer) {
+                const result = await getFBInfo(
+                    'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
+                    'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
+                    '14.225.60.143:50000',
+                    'MVN515491:xMsA5b5Q',
+                    customer.facebookId
+                )
+                if (result) {
+                    customer.nameCustomer = result.name;
+                    customer.avatar = result.picture.data.url;
+                    await customer.save();
+                }
+            }
+        }
+        console.log('complete 1')
+        const boxes = await BoxTransaction.find({}).sort({createdAt: -1});
+
+        for (const box of boxes) {
+            if (box.senders && box.senders.length > 0) {
+                for (const id of box.senders) {
+                    const customer = await Customer.findOne({facebookId: id});
+                    if (!customer) {
+                        const result = await getFBInfo(
+                            'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
+                            'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
+                            '14.225.60.143:50000',
+                            'MVN515491:xMsA5b5Q',
+                            id
+                        )
+                        if (result) {
+                            await Customer.create({
+                                facebookId: result.id,
+                                nameCustomer: result.name,
+                                avatar: result.picture.data.url
+                            })
+                        }
+                    }
+                }
+            }
+
+        }
+        console.log('complete 2')
+
+    } catch (e) {
+        console.log(e)
+    }
+    
+    
+}
+
 module.exports = {
     updateAccessToken,
     getFBInfo,
-    getMessGroupInfo
+    getMessGroupInfo,
+    getFBInfoTest
 }
