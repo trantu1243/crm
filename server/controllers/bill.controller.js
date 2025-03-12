@@ -148,7 +148,6 @@ const createBill = async (req, res) => {
             const { bankCode, stk, content, amount, bonus = 0} = buyer;
 
             const bank = await BankApi.findOne({ bankCode: bankCode});
-            console.log(boxId)
             // const customer = await Customer.findOne({
             //     boxId: { $in: [boxId] },
             //     type: 'buyer',
@@ -388,7 +387,6 @@ const confirmBill = async (req, res) => {
 
 const updateBill = async (req, res) => {
     try {
-        console.log(req.body)
         const permissions = await getPermissions(req.user.id);
 
         if (!permissions.some(permission => permission.slug === 'create-bill')) {
@@ -597,8 +595,6 @@ const switchBills = async (req, res) => {
         const bill = await Bill.findById(id).populate([
             { path: 'billId'},
         ]);
-        console.log(bill);
-
 
         if (!bill || bill.status !== 1) {
             return res.status(400).json({ message: 'Bill not eligible for switch' });
