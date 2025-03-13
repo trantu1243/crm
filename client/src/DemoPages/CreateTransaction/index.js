@@ -43,7 +43,6 @@ class CreateTransaction extends Component {
             isCreated: false,
             textCopy: '',
             linkQr: '',
-            isCheck: false,
             senders: [],
             buyerOpen: false,
             sellerOpen: false,
@@ -285,7 +284,16 @@ class CreateTransaction extends Component {
                     typeFee: 'buyer',
                     typeBox: 'facebook',
                     isToggleOn: true,
-                }
+                },
+                updateBox: {
+                    buyerId: '',
+                    sellerId: '',
+                },
+                senders: [],
+                buyerOpen: false,
+                sellerOpen: false,
+                buyerSender: null,
+                sellerSender: null,
             })
         } catch(error) {
             this.setState({
