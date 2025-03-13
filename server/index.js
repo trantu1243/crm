@@ -35,29 +35,29 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
 const updateFlag = async () =>{
     try {
-        const box = await BoxTransaction.findOne({messengerId: '9803203889745559'})
-        const bank = await BankApi.findOne({ bankCode: 'TCB'});
-        const staff = await Staff.findById('67bfedd29a7ee1fad78f1ee3');
-        await Bill.create({
-            bankCode: 'TCB',
-            stk: '19036016496011',
-            content: 'Thanh khoan GDTG 490a9422',
-            amount: 6000000,
-            typeTransfer: 'seller',
-            boxId: box._id,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${'19036016496011'}-nCr4dtn.png?amount=${Number(6000000)}&addInfo=${'Thanh khoan GDTG 490a9422'}&accountName=`,
-            status: 1,
-            staffId: staff._id,
-            createdAt: "2025-03-07T08:57:09.921Z",
-        });
-        const transactions = await Transaction.updateMany({ boxId: box._id, status: { $in: [ 6, 8] }}, {status: 7});
+        // const box = await BoxTransaction.findOne({messengerId: '9803203889745559'})
+        // const bank = await BankApi.findOne({ bankCode: 'TCB'});
+        // const staff = await Staff.findById('67bfedd29a7ee1fad78f1ee3');
+        // await Bill.create({
+        //     bankCode: 'TCB',
+        //     stk: '19036016496011',
+        //     content: 'Thanh khoan GDTG 490a9422',
+        //     amount: 6000000,
+        //     typeTransfer: 'seller',
+        //     boxId: box._id,
+        //     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${'19036016496011'}-nCr4dtn.png?amount=${Number(6000000)}&addInfo=${'Thanh khoan GDTG 490a9422'}&accountName=`,
+        //     status: 1,
+        //     staffId: staff._id,
+        //     createdAt: "2025-03-07T08:57:09.921Z",
+        // });
+        // const transactions = await Transaction.updateMany({ boxId: box._id, status: { $in: [ 6, 8] }}, {status: 7});
 
-        // await BoxTransaction.updateMany({}, {flag: 1});
-        // console.log('updated flag of box successfully')
-        // await Transaction.updateMany({}, {flag: 1});
-        // console.log('updated flag of transaction successfully')
-        // await Bill.updateMany({}, {flag: 1});
-        // console.log('updated flag of bill successfully')
+        await BoxTransaction.updateMany({}, {flag: 1});
+        console.log('updated flag of box successfully')
+        await Transaction.updateMany({}, {flag: 1});
+        console.log('updated flag of transaction successfully')
+        await Bill.updateMany({}, {flag: 1});
+        console.log('updated flag of bill successfully')
     } catch (e) {
         console.log(e)
     }
