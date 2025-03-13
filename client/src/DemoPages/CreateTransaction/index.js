@@ -624,7 +624,7 @@ class CreateTransaction extends Component {
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
-                                                                {this.state.senders.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer}>
+                                                                {this.state.senders.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer} style={{height: 0}}>
                                                                     <DropdownToggle
                                                                         style={{width: 0, height: 0, padding: 0}}
                                                                     >
@@ -699,7 +699,7 @@ class CreateTransaction extends Component {
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
-                                                                {this.state.senders.length > 0 && <Dropdown isOpen={this.state.sellerOpen} toggle={this.toggleSeller}>
+                                                                {this.state.senders.length > 0 && <Dropdown isOpen={this.state.sellerOpen} toggle={this.toggleSeller} style={{height: 0}}>
                                                                     <DropdownToggle 
                                                                         style={{width: 0, height: 0, padding: 0}}
                                                                     >
