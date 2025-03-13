@@ -89,7 +89,7 @@ const job = new CronJob(
 		const setting = await Setting.findOne({uniqueId: 1});
         if (setting && setting.lockBox.isOn) {
             await lockInactiveBoxes(setting.lockBox.numOfDay);
-            await Bill.deleteMany({ status: 3});
+            // await Bill.deleteMany({ status: 3});
         }
 	}, 
 	null, 
