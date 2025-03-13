@@ -7,4 +7,6 @@ const router = express.Router();
 
 router.get('/', userLogController.getLogs);
 
+router.get('/bill', userLogController.getBillLogs);
+
 module.exports = router;
