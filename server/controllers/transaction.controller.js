@@ -178,7 +178,13 @@ const createTransaction = async (req, res) => {
         const user = await Staff.findById(req.user.id);
         const bank = await BankAccount.findById(bankId);
 
-        let box = await BoxTransaction.findOne({messengerId: messengerId});
+        let box = await BoxTransaction.findOne({messengerId: messengerId}).populate(
+            [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
+                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+            ]
+        );
 
         if (box && box.status === 'lock') {
             return res.status(404).json({ message: 'Box is locked' })

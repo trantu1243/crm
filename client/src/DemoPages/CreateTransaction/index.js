@@ -202,7 +202,7 @@ class CreateTransaction extends Component {
                         buyerSender: box.buyer,
                         updateBox: {
                             ...this.state.updateBox,
-                            buyerId: box.buyer._id
+                            buyerId: box.buyer.facebookId
                         }
                     })
                 }
@@ -212,7 +212,7 @@ class CreateTransaction extends Component {
                         sellerSender: box.seller,
                         updateBox: {
                             ...this.state.updateBox,
-                            sellerId: box.seller._id
+                            sellerId: box.seller.facebookId
                         }
                     })
                 }
@@ -602,13 +602,13 @@ class CreateTransaction extends Component {
                                                                         type="text"
                                                                         name="buyerId"
                                                                         id="buyerId"
-                                                                        value={input.buyerId}
+                                                                        value={this.state.updateBox.buyerId}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
                                                                             const match = value.match(/(\d+)/);
                                                                             this.setState({ 
-                                                                                input: {
-                                                                                    ...this.state.input,
+                                                                                updateBox: {
+                                                                                    ...this.state.updateBox,
                                                                                     buyerId: match ? match[0] : "" 
                                                                                 },
                                                                                 buyerOpen: false
@@ -630,8 +630,8 @@ class CreateTransaction extends Component {
                                                                                 key={sender.id} 
                                                                                 onClick={() => this.setState({
                                                                                     buyerSender: sender, 
-                                                                                    input: {
-                                                                                        ...this.state.input,
+                                                                                    updateBox: {
+                                                                                        ...this.state.updateBox,
                                                                                         buyerId: sender.facebookId,
                                                                                     }
                                                                                 })}
@@ -674,13 +674,13 @@ class CreateTransaction extends Component {
                                                                         type="text"
                                                                         name="sellerId"
                                                                         id="sellerId"
-                                                                        value={input.sellerId}
+                                                                        value={this.state.updateBox.sellerId}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
                                                                             const match = value.match(/(\d+)/);
                                                                             this.setState({ 
-                                                                                input: {
-                                                                                    ...this.state.input,
+                                                                                updateBox: {
+                                                                                    ...this.state.updateBox,
                                                                                     sellerId: match ? match[0] : "" 
                                                                                 },
                                                                                 sellerOpen: false
@@ -703,8 +703,8 @@ class CreateTransaction extends Component {
                                                                                 key={sender.id} 
                                                                                 onClick={() => this.setState({
                                                                                     sellerSender: sender, 
-                                                                                    input: {
-                                                                                        ...this.state.input,
+                                                                                    updateBox: {
+                                                                                        ...this.state.updateBox,
                                                                                         sellerId: sender.facebookId,
                                                                                     }
                                                                                 })}
