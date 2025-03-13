@@ -150,6 +150,8 @@ const undoBox = async (req, res) => {
 
         // Nếu transaction mới nhất có status = 8 -> Cập nhật lại hóa đơn (Bill) và số dư trong box
         if (latestTransaction.status === 8) {
+            if (box.status === 'complete' && user.is_admin === 0) return res.status(400).json({ message: 'Không thể hoàn lại thanh khoản đã hoàn thành' });
+
             const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });
 
             if (lastestBill) {
