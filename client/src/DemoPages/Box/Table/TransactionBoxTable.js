@@ -432,7 +432,7 @@ class TransactionsTable extends Component {
                             Tạo GDTG
                         </Button>
                         <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
-                            <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
+                            <ModalHeader toggle={this.toggleCreate}>Tạo GDTG</ModalHeader>
                             <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleSubmit(e)}>
                                 <Row className="mb-4">
                                     <Col md={3} xs={6}>
