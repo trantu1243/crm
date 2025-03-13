@@ -15,7 +15,7 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction, BoxTransaction, Bill, Setting, Staff } = require('./models');
+const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi } = require('./models');
 const { updateFlags, updateCustomer } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
@@ -50,6 +50,8 @@ const updateFlag = async () =>{
             staffId: staff._id,
             createdAt: "2025-03-07T08:57:09.921Z",
         });
+        const transactions = await Transaction.updateMany({ boxId: box._id, status: { $in: [ 6, 8] }}, {status: 7});
+
         // await BoxTransaction.updateMany({}, {flag: 1});
         // console.log('updated flag of box successfully')
         // await Transaction.updateMany({}, {flag: 1});
