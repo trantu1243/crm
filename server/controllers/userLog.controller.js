@@ -20,15 +20,18 @@ const getBillLogs = async (req, res) => {
         const logs = await UserLog.find({action: 'CONFIRM_BILL'}).sort({createdAt: -1}).limit(3000);
 
         let data = [];
+        let log2 = [];
         for (const log of logs) {
             const bill =  await Bill.findById(log.targetId);
             if (!bill) {
                 data.push(log.targetId);
+                log2.push(log);
             }
         }
         res.status(200).json({
             message: 'Logs fetched successfully',
             data,
+            log: log2
         });
     } catch {
         console.error(error);
