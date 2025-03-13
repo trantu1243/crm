@@ -45,7 +45,7 @@ const updateFlag = async () =>{
             amount: 6000000,
             typeTransfer: 'seller',
             boxId: box._id,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${stk}-nCr4dtn.png?amount=${Number(6000000)}&addInfo=${'Thanh khoan GDTG 490a9422'}&accountName=`,
+            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${'19036016496011'}-nCr4dtn.png?amount=${Number(6000000)}&addInfo=${'Thanh khoan GDTG 490a9422'}&accountName=`,
             status: 1,
             staffId: staff._id,
             createdAt: "2025-03-07T08:57:09.921Z",
