@@ -3,7 +3,7 @@ import Select from "react-select";
 
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { connect } from "react-redux";
 import Loader from "react-loaders";
 import StatusBadge from "../../Transactions/Tables/StatusBadge";
@@ -67,6 +67,7 @@ class TransactionsTable extends Component {
                 messengerId: '',
                 typeFee: 'buyer',
                 typeBox: 'facebook',
+                isEncrypted: false
             },
             buyer: {
                 bankCode: '', 
@@ -683,6 +684,8 @@ class TransactionsTable extends Component {
                                                 title="Tạo bill thanh khoản" 
                                                 onClick={() => {
                                                     this.setState({
+                                                        buyerSender: item.boxId.buyer,
+                                                        sellerSender: item.boxId.seller,
                                                         buyer: {
                                                             ...this.state.buyer, 
                                                             content: `Refund GDTG ${item.boxId._id.slice(-8)}`
@@ -720,7 +723,7 @@ class TransactionsTable extends Component {
                                                         messengerId: item.messengerId,
                                                         typeFee: item.typeFee,
                                                         typeBox: 'facebook',
-
+                                                        isEncrypted: item.boxId.isEncrypted
                                                     }
                                                 });
                                                 this.toggleUpdate()
@@ -781,6 +784,19 @@ class TransactionsTable extends Component {
                     <Modal isOpen={this.state.confirmTransactionModal} toggle={this.toggleConfirmTransaction} className={this.props.className}>
                         <ModalHeader toggle={this.toggleConfirmTransaction}><span style={{fontWeight: 'bold'}}>Xác nhận đã nhận được tiền</span></ModalHeader>
                         <ModalBody>
+                            <Row>
+                                <div className="card-border mb-3 card card-body border-primary">
+                                    <h5>Số tiền trong box dự kiến:&nbsp;
+                                        <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.props.totalAmount + this.state.confirmTransaction?.amount)} vnđ</span></span>
+                                        <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.props.totalAmount + this.state.confirmTransaction?.amount)}>
+                                            <button type="button" class="btn btn-success ms-1">
+                                                <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
+                                            </button>
+                                        </CopyToClipboard>
+                                    </h5>
+                                </div>
+                            
+                            </Row>
                             ID: {this.state.confirmTransaction?._id.slice(-8)} <br />
                             Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                             Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
@@ -934,6 +950,25 @@ class TransactionsTable extends Component {
                                         </Col>
                                     </Row>
                                     <Row className="mb-4">
+                                        <Label className="me-3" style={{width: 'auto' }}>Box mã hóa ? </Label>
+                                        <div style={{display: 'inline-block', width: '1em', maxWidth: '1em' }}>
+                                            <Input 
+                                                id="isEncrypted" 
+                                                type="checkbox" checked={this.state.update.isEncrypted} 
+                                                style={{width: '1em', maxWidth: '1em' }}
+                                                onChange={() => {
+                                                    this.setState({
+                                                        update: {
+                                                            ...this.state.update,
+                                                            isEncrypted: !this.state.update.isEncrypted
+                                                        }
+                                                    })
+                                                }}
+                                            />
+                                        </div>
+                                        
+                                    </Row>
+                                    <Row className="mb-4">
                                         <div>
                                             <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.state.updateTransaction?.status}/>           
                                         </div>
@@ -979,6 +1014,76 @@ class TransactionsTable extends Component {
                                         </div> 
                                         : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}} onClick={this.copyImageToClipboard}></img>} 
                                     </Row>
+                                    <Row className="mb-3 ms-2">
+                                        <Col md={12} xs={12}>
+                                            <Label>Bên mua</Label>
+                                        </Col>
+                                        <Col md={6} xs={6} className="pe-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="buyerId"
+                                                    id="buyerId"
+                                                    value={this.state.updateTransaction?.boxId.buyer?.facebookId}
+                                                    autoComplete="off"
+                                                    disabled
+                                                />
+                                            </InputGroup>
+                                                                                                                
+                                        </Col>
+                                        <Col md={6} xs={6} className="ps-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="buyerName"
+                                                    id="buyerName"
+                                                    value={this.state.updateTransaction?.boxId.buyer?.facebookId}
+                                                    disabled
+                                                />
+                                                <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                    <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.buyer?.facebookId}`} rel="noreferrer" target="_blank">
+                                                        <img src={this.state.updateTransaction?.boxId.buyer && this.state.updateTransaction?.boxId.buyer.avatar ? this.state.updateTransaction?.boxId.buyer.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                    </a>
+                                                </div>
+                                            </InputGroup>
+                                            
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3 ms-2">
+                                        <Col md={12} xs={12}>
+                                            <Label>Bên bán</Label>
+                                        </Col>
+                                        <Col md={6} xs={6} className="pe-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="sellerId"
+                                                    id="sellerId"
+                                                    value={this.state.updateTransaction?.boxId.seller?.facebookId}
+                                                    autoComplete="off"
+                                                    disabled
+                                                />
+                                                
+                                            </InputGroup>
+                                                                                                        
+                                        </Col>
+                                        <Col md={6} xs={6} className="ps-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="sellerName"
+                                                    id="sellerName"
+                                                    value={this.state.updateTransaction?.boxId.seller?.nameCustomer}
+                                                    disabled
+                                                />
+                                                <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                    <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.seller?.facebookId}`} rel="noreferrer" target="_blank">
+                                                        <img src={this.state.updateTransaction?.boxId.seller && this.state.updateTransaction?.boxId.seller.avatar ? this.state.updateTransaction?.boxId.seller.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                    </a>
+                                                </div>
+                                            </InputGroup>
+                                        </Col>
+                                    </Row>
                                 </Col>
                             
                             </Row>
@@ -1010,7 +1115,7 @@ class TransactionsTable extends Component {
                             
                             </Row>
                             <Row>
-                                <Col md={6} xs={12} className="pe-2">
+                                <Col lg={6} xs={12} sm={12} className="pe-2">
                                     <Row className="mb-3">
                                         <Col md={4}>
                                             <Label>Tạo cho <span className="fw-bold text-danger">BÊN MUA</span>?</Label>
@@ -1034,14 +1139,38 @@ class TransactionsTable extends Component {
                                         <Col md={4}>
                                             <Label>Khách mua</Label>      
                                         </Col>
-                                        <Col md={8}>
-                                            <Input
-                                                type="text"
-                                                name="buyer"
-                                                id="buyer"
-                                                value={""}
-                                                disabled
-                                            />
+                                        <Col md={4} xs={6} className="pe-1">
+                                            <InputGroup>
+                                                <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                    <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </div>
+                                                <Input
+                                                    type="text"
+                                                    name="buyerName"
+                                                    id="buyerName"
+                                                    value={this.state.buyerSender?.nameCustomer}
+                                                    disabled
+                                                />
+                                            </InputGroup>
+                                            
+                                        </Col>
+                                        <Col md={4} xs={6} className="ps-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="buyerId"
+                                                    id="buyerId"
+                                                    value={this.state.buyerSender?.facebookId}
+                                                    disabled
+                                                    autoComplete="off"
+                                                />
+                                                <div className="input-group-text">
+                                                    <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                        <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                    </a>
+                                                </div>
+                                            </InputGroup>
+                                                                                                        
                                         </Col>
                                     </Row>
                                     <Row className="mb-3">
@@ -1175,7 +1304,7 @@ class TransactionsTable extends Component {
                                     </Row>
 
                                 </Col>
-                                <Col md={6} xs={12} className="ps-2">
+                                <Col lg={6} xs={12} sm={12} className="ps-2">
                                     <Row className="mb-3">
                                         <Col md={4}>
                                             <Label>Tạo cho <span className="fw-bold text-danger">BÊN BÁN</span>?</Label>
@@ -1199,14 +1328,38 @@ class TransactionsTable extends Component {
                                         <Col md={4}>
                                             <Label>Khách bán</Label>
                                         </Col>
-                                        <Col md={8}>
-                                            <Input
-                                                type="text"
-                                                name="seller"
-                                                id="sellers"
-                                                value={""}
-                                                disabled
-                                            />
+                                        <Col md={4} xs={6} className="pe-1">
+                                            <InputGroup>
+                                                <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                    <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </div>
+                                                <Input
+                                                    type="text"
+                                                    name="sellerName"
+                                                    id="sellerName"
+                                                    value={this.state.sellerSender?.nameCustomer}
+                                                    disabled
+                                                />
+                                            </InputGroup>
+                                            
+                                        </Col>
+                                        <Col md={4} xs={6} className="ps-1">
+                                            <InputGroup>
+                                                <Input
+                                                    type="text"
+                                                    name="sellerId"
+                                                    id="sellerId"
+                                                    value={this.state.sellerSender?.facebookId}
+                                                    disabled
+                                                    autoComplete="off"
+                                                />
+                                                <div className="input-group-text">
+                                                    <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                        <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                    </a>
+                                                </div>
+                                            </InputGroup>
+                                                                                                        
                                         </Col>
                                     </Row>
                                     <Row className="mb-3">

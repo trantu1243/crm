@@ -581,7 +581,8 @@ const getById = async (req, res) => {
                     { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
                     { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
                 ] 
-            }        ]);
+            }
+        ]);
         if (!bill) {
             return res.status(404).json({ message: 'Bill not found' });
         }

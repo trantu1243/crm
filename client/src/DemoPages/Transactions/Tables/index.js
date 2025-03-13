@@ -5,7 +5,7 @@ import React, { Component } from "react";
 import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { findTransactionsByStatus, getTransactions, getTransactionsNoLoad, searchTransactions, searchTransactionsNoload, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
@@ -64,6 +64,8 @@ class TransactionsTable extends Component {
             isSellerToggleOn: false,
             boxAmount: 0,
             boxId: '',
+            buyerSender: null,
+            sellerSender: null,
             status: '',
             input: {
                 amount: '',
@@ -85,6 +87,7 @@ class TransactionsTable extends Component {
                 messengerId: '',
                 typeFee: 'buyer',
                 typeBox: 'facebook',
+                isEncrypted: false,
             },
             buyer: {
                 bankCode: '', 
@@ -494,165 +497,6 @@ class TransactionsTable extends Component {
                     <a href="/create-transaction" className="btn btn-info me-1 al-min-width-max-content" style={{minWidth: 'max-content', textTransform: 'none'}} onClick={this.toggleCreate}>
                         Tạo GDTG
                     </a>
-                    {/* <Modal isOpen={this.state.createModal} toggle={this.toggleCreate} className="modal-xl" style={{marginTop: '10rem'}}>
-                        <ModalHeader toggle={this.toggleCreate}>Tạo bill thanh khoản</ModalHeader>
-                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && this.handleSubmit(e)}>
-                            <Row className="mb-4">
-                                <Col md={3} xs={6}>
-                                    <Label>Tạo <span className="fw-bold text-danger">GDTG</span>?</Label>
-                                </Col>
-                                <Col md={3} xs={6}>
-                                    <div className="switch has-switch mb-2 me-2" data-on-label="ON"
-                                        data-off-label="OFF" onClick={this.handleClick}>
-                                        <div className={cx("switch-animate", {
-                                            "switch-on": input.isToggleOn,
-                                            "switch-off": !input.isToggleOn,
-                                            })}>
-                                            <input type="checkbox" />
-                                            <span className="switch-left bg-info">ON</span>
-                                            <label>&nbsp;</label>
-                                            <span className="switch-right bg-info">OFF</span>
-                                        </div>
-                                    </div>
-                                </Col>
-                                <Col md={6} xs={12}>
-                                    <Select
-                                        value={['facebook']
-                                            .map(platform => ({ value: platform, label: platform }))
-                                            .find(option => option.value === this.state.input.typeBox) || { value: "facebook", label: "facebook" }}
-                                        onChange={selected => {
-                                            this.setState({ input: { ...this.state.input, typeBox: selected.value } });
-                                        }}
-                                        options={['facebook'].map(platform => ({
-                                            value: platform,
-                                            label: platform
-                                        }))}
-                                        placeholder="Chọn nền tảng"
-                                    />
-                                </Col>
-                            </Row>
-
-                            <Row className="mb-4">
-                                <Col md={12} xs={12}>
-                                    <Select
-                                        value={this.state.bankAccounts
-                                            .map(bank => ({ value: bank._id, label: bank.bankName }))
-                                            .find(option => option.value === this.state.input.bankId) || null}
-                                        onChange={selected => {
-                                                this.setState({ input: { ...this.state.input, bankId: selected.value } })
-                                            }
-                                        }
-                                        options={this.state.bankAccounts.map(bank => ({
-                                            value: bank._id,
-                                            label: bank.bankName
-                                        }))}
-                                        placeholder="Chọn ngân hàng"
-                                    />
-                                </Col>
-                                {this.state.input.bankId && (
-                                    (() => {
-                                        const selectedBank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
-                                        return selectedBank ? (
-                                            <label className="fw-bold text-danger mt-2">
-                                                {selectedBank.bankName} - {selectedBank.bankAccountName} - {selectedBank.bankAccount}
-                                            </label>
-                                        ) : null;
-                                    })()
-                                )}
-                            </Row>
-                            <Row className="mb-4">
-                            
-                                <Col md={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                    <Label>Số tiền</Label>
-                                    <Input
-                                        type="text"
-                                        name="amount"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.input.amount)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
-
-                                            this.handleAmountChange(numericValue);
-                                        }}
-                                    />
-                                </Col>
-                                <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                    <Label>Phí</Label>
-                                    <Input
-                                        type="text"
-                                        name="fee"
-                                        value={new Intl.NumberFormat('en-US').format(this.state.input.fee)}
-                                        onChange={(e) => {
-                                            let rawValue = e.target.value.replace(/,/g, '');
-                                            let numericValue = parseInt(rawValue, 10) || 0;
-
-                                            this.setState((prevState) => ({
-                                                input: {
-                                                    ...prevState.input,
-                                                    fee: numericValue < 0 ? 0 : numericValue,
-                                                },
-                                            }));
-                                        }}
-                                    />
-
-                                </Col>           
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={12} xs={12}>
-                                    <Label for="content">Nội dung chuyển khoản</Label>
-                                    <Input
-                                        type="text"
-                                        name="content"
-                                        id="content"
-                                        placeholder="Nhập nội dung"
-                                        value={input.content}
-                                        onChange={this.handleInputChange}
-                                    />
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={6} xs={12} className={cx("mb-4", { "pe-2": !this.state.isMobile })}>
-                                    <Input
-                                        type="text"
-                                        name="messengerId"
-                                        id="messengerId"
-                                        placeholder="Messenger ID"
-                                        value={input.messengerId}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            if (/^\d*$/.test(value)) { 
-                                                this.handleInputChange(e);
-                                            }
-                                        }}
-                                    />
-                                </Col>
-                                <Col md={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                <Select
-                                    value={typeFee
-                                        .map(option => ({ value: option.value, label: option.name }))
-                                        .find(option => option.value === this.state.input.typeFee) || null}
-                                    onChange={selected => this.setState(prevState => ({
-                                        input: { ...prevState.input, typeFee: selected?.value }
-                                    }))}
-                                    options={typeFee.map(option => ({
-                                        value: option.value,
-                                        label: option.name
-                                    }))}
-                                    placeholder="Chọn loại phí"
-                                />
-
-                                </Col>
-                            </Row>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="link" onClick={this.toggleCreate}>
-                                Hủy
-                            </Button>
-                            <Button color="primary" disabled={this.state.loading} onClick={this.handleSubmit}>
-                                {this.state.loading ? "Đang tạo..." : "Tạo"}
-                            </Button>{" "}
-                        </ModalFooter>
-                    </Modal> */}
                     <h3 className="text-center w-100">Tổng số GD: <span className="text-danger fw-bold">{transactions.totalDocs}</span></h3>
                     <div>
                         <Input 
@@ -775,6 +619,8 @@ class TransactionsTable extends Component {
                                                 this.setState({
                                                     boxAmount: item.boxId.amount,
                                                     boxId: item.boxId._id,
+                                                    buyerSender: item.boxId.buyer,
+                                                    sellerSender: item.boxId.seller,
                                                     buyer: {
                                                         ...this.state.buyer, 
                                                         content: `Refund GDTG ${item.boxId._id.slice(-8)}`
@@ -791,7 +637,7 @@ class TransactionsTable extends Component {
                                         </button>
                                     </>}
                                     {item.status === 1 && <>
-                                        <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
+                                        <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item, boxAmount: item.boxId.amount}); this.toggleConfirmTransaction()}}>
                                             <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                         </button>
                                     </>}
@@ -812,7 +658,7 @@ class TransactionsTable extends Component {
                                                     messengerId: item.messengerId,
                                                     typeFee: item.typeFee,
                                                     typeBox: 'facebook',
-
+                                                    isEncrypted: item.boxId.isEncrypted
                                                 }
                                             });
                                             this.toggleUpdate()
@@ -906,6 +752,19 @@ class TransactionsTable extends Component {
                 <Modal isOpen={this.state.confirmTransactionModal} toggle={this.toggleConfirmTransaction} className={this.props.className}>
                     <ModalHeader toggle={this.toggleConfirmTransaction}><span style={{fontWeight: 'bold'}}>Xác nhận đã nhận được tiền</span></ModalHeader>
                     <ModalBody>
+                        <Row>
+                            <div className="card-border mb-3 card card-body border-primary">
+                                <h5>Số tiền trong box dự kiến:&nbsp;
+                                    <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.state.boxAmount + this.state.confirmTransaction?.amount)} vnđ</span></span>
+                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.state.boxAmount + this.state.confirmTransaction?.amount)}>
+                                        <button type="button" class="btn btn-success ms-1">
+                                            <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
+                                        </button>
+                                    </CopyToClipboard>
+                                </h5>
+                            </div>
+                        
+                        </Row>
                         ID: {this.state.confirmTransaction?._id.slice(-8)} <br />
                         Số tài khoản: {this.state.confirmTransaction?.bankId.bankAccount} <br />
                         Ngân hàng: {this.state.confirmTransaction?.bankId.bankName} <br />
@@ -1079,6 +938,25 @@ class TransactionsTable extends Component {
                                     </Col>
                                 </Row>
                                 <Row className="mb-4">
+                                    <Label className="me-3" style={{width: 'auto' }}>Box mã hóa ? </Label>
+                                    <div style={{display: 'inline-block', width: '1em', maxWidth: '1em' }}>
+                                        <Input 
+                                            id="isEncrypted" 
+                                            type="checkbox" checked={this.state.update.isEncrypted} 
+                                            style={{width: '1em', maxWidth: '1em' }}
+                                            onChange={() => {
+                                                this.setState({
+                                                    update: {
+                                                        ...this.state.update,
+                                                        isEncrypted: !this.state.update.isEncrypted
+                                                    }
+                                                })
+                                            }}
+                                        />
+                                    </div>
+                                    
+                                </Row>
+                                <Row className="mb-4">
                                     <div>
                                         <Label>Trạng thái: &nbsp;</Label><StatusBadge status={this.state.updateTransaction?.status}/>           
                                     </div>
@@ -1124,6 +1002,76 @@ class TransactionsTable extends Component {
                                     </div> 
                                     : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>} 
                                 </Row>
+                                <Row className="mb-3 ms-2">
+                                    <Col md={12} xs={12}>
+                                        <Label>Bên mua</Label>
+                                    </Col>
+                                    <Col md={6} xs={6} className="pe-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="buyerId"
+                                                id="buyerId"
+                                                value={this.state.updateTransaction?.boxId.buyer?.facebookId}
+                                                autoComplete="off"
+                                                disabled
+                                            />
+                                        </InputGroup>
+                                                                                                            
+                                    </Col>
+                                    <Col md={6} xs={6} className="ps-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="buyerName"
+                                                id="buyerName"
+                                                value={this.state.updateTransaction?.boxId.buyer?.facebookId}
+                                                disabled
+                                            />
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.buyer?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.updateTransaction?.boxId.buyer && this.state.updateTransaction?.boxId.buyer.avatar ? this.state.updateTransaction?.boxId.buyer.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </a>
+                                            </div>
+                                        </InputGroup>
+                                        
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3 ms-2">
+                                    <Col md={12} xs={12}>
+                                        <Label>Bên bán</Label>
+                                    </Col>
+                                    <Col md={6} xs={6} className="pe-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="sellerId"
+                                                id="sellerId"
+                                                value={this.state.updateTransaction?.boxId.seller?.facebookId}
+                                                autoComplete="off"
+                                                disabled
+                                            />
+                                            
+                                        </InputGroup>
+                                                                                                    
+                                    </Col>
+                                    <Col md={6} xs={6} className="ps-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="sellerName"
+                                                id="sellerName"
+                                                value={this.state.updateTransaction?.boxId.seller?.nameCustomer}
+                                                disabled
+                                            />
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.seller?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.updateTransaction?.boxId.seller && this.state.updateTransaction?.boxId.seller.avatar ? this.state.updateTransaction?.boxId.seller.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </a>
+                                            </div>
+                                        </InputGroup>
+                                    </Col>
+                                </Row>
                             </Col>
                         
                         </Row>
@@ -1158,7 +1106,7 @@ class TransactionsTable extends Component {
                         
                         </Row>
                         <Row>
-                            <Col md={6} xs={12} className="pe-2">
+                            <Col lg={6} xs={12} sm={12} className="pe-2">
                                 <Row className="mb-3">
                                     <Col md={4}>
                                         <Label>Tạo cho <span className="fw-bold text-danger">BÊN MUA</span>?</Label>
@@ -1182,14 +1130,38 @@ class TransactionsTable extends Component {
                                     <Col md={4}>
                                         <Label>Khách mua</Label>      
                                     </Col>
-                                    <Col md={8}>
-                                        <Input
-                                            type="text"
-                                            name="buyer"
-                                            id="buyer"
-                                            value={""}
-                                            disabled
-                                        />
+                                    <Col md={4} xs={6} className="pe-1">
+                                        <InputGroup>
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                            </div>
+                                            <Input
+                                                type="text"
+                                                name="buyerName"
+                                                id="buyerName"
+                                                value={this.state.buyerSender?.nameCustomer}
+                                                disabled
+                                            />
+                                        </InputGroup>
+                                        
+                                    </Col>
+                                    <Col md={4} xs={6} className="ps-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="buyerId"
+                                                id="buyerId"
+                                                value={this.state.buyerSender?.facebookId}
+                                                disabled
+                                                autoComplete="off"
+                                            />
+                                            <div className="input-group-text">
+                                                <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                </a>
+                                            </div>
+                                        </InputGroup>
+                                                                                                    
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">
@@ -1323,7 +1295,7 @@ class TransactionsTable extends Component {
                                 </Row>
 
                             </Col>
-                            <Col md={6} xs={12} className="ps-2">
+                            <Col lg={6} xs={12} sm={12} className="ps-2">
                                 <Row className="mb-3">
                                     <Col md={4}>
                                         <Label>Tạo cho <span className="fw-bold text-danger">BÊN BÁN</span>?</Label>
@@ -1347,14 +1319,38 @@ class TransactionsTable extends Component {
                                     <Col md={4}>
                                         <Label>Khách bán</Label>
                                     </Col>
-                                    <Col md={8}>
-                                        <Input
-                                            type="text"
-                                            name="seller"
-                                            id="sellers"
-                                            value={""}
-                                            disabled
-                                        />
+                                    <Col md={4} xs={6} className="pe-1">
+                                        <InputGroup>
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                            </div>
+                                            <Input
+                                                type="text"
+                                                name="sellerName"
+                                                id="sellerName"
+                                                value={this.state.sellerSender?.nameCustomer}
+                                                disabled
+                                            />
+                                        </InputGroup>
+                                        
+                                    </Col>
+                                    <Col md={4} xs={6} className="ps-1">
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="sellerId"
+                                                id="sellerId"
+                                                value={this.state.sellerSender?.facebookId}
+                                                disabled
+                                                autoComplete="off"
+                                            />
+                                            <div className="input-group-text">
+                                                <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                </a>
+                                            </div>
+                                        </InputGroup>
+                                                                                                    
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">

@@ -216,7 +216,7 @@ class BillsTable extends Component {
                                 
                                 </Row>
                                 <Row>
-                                    <Col md={6} xs={12} className="pe-2">
+                                    <Col lg={6} xs={12} sm={12} className="pe-2">
                                         <Row className="mb-3">
                                             <Col md={4}>
                                                 <Label>Tạo cho <span className="fw-bold text-danger">BÊN MUA</span>?</Label>
@@ -341,8 +341,8 @@ class BillsTable extends Component {
                                                     name="buyerAmount"
                                                     value={new Intl.NumberFormat('en-US').format(this.state.buyer.amount)}
                                                     onChange={(e) => {
-                                                        let rawValue = e.target.value.replace(/,/g, ''); // Xóa dấu phẩy
-                                                        let numericValue = parseInt(rawValue, 10) || 0; // Chuyển thành số nguyên
+                                                        let rawValue = e.target.value.replace(/,/g, '');
+                                                        let numericValue = parseInt(rawValue, 10) || 0;
                                                         
                                                         this.setState((prevState) => ({
                                                             buyer: {
@@ -405,7 +405,7 @@ class BillsTable extends Component {
                                         </Row>
 
                                     </Col>
-                                    <Col md={6} xs={12} className="ps-2">
+                                    <Col lg={6} xs={12} sm={12} className="ps-2">
                                         <Row className="mb-3">
                                             <Col md={4}>
                                                 <Label>Tạo cho <span className="fw-bold text-danger">BÊN BÁN</span>?</Label>
