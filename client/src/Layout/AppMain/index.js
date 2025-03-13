@@ -137,6 +137,12 @@ const AppMain = () => {
                     if (data.box?._id === box.box._id) {
                         dispatch(getBoxByIdNoLoad(box.box._id));
                     }
+                    if (transactions.transactions?.docs.length > 0) {
+                        dispatch(getTransactionsNoLoad(transactions.filters));
+                    }
+                    if (bills.bills?.docs.length > 0) {
+                        dispatch(getBillsNoLoad(bills.filters));
+                    }
                 })
                 socket.on('switch_box', (data) => {
                     if (data.box?._id === box.box._id) {
