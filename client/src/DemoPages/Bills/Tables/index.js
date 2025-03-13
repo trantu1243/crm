@@ -297,7 +297,18 @@ class BillsTable extends Component {
                             </td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
-                            <td className="text-center text-muted">{<FontAwesomeIcon icon={faCircle} color={item.boxId.buyer ? '#3ac47d' : '#d92550'} style={{float: 'left'}}/>}{item.content}{<FontAwesomeIcon icon={faCircle} color={item.boxId.seller ? '#3ac47d' : '#d92550'} style={{float: 'right'}}/>}</td>
+                            <td className="text-center text-muted">
+                                <div style={{
+                                    display: "flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "space-between", 
+                                    width: "100%"
+                                }}>
+                                    <FontAwesomeIcon icon={faCircle} color={item.boxId.buyer ? '#3ac47d' : '#d92550'} />
+                                    <p style={{ margin: 0, textAlign: "center", flex: 1 }}>{item.content}</p>
+                                    <FontAwesomeIcon icon={faCircle} color={item.boxId.seller ? '#3ac47d' : '#d92550'} />
+                                </div>
+                            </td>
                             <td className="text-center "> 
                                 <StatusBadge status={item.status} />
                                 {item.boxId.notes.length > 0 && <>&nbsp;
