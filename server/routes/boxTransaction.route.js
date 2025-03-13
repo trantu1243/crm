@@ -25,4 +25,6 @@ router.post('/:id/get-info', authenticateToken, boxTransactionController.regetMe
 
 router.post('/:id/get-sender', authenticateToken, boxTransactionController.getSenderInfo);
 
+router.post('/:id/get-fb', authenticateToken, boxTransactionController.regetFBInfo);
+
 module.exports = router;

@@ -88,7 +88,14 @@ const getTransactions = async (req, res) => {
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
-                { path: 'boxId', select: 'amount messengerId notes status typeBox' }
+                { 
+                    path: 'boxId', 
+                    select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
+                    populate: [
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                    ] 
+                }
             ],
             sort: { createdAt: -1 },
         });
@@ -148,7 +155,8 @@ const createTransaction = async (req, res) => {
             messengerId,
             typeFee,
             fee = 0,
-            bonus = 0
+            bonus = 0,
+            isEncrypted = false
         } = req.body;
 
         if (amount === 0 && bonus === 0) {
@@ -188,7 +196,8 @@ const createTransaction = async (req, res) => {
                 messengerId: messengerId,
                 staffId: user._id,
                 typeBox: typeBox,
-                senders
+                senders,
+                isEncrypted
             });
             
             // const buyerCustomer = await Customer.create({

@@ -1,8 +1,8 @@
-import { Button, Card, CardFooter, CardHeader, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
+import { Button, Card, CardFooter, CardHeader, Col, Input, InputGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap";
 
 import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { getBills, setFilters } from "../../../reducers/billsSlice";
 import { connect } from "react-redux";
 import Loader from "react-loaders";
@@ -240,14 +240,38 @@ class BillsTable extends Component {
                                             <Col md={4}>
                                                 <Label>Khách mua</Label>      
                                             </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="buyer"
-                                                    id="buyer"
-                                                    value={""}
-                                                    disabled
-                                                />
+                                            <Col md={4} xs={4} className="pe-1">
+                                                <InputGroup>
+                                                    <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                        <img src={this.props.buyer && this.props.buyer.avatar ? this.props.buyer.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                    </div>
+                                                    <Input
+                                                        type="text"
+                                                        name="buyerName"
+                                                        id="buyerName"
+                                                        value={this.props.buyer?.nameCustomer}
+                                                        disabled
+                                                    />
+                                                </InputGroup>
+                                                
+                                            </Col>
+                                            <Col md={4} xs={4} className="ps-1">
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="buyerId"
+                                                        id="buyerId"
+                                                        value={this.props.buyer?.facebookId}
+                                                        disabled
+                                                        autoComplete="off"
+                                                    />
+                                                    <div className="input-group-text">
+                                                        <a href={`https://www.facebook.com/${this.props.buyer?.facebookId}`} rel="noreferrer" target="_blank">
+                                                            <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                        </a>
+                                                    </div>
+                                                </InputGroup>
+                                                                                                           
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">
@@ -402,17 +426,41 @@ class BillsTable extends Component {
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">
-                                            <Col md={4}>
-                                                <Label>Khách bán</Label>
+                                        <Col md={4}>
+                                                <Label>Khách bán</Label>      
                                             </Col>
-                                            <Col md={8}>
-                                                <Input
-                                                    type="text"
-                                                    name="seller"
-                                                    id="sellers"
-                                                    value={""}
-                                                    disabled
-                                                />
+                                            <Col md={4} xs={4} className="pe-1">
+                                                <InputGroup>
+                                                    <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
+                                                        <img src={this.props.seller && this.props.seller.avatar ? this.props.seller.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                    </div>
+                                                    <Input
+                                                        type="text"
+                                                        name="sellerName"
+                                                        id="sellerName"
+                                                        value={this.props.seller?.nameCustomer}
+                                                        disabled
+                                                    />
+                                                </InputGroup>
+                                                
+                                            </Col>
+                                            <Col md={4} xs={4} className="ps-1">
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="sellerId"
+                                                        id="sellerId"
+                                                        value={this.props.seller?.facebookId}
+                                                        disabled
+                                                        autoComplete="off"
+                                                    />
+                                                    <div className="input-group-text">
+                                                        <a href={`https://www.facebook.com/${this.props.seller?.facebookId}`} rel="noreferrer" target="_blank">
+                                                            <FontAwesomeIcon icon={faFacebook} size="lg"/>
+                                                        </a>
+                                                    </div>
+                                                </InputGroup>
+                                                                                                           
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">
@@ -681,6 +729,8 @@ const mapStateToProps = (state) => ({
     boxId: state.box.box ? state.box.box._id : '',
     bills: state.box.box ? state.box.box.bills : [],
     loading: state.box.loading,
+    buyer: state.box.box ? state.box.box.buyer : null,
+    seller: state.box.box ? state.box.box.seller : null,
 });
   
 const mapDispatchToProps = {

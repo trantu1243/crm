@@ -170,3 +170,24 @@ export const getSenderInfo = async (id) => {
         throw error.response?.data?.message || "Failed to get info!";
     }  
 };
+
+export const getFBInfo = async (id) => {
+    try {
+        const response = await axios.post(`${API_URL}/${id}/get-fb`, {}, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error get fb", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to get fb!";
+    }  
+};

@@ -38,6 +38,8 @@ const getSenderInfo = async (req, res) => {
 
         const setting = await Setting.findOne({uniqueId: 1});
 
+        const box = await BoxTransaction.findById(id)
+
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
@@ -51,6 +53,7 @@ const getSenderInfo = async (req, res) => {
 
         return res.status(200).json({ 
             success: true, 
+            box,
             senders: senderInfo 
         });
     } catch (error) {
@@ -90,14 +93,28 @@ const getById = async (req, res) => {
         
         const transactions = await Transaction.find({ boxId: id }).sort({ createdAt: -1 }).populate(
             [
-                { path: 'boxId', select: 'amount messengerId notes status' },
+                { 
+                    path: 'boxId', 
+                    select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
+                    populate: [
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                    ] 
+                },
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
             ]
         );
         const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-            { path: 'boxId', select: 'amount messengerId notes status' }
+            { 
+                path: 'boxId', 
+                select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
+                populate: [
+                    { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
+                    { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                ] 
+            }       
         ]);
 
         const boxObject = box.toObject();
@@ -450,6 +467,7 @@ const updateBox = async (req, res) => {
         let messengerId = req.body.messengerId ? req.body.messengerId : '';
         const buyerId = req.body.buyerId ? req.body.buyerId : '';
         const sellerId = req.body.sellerId ? req.body.sellerId : '';
+        const isEncrypted = req.body.isEncrypted;
 
         if (box.messengerId === messengerId) messengerId = '';
         
@@ -546,6 +564,9 @@ const updateBox = async (req, res) => {
         }
 
         if (name) box.name = name;
+        if (typeof isEncrypted !== "undefined") {
+            box.isEncrypted = isEncrypted;
+        }
         await box.save();
 
         await saveUserLogToQueue(user._id, box._id, "UPDATE_BOX", "Chỉnh sửa box", req);
@@ -648,6 +669,47 @@ const regetMessInfo = async (req, res) => {
     }
 }
 
+const regetFBInfo = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'ID is required' });
+        }
+
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        let customer = null;
+        if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
+            const data = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
+            
+            if (data) {
+                customer = await Customer.findOne({facebookId: id});
+                if (!customer) {
+                    customer = await Customer.create({
+                        facebookId: data.id,
+                        nameCustomer: data.name,
+                        avatar: data.picture.data.url
+                    })
+                } else {
+                    customer.nameCustomer = data.name;
+                    customer.avatar = data.picture.data.url;
+                    await customer.save()
+                }
+            }
+        } else {
+            return res.status(400).json({ message: 'Lỗi cookie hoặc token' });
+        }
+
+        res.status(200).json({
+            message: 'Get fb info successfully',
+            data: customer,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     undoBox,
     getTransactionsByBoxId,
@@ -658,5 +720,6 @@ module.exports = {
     switchLock,
     deleteNote,
     regetMessInfo, 
-    getSenderInfo
+    getSenderInfo,
+    regetFBInfo
 }

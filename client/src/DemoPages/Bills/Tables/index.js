@@ -11,7 +11,7 @@ import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
 import PaginationTable from "../../Transactions/Tables/PaginationTable";
 import { formatDate } from "../../Transactions/Tables/data";
-import { faCheck, faExclamationTriangle, faInfoCircle, faLock, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCircle, faExclamationTriangle, faInfoCircle, faLock, faMinus, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import { cancelBillService, confirmBillService } from "../../../services/billService";
 import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
@@ -297,7 +297,7 @@ class BillsTable extends Component {
                             </td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
-                            <td className="text-center text-muted">{item.content}</td>
+                            <td className="text-center text-muted">{<FontAwesomeIcon icon={faCircle} color={item.boxId.buyer ? '#3ac47d' : '#d92550'} style={{float: 'left'}}/>}{item.content}{<FontAwesomeIcon icon={faCircle} color={item.boxId.seller ? '#3ac47d' : '#d92550'} style={{float: 'right'}}/>}</td>
                             <td className="text-center "> 
                                 <StatusBadge status={item.status} />
                                 {item.boxId.notes.length > 0 && <>&nbsp;
@@ -310,7 +310,7 @@ class BillsTable extends Component {
                                 </>}
                             </td> 
                             <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
-                            <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                            <td className="text-center"><a href={item.boxId.isEncrypted ? `https://www.messenger.com/e2ee/t/${item.boxId.messengerId}` : `https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>
                                     <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>

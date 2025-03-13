@@ -80,8 +80,14 @@ const getBills = async (req, res) => {
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'boxId', select: 'amount messengerId notes status' }
-            ],
+                { 
+                    path: 'boxId', 
+                    select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
+                    populate: [
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                    ] 
+                }            ],
             sort: { createdAt: -1 },
         });
 
@@ -568,8 +574,14 @@ const getById = async (req, res) => {
         const { id } = req.params;
         const bill = await Bill.findById(id).populate([
             { path: 'billId', select: 'bankCode stk content amount bonus typeTransfer boxId linkQr status staffId billId' },
-            { path: 'boxId', select: 'name status messengerId staffId typeBox amount notes' },
-        ]);
+            { 
+                path: 'boxId', 
+                select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
+                populate: [
+                    { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
+                    { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                ] 
+            }        ]);
         if (!bill) {
             return res.status(404).json({ message: 'Bill not found' });
         }

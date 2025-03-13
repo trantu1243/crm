@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
-import { faCheck, faCopy, faExclamationTriangle, faInfoCircle, faLock, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCircle, faCopy, faExclamationTriangle, faInfoCircle, faLock, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
@@ -743,7 +743,7 @@ class TransactionsTable extends Component {
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.totalAmount)}</td>
                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
-                                <td className="text-center">{item.content}</td>
+                                <td className="text-center text-muted">{<FontAwesomeIcon icon={faCircle} color={item.boxId.buyer ? '#3ac47d' : '#d92550'} style={{float: 'left'}}/>}{item.content}{<FontAwesomeIcon icon={faCircle} color={item.boxId.seller ? '#3ac47d' : '#d92550'} style={{float: 'right'}}/>}</td>
                                 <td className="text-center "> 
                                     <StatusBadge status={item.status} />
                                     {item.boxId.notes?.length > 0 && <>&nbsp;
@@ -754,7 +754,7 @@ class TransactionsTable extends Component {
                                     </FontAwesomeIcon></>}
                                 </td>
                                 <td className="text-center"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
-                                <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
+                                <td className="text-center"><a href={item.boxId.isEncrypted ? `https://www.messenger.com/e2ee/t/${item.boxId.messengerId}` : `https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                 <td className="text-center">
                                     {(item.status === 6 || item.status === 8) && <>
                                         <button 
