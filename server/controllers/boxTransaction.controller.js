@@ -681,7 +681,7 @@ const regetMessInfo = async (req, res) => {
                 if (isArrayOnlyContains(senders, '100003277523201', '100004703820246'))
                     return res.status(400).json({ message: 'Người dùng đã rời khỏi nhóm' });
             } else {
-                return res.status(400).json({ message: 'Thông tin lấy được rỗng hoặc nhóm chat bị mã hóa' });
+                return res.status(400).json({ message: 'Nhóm chat bị mã hóa hoặc tài khoản facebook không có trong nhóm chat' });
             }
         } else {
             return res.status(400).json({ message: 'Lỗi cookie hoặc token' });
