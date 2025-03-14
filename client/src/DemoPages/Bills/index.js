@@ -116,7 +116,7 @@ class Bills extends Component {
             maxAmount: "",
             startDate: "",
             endDate: "",
-            content: "",
+            search: "",
             page: 1,
             limit: 10,
         };
@@ -191,17 +191,17 @@ class Bills extends Component {
                                                     </Col>
     
                                                     <Col md={3} sm={6} xs={12} className="pe-2 mb-2">
-                                                        <Label for="content">Nội dung</Label>
+                                                        <Label for="search">Nội dung</Label>
                                                         <Input
                                                             type="text"
-                                                            name="content"
-                                                            id="content"
+                                                            name="search"
+                                                            id="search"
                                                             placeholder="Nhập nội dung"
-                                                            value={filters?.content || ""}
+                                                            value={filters?.search || ""}
                                                             onChange={(e) =>
                                                                 this.props.setFilters({
                                                                     ...filters,
-                                                                    content: e.target.value,
+                                                                    search: e.target.value,
                                                                 })
                                                             }
                                                         />

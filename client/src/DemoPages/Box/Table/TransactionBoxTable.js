@@ -20,6 +20,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { createBill } from "../../../services/billService";
 import { fetchBankApi } from "../../../services/bankApiService";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -656,12 +657,11 @@ class TransactionsTable extends Component {
                                     <td className="text-center ">{formatDate(item.createdAt)}</td>
                                     <td
                                         className="text-center"
-                                        title={item.bankId.bankAccount}
                                         onClick={() => {
                                             navigator.clipboard.writeText(item.bankId.bankAccount);
                                         }}
                                     >
-                                        {item.bankId.bankName}
+                                        <p data-tooltip-id="my-tooltip" data-tooltip-content={item.bankId.bankAccount} className="m-0">{item.bankId.bankName}</p>
                                     </td>
                                     <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                                     <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
@@ -670,29 +670,29 @@ class TransactionsTable extends Component {
                                     <td className="text-center ">{item.content}</td>
                                     <td className="text-center "> 
                                         <StatusBadge status={item.status} />&nbsp;
-                                        {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                        {item.boxId.notes.length > 0 && <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
                                         </FontAwesomeIcon>}
-                                        {item.boxId.status === 'lock' && <FontAwesomeIcon color="#d92550" title="Box bị khóa " icon={faLock}>
+                                        {item.boxId.status === 'lock' && <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Box bị khóa " icon={faLock}>
                                         </FontAwesomeIcon>}
                                     </td>
-                                    <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                                    <td className="text-center "><img className="rounded-circle" data-tooltip-id="my-tooltip" data-tooltip-content={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                                     <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                                     <td className="text-center ">
                                         {(item.status === 6 || item.status === 8) && <>
                                             <button 
                                                 className="btn btn-sm btn-primary me-1 mb-1" 
-                                                title="Tạo bill thanh khoản" 
+                                                data-tooltip-id="my-tooltip" data-tooltip-content="Tạo bill thanh khoản" 
                                                 onClick={() => {
                                                     this.setState({
                                                         buyerSender: item.boxId.buyer,
                                                         sellerSender: item.boxId.seller,
                                                         buyer: {
                                                             ...this.state.buyer, 
-                                                            content: `Refund GDTG ${item.boxId._id.slice(-8)}`
+                                                            content: `Refund GDTG ${item.boxId._id}`
                                                         },
                                                         seller: {
                                                             ...this.state.seller, 
-                                                            content: `Thanh khoản GDTG ${item.boxId._id.slice(-8)}`
+                                                            content: `Thanh khoản GDTG ${item.boxId._id}`
                                                         }
                                                     });
                                                     this.toggle();
@@ -702,14 +702,14 @@ class TransactionsTable extends Component {
                                             </button>
                                         </>}
                                         {item.status === 1 && <>
-                                            <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
+                                            <button className="btn btn-sm btn-success me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xác nhận giao dịch" onClick={() => {this.setState({confirmTransaction: item}); this.toggleConfirmTransaction()}}>
                                                 <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                             </button>
                                         </>}
 
                                         {(item.status === 1 || item.status === 6) && <button 
                                             className="btn btn-sm btn-info me-1 mb-1" 
-                                            title="Chỉnh sửa giao dịch" 
+                                            data-tooltip-id="my-tooltip" data-tooltip-content="Chỉnh sửa giao dịch" 
                                             onClick={() => {
                                                 this.setState({
                                                     updateTransaction: item,
@@ -733,12 +733,12 @@ class TransactionsTable extends Component {
                                         </button>}
                                     
                                         {item.status === 1 && <>
-                                            <button className="btn btn-sm btn-danger me-1 mb-1" title="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>
+                                            <button className="btn btn-sm btn-danger me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Hủy" onClick={() => {this.setState({cancelTransaction: item}); this.toggleCancel()}}>
                                                 <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
                                             </button>
                                         </>}
-                                        {(item.status !== 1) && <>
-                                            <button className="btn btn-sm btn-warning me-1 mb-1" title="Hoàn tác" onClick={()=> {this.setState({undoTransaction: item});this.toggleUndo()}}>
+                                        {(item.status !== 1 && ((item.status !==2 && item.status !==8) || this.props.user?.is_admin === 1)) && <>
+                                            <button className="btn btn-sm btn-warning me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Hoàn tác" onClick={()=> {this.setState({undoTransaction: item});this.toggleUndo()}}>
                                                 <FontAwesomeIcon icon={faUndoAlt} color="#fff" size="3xs"/>
                                             </button>
                                         </>}
@@ -1506,6 +1506,10 @@ class TransactionsTable extends Component {
                 </>)}
                 <SweetAlert title={this.state.errorMsg} show={this.state.alert}
                     type="error" onConfirm={() => this.setState({alert: false})}/>
+                <ReactTooltip
+                    id="my-tooltip"
+                    place="bottom"
+                />
             </Card>)
     }
 }
@@ -1517,6 +1521,7 @@ const mapStateToProps = (state) => ({
     messengerId: state.box.box ? state.box.box.messengerId : '',
     bankAccounts: state.user.user.permission_bank || [],
     totalAmount: state.box.box ? state.box.box.amount : 0,
+    user: state.user.user,
 });
   
 const mapDispatchToProps = {

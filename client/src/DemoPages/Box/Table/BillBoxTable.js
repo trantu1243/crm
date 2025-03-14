@@ -19,6 +19,7 @@ import { getBoxById, getBoxByIdNoLoad } from "../../../reducers/boxSlice";
 import { SERVER_URL } from "../../../services/url";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { banks } from "../../Bills/Tables/data";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 class BillsTable extends Component {
     constructor(props) {
@@ -38,14 +39,14 @@ class BillsTable extends Component {
             buyer: {
                 bankCode: '', 
                 stk: '', 
-                content: `Refund GDTG ${this.props.boxId.slice(-8)}`,
+                content: `Refund GDTG ${this.props.boxId}`,
                 amount: '', 
                 bonus: 0
             },
             seller: {
                 bankCode: '', 
                 stk: '', 
-                content: `Thanh Khoan GDTG ${this.props.boxId.slice(-8)}`,
+                content: `Thanh Khoan GDTG ${this.props.boxId}`,
                 amount: '', 
                 bonus: 0
             }
@@ -630,36 +631,35 @@ class BillsTable extends Component {
                             <td className="text-center ">{formatDate(item.createdAt)}</td>
                             <td
                                 className="text-center"
-                                title={item.stk}
                                 onClick={() => {
                                     navigator.clipboard.writeText(item.stk);
                                 }}
                             >
-                                {banks.find(b => b.bankCode === item.bankCode).bankName}
+                                <p data-tooltip-id="my-tooltip" data-tooltip-content={item.stk} className="m-0">{banks.find(b => b.bankCode === item.bankCode).bankName}</p>
                             </td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center ">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
                             <td className="text-center ">{item.content}</td>
                             <td className="text-center "> 
                                 <BillStatusBadge status={item.status} />&nbsp;
-                                {item.boxId.notes.length > 0 && <FontAwesomeIcon title="Có ghi chú chưa hoàn thành" color="#d92550" icon={faExclamationTriangle}>
+                                {item.boxId.notes.length > 0 && <FontAwesomeIcon data-tooltip-id="my-tooltip" data-tooltip-content="Có ghi chú chưa hoàn thành" color="#d92550" icon={faExclamationTriangle}>
                                 </FontAwesomeIcon>}
-                                {item.boxId.status === 'lock' && <FontAwesomeIcon title="Box bị khóa" color="#d92550" icon={faLock}>
+                                {item.boxId.status === 'lock' && <FontAwesomeIcon data-tooltip-id="my-tooltip" data-tooltip-content="Box bị khóa" color="#d92550" icon={faLock}>
                                 </FontAwesomeIcon>}
                             </td>                            
-                            <td className="text-center "><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
+                            <td className="text-center "><img className="rounded-circle" data-tooltip-id="my-tooltip" data-tooltip-content={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}}/></td>
                             <td className="text-center"><a href={`https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center ">
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
+                                    <button className="btn btn-sm btn-success me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
                                 </>}
-                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" title="Xem chi tiết giao dịch">
+                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xem chi tiết giao dịch">
                                     <FontAwesomeIcon icon={faMoneyBill} color="#fff" size="3xs"/>
                                 </a>
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-danger me-1 mb-1" title="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
+                                    <button className="btn btn-sm btn-danger me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
                                         <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
                                     </button>
                                 </>}
@@ -719,7 +719,11 @@ class BillsTable extends Component {
                     </ModalFooter>
                 </Modal>
             </>)}
-             <SweetAlert title={this.state.errorMsg} show={this.state.alert} type="error" onConfirm={() => this.setState({alert: false})}/>
+            <SweetAlert title={this.state.errorMsg} show={this.state.alert} type="error" onConfirm={() => this.setState({alert: false})}/>
+            <ReactTooltip
+                id="my-tooltip"
+                place="bottom"
+            />
         </Card>)
     }
 }

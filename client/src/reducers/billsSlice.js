@@ -125,6 +125,7 @@ const initialState = {
         startDate: "",
         endDate: "",
         content: "",
+        search: '',
         page: 1,
         limit: 10,
     }

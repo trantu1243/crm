@@ -16,6 +16,7 @@ import { cancelBillService, confirmBillService } from "../../../services/billSer
 import { SERVER_URL } from "../../../services/url";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { banks } from "./data";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 const statusList = [
     { value: 0, name: "Tất cả" },
@@ -24,6 +25,7 @@ const statusList = [
     { value: 3, name: "Hủy" },
     { value: 4, name: "Có ghi chú chưa hoàn thành" },
     { value: 5, name: "Box bị khóa" },
+    { value: 9, name: "Bị thiếu thông tin khách hàng" },
 ];
 
 class BillsTable extends Component {
@@ -135,11 +137,8 @@ class BillsTable extends Component {
 
     handleSearch = async (e) => {
         try {
-             await this.props.setFilters({
+            await this.props.setFilters({
                 ...this.props.filters,
-                status: [], 
-                hasNotes: false,
-                isLocked: false,
                 search: this.state.search,
                 page: 1
             });
@@ -155,10 +154,12 @@ class BillsTable extends Component {
     handleStatus = async (value) => {
         try {
             if (value === 0) {
+                this.setState({search: ''});
                 await this.props.setFilters({
                     ...this.props.filters,
                     status: [], 
                     hasNotes: false,
+                    isMissing: false,
                     isLocked: false,
                     search: '',
                     page: 1
@@ -168,8 +169,8 @@ class BillsTable extends Component {
                     ...this.props.filters,
                     status: [], 
                     isLocked: false,
+                    isMissing: false,
                     hasNotes: true, 
-                    search: '',
                     page: 1
                 });
             } else if (value === 5) {
@@ -177,8 +178,17 @@ class BillsTable extends Component {
                     ...this.props.filters,
                     status: [], 
                     hasNotes: false, 
+                    isMissing: false,
                     isLocked: true,
-                    search: '',
+                    page: 1
+                });
+            } else if (value === 9) {
+                await this.props.setFilters({
+                    ...this.props.filters,
+                    status: [], 
+                    hasNotes: false, 
+                    isLocked: false,
+                    isMissing: true,
                     page: 1
                 });
             } else {
@@ -187,7 +197,7 @@ class BillsTable extends Component {
                     status: [value], 
                     hasNotes: false, 
                     isLocked: false,
-                    search: '',
+                    isMissing: false,
                     page: 1
                 });
             } 
@@ -209,7 +219,7 @@ class BillsTable extends Component {
             maxAmount: "",
             startDate: "",
             endDate: "",
-            content: "",
+            search: "",
             page: 1,
             limit: 10,
         };
@@ -288,12 +298,11 @@ class BillsTable extends Component {
                             <td className="text-center text-muted">{formatDate(item.createdAt)}</td>
                             <td
                                 className="text-center"
-                                title={item.stk}
                                 onClick={() => {
                                     navigator.clipboard.writeText(item.stk);
                                 }}
                             >
-                                {banks.find(b => b.bankCode === item.bankCode).bankName}
+                                <p data-tooltip-id="my-tooltip" data-tooltip-content={item.stk} className="m-0">{banks.find(b => b.bankCode === item.bankCode).bankName}</p>
                             </td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                             <td className="text-center text-muted">{new Intl.NumberFormat('en-US').format(item.bonus)}</td>
@@ -312,30 +321,30 @@ class BillsTable extends Component {
                             <td className="text-center "> 
                                 <StatusBadge status={item.status} />
                                 {item.boxId.notes.length > 0 && <>&nbsp;
-                                <FontAwesomeIcon color="#d92550" title="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
                                 </FontAwesomeIcon>
                                 </>}
                                 {item.boxId.status === 'lock' && <>&nbsp;
-                                <FontAwesomeIcon color="#d92550" title="Box bị khóa" icon={faLock}>
+                                <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Box bị khóa" icon={faLock}>
                                 </FontAwesomeIcon>
                                 </>}
                             </td> 
-                            <td className="text-center text-muted"><img className="rounded-circle" title={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
+                            <td className="text-center text-muted"><img className="rounded-circle" data-tooltip-id="my-tooltip" data-tooltip-content={item.staffId.name_staff} src={`${SERVER_URL}${item.staffId.avatar ? item.staffId.avatar : '/images/avatars/avatar.jpg'}`} alt={item.staffId.name_staff} style={{width: 40, height: 40, objectFit: 'cover'}} /></td>
                             <td className="text-center"><a href={item.boxId.isEncrypted ? `https://www.messenger.com/e2ee/t/${item.boxId.messengerId}` : `https://www.messenger.com/t/${item.boxId.messengerId}`} rel="noreferrer" target="_blank"><FontAwesomeIcon icon={faFacebookMessenger} size="lg" color="#0084FF" /></a></td>
                             <td className="text-center text-muted">
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-success me-1 mb-1" title="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
+                                    <button className="btn btn-sm btn-success me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xác nhận giao dịch" onClick={() => {this.setState({ confirmBill: item }); this.toggleConfirmBill()}}>
                                         <FontAwesomeIcon icon={faCheck} color="#fff" size="3xs"/>
                                     </button>
                                 </>}
-                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" title="Xem chi tiết giao dịch">
+                                <a href={`/bill/${item._id}`} className="btn btn-sm btn-info me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xem chi tiết giao dịch">
                                     <FontAwesomeIcon icon={faMoneyBill} color="#fff" size="3xs"/>
                                 </a>
-                                <a href={`/box/${item.boxId._id}`} className="btn btn-sm btn-light me-1 mb-1" title="Xem chi tiết box">
+                                <a href={`/box/${item.boxId._id}`} className="btn btn-sm btn-light me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xem chi tiết box">
                                     <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
                                 </a>
                                 {item.status === 1 && <>
-                                    <button className="btn btn-sm btn-danger me-1 mb-1" title="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
+                                    <button className="btn btn-sm btn-danger me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Huỷ giao dịch" onClick={() => {this.setState({ cancelBill: item }); this.toggleCancelBill()}}>
                                         <FontAwesomeIcon icon={faMinus} color="#fff" size="3xs"/>
                                     </button>
                                 </>}
@@ -425,6 +434,10 @@ class BillsTable extends Component {
             </Modal>
             <SweetAlert title={this.state.errorMsg} show={this.state.alert}
                 type="error" onConfirm={() => this.setState({alert: false})}/>
+            <ReactTooltip
+                id="my-tooltip"
+                place="bottom"
+            />
         </Card>)
     }
 }

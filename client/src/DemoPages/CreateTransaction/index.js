@@ -14,11 +14,21 @@ import { fetchFee } from "../../services/feeService";
 import { createTransaction } from "../../services/transactionService";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCopy } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import StatusBadge from "../Transactions/Tables/StatusBadge";
 import { setTransaction } from "../../reducers/transactionsSlice";
-import { getSenderInfo, updateBoxService } from "../../services/boxService";
-import { faFacebook } from "@fortawesome/free-brands-svg-icons";
+import { getFBInfo, getSenderInfo, updateBoxService } from "../../services/boxService";
+import {
+    IoIosRefresh,
+  } from "react-icons/io";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fab } from "@fortawesome/free-brands-svg-icons";
+
+library.add(
+    fab,
+    faSpinner,
+);
 
 export const typeFee = [
     {name: 'Bên mua chịu phí', value: 'buyer'},
@@ -337,6 +347,22 @@ class CreateTransaction extends Component {
         }
     }
 
+    getFB = async (id) => {
+        try{
+            this.setState({loading: true});
+            await getFBInfo(id);
+            const data = await getSenderInfo(this.props.transaction.boxId);
+            this.setState({senders: data.senders});
+            this.setState({loading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error,
+                loading: false
+            })
+        }
+    }
+
     render() {
         const input = this.state.input;
         return (
@@ -625,6 +651,12 @@ class CreateTransaction extends Component {
                                                                         onClick={this.toggleBuyer}
                                                                         autoComplete="off"
                                                                     />
+                                                                    <div className="input-group-text">
+                                                                        <div role="button" disabled={this.state.loading} onClick={()=>{this.state.buyerSender && !this.state.loading && this.getFB(this.state.buyerSender.facebookId)}}>
+                                                                            {this.state.loading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                                            : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                                        </div>
+                                                                    </div>
                                                                 </InputGroup>
                                                                 {this.state.senders.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer} style={{height: 0}}>
                                                                     <DropdownToggle 
@@ -697,7 +729,12 @@ class CreateTransaction extends Component {
                                                                         onClick={this.toggleSeller}
                                                                         autoComplete="off"
                                                                     />
-                                                                    
+                                                                    <div className="input-group-text">
+                                                                        <div role="button" disabled={this.state.loading} onClick={()=>{this.state.sellerSender && !this.state.loading && this.getFB(this.state.sellerSender.facebookId)}}>
+                                                                            {this.state.loading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                                            : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                                        </div>
+                                                                    </div>
                                                                 </InputGroup>
                                                                 {this.state.senders.length > 0 && <Dropdown isOpen={this.state.sellerOpen} toggle={this.toggleSeller} style={{height: 0}}>
                                                                     <DropdownToggle 

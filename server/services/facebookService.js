@@ -187,14 +187,18 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
 
                 if (typeof response.data === "string" && (response.data.includes("HTTP Code 400") || response.data.includes("cURL Error")))
                     return [];
-            } else if (errorCode == 100) {
-                if (box) {
-                    box.isEncrypted = true;
-                    await box.save();
-                    return []
-                }
-            } else return []
+            } 
+            // else if (errorCode == 100) {
+            //     if (box) {
+            //         box.isEncrypted = true;
+            //         await box.save();
+            //         return []
+            //     }
+            // } 
+            else return []
         }
+
+        console.log(response.data)
 
         let senderIds = response.data.senders.data.map(sender => sender.id);
 
@@ -202,24 +206,18 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
 
             if (value !== '100003277523201' && value !== '100004703820246') {
 
-                const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
-        
-                if (data) {
-                    let customer = await Customer.findOne({facebookId: value});
-                    if (!customer) {
+                let customer = await Customer.findOne({facebookId: value});
+                if (!customer) {
+                    const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
+                    if (data) {
                         customer = await Customer.create({
                             facebookId: data.id,
                             nameCustomer: data.name,
                             avatar: data.picture.data.url
                         })
-                    } else {
-                        customer.nameCustomer = data.name;
-                        customer.avatar = data.picture.data.url;
-                        await customer.save()
                     }
                 }
             }
-            
         }
         
         return senderIds;
@@ -235,10 +233,10 @@ const getFBInfoTest = async () => {
         for (let customer of customers) {
             if (!customer.nameCustomer) {
                 const result = await getFBInfo(
-                    'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
-                    'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
-                    '14.225.60.143:50000',
-                    'MVN515491:xMsA5b5Q',
+                    '',
+                    '',
+                    '',
+                    '',
                     customer.facebookId
                 )
                 if (result) {
@@ -288,10 +286,10 @@ const getFBInfoTest = async () => {
 
         for (const id of ids) {
             const result = await getFBInfo(
-                'EAABsbCS1iHgBOy63lbVKbZBkUtOZCcy3ZAvd0Hhq2WpvxWaB7Hr4oem9jZCaC6GG0rks4U6GB2acbZBZCvVv917nQUVglZBYN1PXCdzRtq0fAcRaJHJZBmkwUAVVS1MXDC9Gru3ZBsvqSPnkVWPGNbQp3lx4w7CCEpLykGhQWZAIljXAMucaXWlOc0WTDJgwZDZD',
-                'c_user=100058731655639; xs=43%3AAwdLdJ9Ad6HAeg%3A2%3A1709656101%3A-1%3A6386%3A%3AAcXkREPFlOO_ylw9oriKGtR7GNevegZPlHlNQGRIvU65;',
-                '14.225.60.143:50000',
-                'MVN515491:xMsA5b5Q',
+                '',
+                '',
+                '',
+                '',
                 id
             )
             if (result) {

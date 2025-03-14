@@ -20,7 +20,8 @@ const getBills = async (req, res) => {
             page = 1,
             limit = 10,
             hasNotes,
-            isLocked
+            isLocked,
+            isMissing
         } = req.query;
         
         const filter = {};
@@ -48,8 +49,13 @@ const getBills = async (req, res) => {
         if (content) filter.content = { $regex: content, $options: 'i' };
 
         if (search) {
+            let boxMatchConditions = [{ messengerId: { $regex: search, $options: "i" } }];
+            if (mongoose.Types.ObjectId.isValid(search)) {
+                boxMatchConditions.push({ _id: new mongoose.Types.ObjectId(search) });
+            }
+
             const boxMatches = await BoxTransaction.find({
-                messengerId: { $regex: search, $options: "i" }
+                $or: boxMatchConditions
             }).select("_id");
 
             const boxIds = boxMatches.map(box => box._id);
@@ -73,6 +79,31 @@ const getBills = async (req, res) => {
             }).select('_id');
             const lockedBoxIds = lockedBoxes.map(box => box._id);
             filter.boxId = { $in: lockedBoxIds };
+        }
+
+        if (isMissing === 'true') {
+            const startDate = new Date("2024-11-01T00:00:00.000Z");
+
+            const isMissingBoxes = await BoxTransaction.find({
+                $and: [
+                    {
+                        $or: [
+                            { buyer: { $exists: false } },
+                            { buyer: null }
+                        ]
+                    },
+                    {
+                        $or: [
+                            { seller: { $exists: false } },
+                            { seller: null }
+                        ]
+                    }
+                ],
+                createdAt: { $gte: startDate }
+            }).select('_id');
+
+            const isMissingBoxIds = isMissingBoxes.map(box => box._id);
+            filter.boxId = { $in: isMissingBoxIds };
         }
 
         const bills = await Bill.paginate(filter, {
@@ -622,11 +653,11 @@ const switchBills = async (req, res) => {
         if (!bill.billId) {
             if (bill.typeTransfer === "buyer") {
                 bill.typeTransfer = "seller";
-                bill.content = `Thanh Khoan GDTG ${String(bill.boxId).slice(-8)}`
+                bill.content = `Thanh Khoan GDTG ${String(bill.boxId)}`
             }
             else {
                 bill.typeTransfer = "buyer";
-                bill.content = `Refund GDTG ${String(bill.boxId).slice(-8)}`
+                bill.content = `Refund GDTG ${String(bill.boxId)}`
             }
             await bill.save();
 

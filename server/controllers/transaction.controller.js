@@ -20,7 +20,8 @@ const getTransactions = async (req, res) => {
             page = 1,
             limit = 10,
             hasNotes,
-            isLocked
+            isLocked,
+            isMissing
         } = req.query;
 
         const filter = {};
@@ -45,11 +46,17 @@ const getTransactions = async (req, res) => {
             }
             
         }
+
         if (content) filter.content = { $regex: content, $options: 'i' };
 
         if (search) {
+            let boxMatchConditions = [{ messengerId: { $regex: search, $options: "i" } }];
+            if (mongoose.Types.ObjectId.isValid(search)) {
+                boxMatchConditions.push({ _id: new mongoose.Types.ObjectId(search) });
+            }
+
             const boxMatches = await BoxTransaction.find({
-                messengerId: { $regex: search, $options: "i" }
+                $or: boxMatchConditions
             }).select("_id");
 
             const boxIds = boxMatches.map(box => box._id);
@@ -81,14 +88,38 @@ const getTransactions = async (req, res) => {
             filter.boxId = { $in: lockedBoxIds };
         }
 
-        // Sử dụng mongoose-paginate-v2 để phân trang
+        if (isMissing === 'true') {
+            const startDate = new Date("2024-11-01T00:00:00.000Z");
+
+            const isMissingBoxes = await BoxTransaction.find({
+                $and: [
+                    {
+                        $or: [
+                            { buyer: { $exists: false } },
+                            { buyer: null }
+                        ]
+                    },
+                    {
+                        $or: [
+                            { seller: { $exists: false } },
+                            { seller: null }
+                        ]
+                    }
+                ],
+                createdAt: { $gte: startDate }
+            }).select('_id');
+
+            const isMissingBoxIds = isMissingBoxes.map(box => box._id);
+            filter.boxId = { $in: isMissingBoxIds };
+        }
+
         const transactions = await Transaction.paginate(filter, {
             page: Number(page),
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
-                { 
+                {
                     path: 'boxId', 
                     select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                     populate: [
