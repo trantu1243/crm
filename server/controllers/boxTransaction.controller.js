@@ -635,6 +635,10 @@ const switchLock = async (req, res) => {
     }
 }
 
+function isArrayOnlyContains(arr, val1, val2) {
+    return arr.length > 0 && new Set(arr).size <= 2 && arr.every(item => item === val1 || item === val2);
+}
+
 const regetMessInfo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -654,6 +658,9 @@ const regetMessInfo = async (req, res) => {
             if (senders.length > 0) {
                 box.senders = senders;
                 await box.save();
+
+                if (isArrayOnlyContains(senders, '100003277523201', '100004703820246'))
+                    return res.status(400).json({ message: 'Người dùng đã rời khỏi nhóm' });
             } else {
                 return res.status(400).json({ message: 'Thông tin lấy được rỗng' });
             }
