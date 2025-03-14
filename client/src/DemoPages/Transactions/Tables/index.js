@@ -636,7 +636,7 @@ class TransactionsTable extends Component {
                                                     },
                                                     seller: {
                                                         ...this.state.seller, 
-                                                        content: `Thanh khoản GDTG ${item.boxId._id}`
+                                                        content: `Thanh khoan GDTG ${item.boxId._id}`
                                                     }
                                                 });
                                                 this.toggle();
