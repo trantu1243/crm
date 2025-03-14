@@ -137,7 +137,8 @@ class StaffStatistic extends Component {
                 currentMonth: [],
                 lastMonth: [],
                 today: [],
-                bonus: []
+                bonus: [],
+                lastBonus: []
             },
             loading: false,
         };
@@ -672,7 +673,7 @@ class StaffStatistic extends Component {
                                 </CardHeader>
 
                                 <Row>
-                                    <Col md="6" lg="4">
+                                    <Col md="6" lg="3">
                                         
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-primary border-primary">
                                             <div className="widget-chat-wrapper-outer">
@@ -714,7 +715,7 @@ class StaffStatistic extends Component {
                                         </Card>
                                         
                                     </Col>
-                                    <Col md="6" lg="4">
+                                    <Col md="6" lg="3">
                                     
                                         <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-danger border-danger">
                                             <div className="widget-chat-wrapper-outer">
@@ -755,8 +756,8 @@ class StaffStatistic extends Component {
                                         
                                     
                                     </Col>
-                                    <Col md="6" lg="4">
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                    <Col md="6" lg="3">
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số lệnh trong tháng</h6>
@@ -775,7 +776,7 @@ class StaffStatistic extends Component {
                                             </div>
                                         </Card>
                                         
-                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-warning border-warning">
                                             <div className="widget-chat-wrapper-outer">
                                                 <div className="widget-chart-content" style={{ zIndex: 0 }}>
                                                     <h6 className="widget-subheading">Số lệnh tháng trước</h6>
@@ -784,6 +785,46 @@ class StaffStatistic extends Component {
                                                             <div className="widget-chart-flex">
                                                                 <div className="fsize-3">
                                                                 {new Intl.NumberFormat('en-US').format(this.state.lastTotalBillMonthly?.totalBills)} ({this.state.lastTotalBillMonthly?.kpi.toFixed(2)})&nbsp;
+                                                                    
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+
+                                    <Col md="6" lg="3">
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                    <h6 className="widget-subheading">Tiền tip trong tháng</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                {new Intl.NumberFormat('en-US').format(this.state.transationStats?.bonus[0]?.value + this.state.transationStats?.bonus[1]?.value)}
+                                                                    
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                        
+                                        <Card className="card-shadow-primary mb-3 widget-chart widget-chart2 text-start mb-3 card-btm-border card-shadow-success border-success">
+                                            <div className="widget-chat-wrapper-outer">
+                                                <div className="widget-chart-content" style={{ zIndex: 0 }}>
+                                                    <h6 className="widget-subheading">Tiền tip tháng trước</h6>
+                                                    <div className="widget-chart-flex">
+                                                        <div className="widget-numbers mb-0 w-100">
+                                                            <div className="widget-chart-flex">
+                                                                <div className="fsize-3">
+                                                                {new Intl.NumberFormat('en-US').format(this.state.transationStats?.lastBonus[0]?.value + this.state.transationStats?.lastBonus[1]?.value)}
                                                                     
                                                                 </div>
                                                                 
@@ -805,6 +846,7 @@ class StaffStatistic extends Component {
         );
     }
 }
+
 const mapStateToProps = (state) => ({
     user: state.user.user || {
         _id: '',

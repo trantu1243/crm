@@ -989,6 +989,36 @@ const getTransactionStatsByStaff = async (req, res) => {
                 }
             }
         ]);
+
+        const lastTransationBonus = await Transaction.aggregate([
+            {
+                $match: { 
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfLastMonthUTC, $lte: endOfLastMonthUTC }
+                },
+            },
+            {
+                $group: {
+                    _id: null, 
+                    totalBonus: { $sum: "$bonus" } 
+                }
+            }
+        ]);
+
+        const lastBillBonus = await Bill.aggregate([
+            {
+                $match: { 
+                    staffId: staffObjectId,
+                    createdAt: { $gte: startOfLastMonthUTC, $lte: endOfLastMonthUTC }
+                },
+            },
+            {
+                $group: {
+                    _id: null, 
+                    totalBonus: { $sum: "$bonus" } 
+                }
+            }
+        ]);
     
         const responseData = {
             today: convertToStatusMap(stats.today || []),
@@ -997,6 +1027,10 @@ const getTransactionStatsByStaff = async (req, res) => {
             bonus: [
                 { name: "GDTG", value: transationBonus.length > 0 ? transationBonus[0].totalBonus : 0 },
                 { name: "Thanh khoản", value: billBonus.length > 0 ? billBonus[0].totalBonus : 0 }
+            ],
+            lastBonus: [
+                { name: "GDTG", value: lastTransationBonus.length > 0 ? lastTransationBonus[0].totalBonus : 0 },
+                { name: "Thanh khoản", value: lastBillBonus.length > 0 ? lastBillBonus[0].totalBonus : 0 }
             ],
           };
     
