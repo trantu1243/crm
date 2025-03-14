@@ -101,6 +101,13 @@ const getById = async (req, res) => {
             await box.save();
         }
 
+        const sendersSet = new Set(box.senders);
+
+        if (box.buyer) sendersSet.add(box.buyer.facebookId);
+        if (box.seller) sendersSet.add(box.seller.facebookId);
+
+        box.senders = Array.from(sendersSet);
+
         const senderInfo = await Customer.find({ facebookId: { $in: box.senders}, _id: { $nin: setting.uuidFbs } });
         
         const transactions = await Transaction.find({ boxId: id }).sort({ createdAt: -1 }).populate(
@@ -674,7 +681,7 @@ const regetMessInfo = async (req, res) => {
                 if (isArrayOnlyContains(senders, '100003277523201', '100004703820246'))
                     return res.status(400).json({ message: 'Người dùng đã rời khỏi nhóm' });
             } else {
-                return res.status(400).json({ message: 'Thông tin lấy được rỗng' });
+                return res.status(400).json({ message: 'Thông tin lấy được rỗng hoặc nhóm chat bị mã hóa' });
             }
         } else {
             return res.status(400).json({ message: 'Lỗi cookie hoặc token' });

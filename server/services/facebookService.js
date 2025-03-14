@@ -93,7 +93,7 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
             const jsonString = response.data.substring(jsonStartIndex);
             const responseData = JSON.parse(jsonString);
             const errorCode = responseData?.error?.code;
-
+            const subCode = responseData?.error?.error_subcode;
             if (errorCode == 190) {
                 const setting = await updateAccessToken();
                 if (!setting.accessToken.status || !setting.cookie.status)  
@@ -120,6 +120,15 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
                 response = await axios.request(config);
                 if (typeof response.data === "string" && (response.data.includes("HTTP Code 400") || response.data.includes("cURL Error")))
                     return null;
+            } else if (errorCode == 100 && subCode == 33){
+                let customer = await Customer.findOne({facebookId: value});
+                if (!customer) {
+                    customer = await Customer.create({
+                        facebookId: id,
+                        nameCustomer: "Người dùng facebook",
+                        avatar: "https://mayman.tathanhan.com/images/avatars/null_avatar.png"
+                    })
+                }
             } else return null 
         }
 
