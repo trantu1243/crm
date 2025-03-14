@@ -25,7 +25,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 },
             },
         },
-        stroke: { width: [0, 4] },
+        stroke: { width: [0, 0, 3] },
         plotOptions: {
             bar: { columnWidth: "50%" },
         },
@@ -64,6 +64,11 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
             data: Array(maxDays).fill(0),
         },
         {
+            name: "Tháng này (Bill)",
+            type: "column",
+            data: Array(maxDays).fill(0),
+        },
+        {
             name: "Tháng này (Fee)",
             type: "line",
             data: Array(maxDays).fill(0),
@@ -74,27 +79,34 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
         if (!dailyStats) return;
 
         const amountArray = Array(maxDays).fill(0);
+        const billArray = Array(maxDays).fill(0);
         const feeArray = Array(maxDays).fill(0);
 
         dailyStats.forEach((item) => {
-            const index = item._id - 1;
+            const index = item.day - 1;
             if (index >= 0 && index < maxDays) {
                 amountArray[index] = item.totalAmount;
+                billArray[index] = item.totalBillAmount;
                 feeArray[index] = item.totalFee * 100;
             }
         });
 
         setSeries([
-          {
-              name: "Tiền GD",
-              type: "column",
-              data: amountArray,
-          },
-          {
-              name: "Phí",
-              type: "line",
-              data: feeArray,
-          },
+            {
+                name: "Tiền GD",
+                type: "column",
+                data: amountArray,
+            },
+            {
+                name: "Thanh khoản",
+                type: "column",
+                data: billArray,
+            },
+            {
+                name: "Phí",
+                type: "line",
+                data: feeArray,
+            },
         ]);
     }, [dailyStats, maxDays]);
 

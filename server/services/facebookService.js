@@ -219,7 +219,12 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
                 }
             }
         }
-        
+        if (senderIds.length > 0) {
+            if (box) {
+                box.isEncrypted = false;
+                await box.save();
+            }
+        }
         return senderIds;
     } catch (error) {
         console.error('Error fetching thread data:', error);
