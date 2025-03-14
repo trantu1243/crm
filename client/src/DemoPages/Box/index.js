@@ -344,7 +344,7 @@ class Box extends Component {
                                                                                     }
                                                                                 })}
                                                                             >
-                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
                                                                                 <div >
                                                                                     <p style={{margin: 0}}>{sender.nameCustomer}</p>
                                                                                     <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
@@ -365,7 +365,7 @@ class Box extends Component {
                                                                     />
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
                                                                         <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                                            <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                            <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
@@ -513,7 +513,7 @@ class Box extends Component {
                                                                                     }
                                                                                 })}
                                                                             >
-                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
                                                                                 <div >
                                                                                     <p style={{margin: 0}}>{sender.nameCustomer}</p>
                                                                                     <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
@@ -534,7 +534,7 @@ class Box extends Component {
                                                                     />
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
                                                                         <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                                            <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                            <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
