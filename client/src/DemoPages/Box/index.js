@@ -326,7 +326,7 @@ class Box extends Component {
                                                                         </div>
                                                                     </div>
                                                                </InputGroup>
-                                                                {this.state.sender.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer} style={{height: 0}}>
+                                                                {this.state.sender.length > 0 && <Dropdown isOpen={this.state.buyerOpen} toggle={this.toggleBuyer} style={{height: 0}} direction="down" a11y={false}>
                                                                     <DropdownToggle 
                                                                         style={{width: 0, height: 0, padding: 0}}
                                                                     >

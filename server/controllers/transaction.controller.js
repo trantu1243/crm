@@ -1,4 +1,4 @@
-const { Transaction, BoxTransaction, BankAccount, Customer, Staff, Bill, Setting } = require("../models");
+const { Transaction, BoxTransaction, BankAccount, Staff, Bill, Setting } = require("../models");
 const { getPermissions } = require("../services/permission.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");

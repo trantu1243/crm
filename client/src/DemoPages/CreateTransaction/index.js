@@ -781,6 +781,7 @@ class CreateTransaction extends Component {
                                                                 </InputGroup>
                                                             </Col>
                                                         </Row>
+                                                        <p className="m-0 fst-italic">* Nếu tên hoặc avatar khác so với trên nhóm chat thì phải bấm ↻ để cập nhật lại dữ liệu mới nhất của người dùng</p>
                                                     </>}
                                                 </>}
                                             </Col>
