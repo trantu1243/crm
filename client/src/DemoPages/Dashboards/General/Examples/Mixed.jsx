@@ -47,7 +47,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
         tooltip: {
             y: {
                 formatter: (val, { seriesIndex }) => {
-                    if (seriesIndex === 1) {
+                    if (seriesIndex === 2) {
                         return new Intl.NumberFormat("en-US").format(val / 100);
                     } else {
                         return new Intl.NumberFormat("en-US").format(val);

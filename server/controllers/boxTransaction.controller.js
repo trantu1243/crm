@@ -38,7 +38,12 @@ const getSenderInfo = async (req, res) => {
 
         const setting = await Setting.findOne({uniqueId: 1});
 
-        const box = await BoxTransaction.findById(id)
+        const box = await BoxTransaction.findById(id).populate(
+            [
+                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
+                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+            ]
+        );
 
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
             let senders = []
@@ -48,6 +53,13 @@ const getSenderInfo = async (req, res) => {
             box.senders = senders;
             await box.save();
         }
+
+        const sendersSet = new Set(box.senders);
+
+        if (box.buyer) sendersSet.add(box.buyer.facebookId);
+        if (box.seller) sendersSet.add(box.seller.facebookId);
+
+        box.senders = Array.from(sendersSet);
 
         const senderInfo = await Customer.find({ facebookId: { $in: box.senders}, _id: { $nin: setting.uuidFbs } });
 

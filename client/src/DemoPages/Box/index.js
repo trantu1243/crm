@@ -344,7 +344,7 @@ class Box extends Component {
                                                                                     }
                                                                                 })}
                                                                             >
-                                                                                <img src={sender.avatar} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
                                                                                 <div >
                                                                                     <p style={{margin: 0}}>{sender.nameCustomer}</p>
                                                                                     <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
@@ -365,7 +365,7 @@ class Box extends Component {
                                                                     />
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
                                                                         <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                                            <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                            <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
@@ -513,7 +513,7 @@ class Box extends Component {
                                                                                     }
                                                                                 })}
                                                                             >
-                                                                                <img src={sender.avatar} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
+                                                                                <img src={sender && sender.avatar ? sender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt={sender.name} style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 5 }} />
                                                                                 <div >
                                                                                     <p style={{margin: 0}}>{sender.nameCustomer}</p>
                                                                                     <p style={{margin: 0, fontSize: '0.7rem', color: '#6c757d'}}>{sender.facebookId}</p>
@@ -534,7 +534,7 @@ class Box extends Component {
                                                                     />
                                                                     <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
                                                                         <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                                            <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                                            <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.jpg'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                                         </a>
                                                                     </div>
                                                                 </InputGroup>
