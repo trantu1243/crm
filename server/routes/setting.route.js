@@ -15,6 +15,8 @@ router.post("/update", authenticateToken, isAdmin, settingController.updateSetti
 
 router.post("/get-token", authenticateToken, isAdmin, settingController.getToken);
 
+router.post("/get-token1", authenticateToken, isAdmin, settingController.getToken1);
+
 router.post("/add-account", authenticateToken, isAdmin, settingController.addGDTGAccount);
 
 router.post("/remove-account", authenticateToken, isAdmin, settingController.removeGDTGAccount);

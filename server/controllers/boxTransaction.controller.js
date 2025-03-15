@@ -48,7 +48,7 @@ const getSenderInfo = async (req, res) => {
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, setting, box)
             }
             box.senders = senders;
             await box.save();
@@ -95,7 +95,7 @@ const getById = async (req, res) => {
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, setting, box)
             }
             box.senders = senders;
             await box.save();
@@ -506,7 +506,7 @@ const updateBox = async (req, res) => {
             if (buyer) {
                 box.buyer = buyer._id;
             } else {
-                const buyerInfo = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, buyerId);
+                const buyerInfo = await getFBInfo(setting.accessToken1.value, setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, buyerId);
                 let buyerCustomer;
                 if (buyerInfo) {
                     buyerCustomer = await Customer.create({
@@ -531,7 +531,7 @@ const updateBox = async (req, res) => {
             if (seller) {
                 box.seller = seller._id;
             } else {
-                const sellerInfo = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, sellerId);
+                const sellerInfo = await getFBInfo(setting.accessToken1.value, setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, sellerId);
                 let sellerCustomer;
                 if (sellerInfo) {
                     sellerCustomer = await Customer.create({
@@ -672,7 +672,7 @@ const regetMessInfo = async (req, res) => {
         const setting = await Setting.findOne({uniqueId: 1});
 
         if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-            const senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, box)
+            const senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, setting, box)
             
             if (senders.length > 0) {
                 box.senders = senders;
@@ -708,7 +708,7 @@ const regetFBInfo = async (req, res) => {
 
         let customer = null;
         if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-            const data = await getFBInfo(setting.accessToken.value, setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
+            const data = await getFBInfo(setting.accessToken1.value, setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
             
             if (data) {
                 customer = await Customer.findOne({facebookId: id});

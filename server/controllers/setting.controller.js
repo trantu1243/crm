@@ -1,5 +1,5 @@
 const { Setting, FeeTransaction, Customer } = require("../models");
-const { updateAccessToken, getFBInfo } = require("../services/facebookService");
+const { updateAccessToken, getFBInfo, updateAccessToken1 } = require("../services/facebookService");
 
   
 const getSetting = async (req, res) => {
@@ -172,6 +172,52 @@ const getToken = async (req, res) => {
     }
 };
 
+const getToken1 = async (req, res) => {
+    try {
+        const { cookie, proxy, proxy_auth } = req.body;
+
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        if (!setting) {
+            return res.status(404).json({ message: "Không tìm thấy cài đặt" });
+        }
+        if (typeof cookie !== "undefined") {
+            if (cookie.trim() === "") {
+                setting.cookie1 = { value: '', status: false }; 
+            } else {
+                setting.cookie1 = { value: cookie, status: true };
+            }
+        }
+
+        if (typeof proxy !== "undefined") {
+            setting.proxy.proxy = proxy;
+        }
+
+        if (typeof proxy_auth !== "undefined") {
+            setting.proxy.proxy_auth = proxy_auth;
+        }
+        await setting.save();
+
+        if (!setting.proxy.proxy || !setting.proxy.proxy_auth) {
+            return res.status(400).json({ message: "Thiếu proxy!" });
+        }
+
+        const updatedSetting = await updateAccessToken1();
+
+        if (!updatedSetting || !updatedSetting.accessToken.value) {
+            return res.status(500).json({ message: "Không lấy được access token!" });
+        }
+
+        res.status(200).json({
+            message: "Cập nhật token thành công!",
+            accessToken: updatedSetting.accessToken.value
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 const addGDTGAccount = async (req, res) => {
     try {
         
@@ -184,8 +230,10 @@ const addGDTGAccount = async (req, res) => {
             return res.status(400).json({ message: "Không thể thêm vì thiếu setting" });
         }
 
-        const data = await getFBInfo(setting.accessToken.value , setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
-
+        const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
+        if (data === null){
+            return res.status(400).json({ message: "Không thể lấy được thông tin user" });
+        }
         let customer = await Customer.findOne({facebookId: id});
         if (customer) {
             customer.nameCustomer = data.name;
@@ -249,5 +297,6 @@ module.exports = {
     updateSettings,
     getToken, 
     addGDTGAccount,
-    removeGDTGAccount
+    removeGDTGAccount,
+    getToken1
 };

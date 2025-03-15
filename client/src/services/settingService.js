@@ -112,6 +112,27 @@ export const updateToken = async (data) => {
     }  
 };
 
+export const updateToken1 = async (data) => {
+    try {
+        const response = await axios.post(`${API_URL}/get-token1`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error getting token", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to getting token!";
+    }  
+};
+
 export const addGDTGAccount = async (data) => {
     try {
         const response = await axios.post(`${API_URL}/add-account`, data, {

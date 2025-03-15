@@ -3,7 +3,6 @@ const axios = require("axios");
 const qs = require('qs');
 
 async function getFacebookAccessToken(cookies, proxy, proxy_auth) {
-
     try {
         const data = qs.stringify({
             'cookie': cookies,
@@ -61,6 +60,38 @@ async function updateAccessToken() {
     } 
 }
 
+async function updateAccessToken1() {
+    try {
+        const setting = await Setting.findOne({ uniqueId: 1 });
+
+        if (!setting || !setting.cookie1.status || !setting.cookie1.value) {
+            setting.cookie1.value = '';
+            setting.cookie1.status = false;
+            setting.accessToken1.value = '';
+            setting.accessToken1.status = false;
+            await setting.save();
+            return;
+        }
+
+        const accessToken = await getFacebookAccessToken(setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth);
+        if (accessToken) {
+            setting.accessToken1.value = accessToken;
+            setting.accessToken1.status = true;
+        } else {
+            setting.cookie1.value = '';
+            setting.cookie1.status = false;
+            setting.accessToken1.value = '';
+            setting.accessToken1.status = false;
+        }
+
+        await setting.save();
+
+        return setting;
+    } catch (error) {
+        console.error("Lỗi cập nhật access token:", error);
+    } 
+}
+
 async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
     try {
         let data = qs.stringify({
@@ -95,15 +126,15 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
             const errorCode = responseData?.error?.code;
             const subCode = responseData?.error?.error_subcode;
             if (errorCode == 190) {
-                const setting = await updateAccessToken();
-                if (!setting.accessToken.status || !setting.cookie.status)  
+                const setting = await updateAccessToken1();
+                if (!setting.accessToken1.status || !setting.cookie1.status)  
                     return null
 
                 data = qs.stringify({
-                    'cookie': setting.cookie.value,
+                    'cookie': setting.cookie1.value,
                     'proxy': setting.proxy.proxy,
                     'proxy_auth': setting.proxy.proxy_auth,
-                    'token': setting.accessToken.value,
+                    'token': setting.accessToken1.value,
                     'user_id': id
                 });
 
@@ -139,7 +170,7 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
     }
 }
 
-async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, box = null) {
+async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, setting, box = null) {
     let data = qs.stringify({
         'cookie': cookie,
         'proxy': proxy,
@@ -207,8 +238,6 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
             else return []
         }
 
-        console.log(response.data)
-
         let senderIds = response.data.senders.data.map(sender => sender.id);
 
         for (let value of senderIds) {
@@ -217,7 +246,7 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, bo
 
                 let customer = await Customer.findOne({facebookId: value});
                 if (!customer) {
-                    const data = await getFBInfo(token , cookie, proxy, proxyAuth, value)
+                    const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, proxy, proxyAuth, value)
                     if (data) {
                         customer = await Customer.create({
                             facebookId: data.id,
@@ -328,5 +357,6 @@ module.exports = {
     updateAccessToken,
     getFBInfo,
     getMessGroupInfo,
-    getFBInfoTest
+    getFBInfoTest,
+    updateAccessToken1
 }

@@ -42,6 +42,26 @@ const settingSchema = new mongoose.Schema({
             status: false
         }
     },
+    cookie1:{
+        type: {
+            value: String,
+            status: Boolean
+        },
+        default: {
+            value: '',
+            status: false
+        }
+    },
+    accessToken1: {
+        type: {
+            value: String,
+            status: Boolean
+        },
+        default: {
+            value: '',
+            status: false
+        }
+    },
     uuidFbs: {
         type: [{ type: mongoose.Types.ObjectId, ref: 'Customer' }],
         default: []

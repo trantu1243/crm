@@ -11,7 +11,7 @@ import cx from "classnames";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { addGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken } from "../../services/settingService";
+import { addGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken, updateToken1 } from "../../services/settingService";
 import { SERVER_URL } from "../../services/url";
 
 class Setting extends Component {
@@ -28,6 +28,8 @@ class Setting extends Component {
             input: {
                 cookie: '',
                 accessToken: '',
+                cookie1: '',
+                accessToken1: '',
                 proxy: '',
                 proxy_auth: '',
                 numOfDay: 0,
@@ -60,6 +62,8 @@ class Setting extends Component {
             input: {
                 cookie: data.data.cookie.value,
                 accessToken: data.data.accessToken.value,
+                cookie1: data.data.cookie1.value,
+                accessToken1: data.data.accessToken1.value,
                 numOfDay: data.data.lockBox.numOfDay,
                 isOn: data.data.lockBox.isOn,
                 proxy: data.data.proxy.proxy,
@@ -113,6 +117,22 @@ class Setting extends Component {
         try {
             this.setState({ loading: true });
             await updateToken({cookie: this.state.input.cookie});
+            await this.getSetting();
+            this.setState({loading: false});
+        } catch (error) {
+            await this.getSetting();
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false})
+        }
+    }
+
+    handleGetToken1 = async () => {
+        try {
+            this.setState({ loading: true });
+            await updateToken1({cookie: this.state.input.cookie1});
             await this.getSetting();
             this.setState({loading: false});
         } catch (error) {
@@ -210,7 +230,38 @@ class Setting extends Component {
 
                                             </Col>   
                                         </Row>
+                                        <Row className="mb-4">
+                                        
+                                            <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
+                                                <Label>Cookie</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="cookie1"
+                                                    value={this.state.input.cookie1}
+                                                    onChange={(e) => {
+                                                        this.setState({input: {...this.state.input, cookie1: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
+                                                <Label>Access token</Label>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="accessToken1"
+                                                        value={this.state.input.accessToken1}
+                                                        onChange={(e) => {
+                                                            this.setState({input: {...this.state.input, accessToken1: e.target.value}})
+                                                        }}
+                                                    />
+                                                    <Button color="primary" disabled={this.state.loading} onClick={this.handleGetToken1}>
+                                                        {this.state.loading ? "Get..." : "Get"}
+                                                    </Button>
+                                                </InputGroup>
+                                               
 
+                                            </Col>   
+                                        </Row>                
 
                                         <Row className="mb-3">
                                             <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>

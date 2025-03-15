@@ -225,7 +225,7 @@ const createTransaction = async (req, res) => {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId)
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId, setting)
             }
             
             box = await BoxTransaction.create({
@@ -384,7 +384,7 @@ const updateTransaction = async (req, res) => {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId)
+                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId, setting)
             }
             box = await BoxTransaction.create([{
                 name: '',
