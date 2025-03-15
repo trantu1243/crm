@@ -201,7 +201,7 @@ class Setting extends Component {
                                         <Row className="mb-4">
                                         
                                             <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                                <Label>Cookie</Label>
+                                                <Label>Cookie lấy dữ liệu nhóm chat</Label>
                                                 <Input
                                                     type="text"
                                                     name="cookie"
@@ -212,7 +212,7 @@ class Setting extends Component {
                                                 />
                                             </Col>
                                             <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                <Label>Access token</Label>
+                                                <Label>Access token lấy dữ liệu nhóm chat</Label>
                                                 <InputGroup>
                                                     <Input
                                                         type="text"
@@ -233,7 +233,7 @@ class Setting extends Component {
                                         <Row className="mb-4">
                                         
                                             <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                                <Label>Cookie</Label>
+                                                <Label>Cookie lấy dữ liệu user</Label>
                                                 <Input
                                                     type="text"
                                                     name="cookie1"
@@ -244,7 +244,7 @@ class Setting extends Component {
                                                 />
                                             </Col>
                                             <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                <Label>Access token</Label>
+                                                <Label>Access token lấy dữ liệu</Label>
                                                 <InputGroup>
                                                     <Input
                                                         type="text"
