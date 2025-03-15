@@ -15,7 +15,7 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi } = require('./models');
+const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer } = require('./models');
 const { updateFlags, updateCustomer } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
@@ -30,7 +30,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    // updateFlag()
+    updateFlag()
 });
 
 const updateFlag = async () =>{
@@ -52,12 +52,15 @@ const updateFlag = async () =>{
         // });
         // const transactions = await Transaction.updateMany({ boxId: box._id, status: { $in: [ 6, 8] }}, {status: 7});
 
-        await BoxTransaction.updateMany({}, {flag: 1});
-        console.log('updated flag of box successfully')
-        await Transaction.updateMany({}, {flag: 1});
-        console.log('updated flag of transaction successfully')
-        await Bill.updateMany({}, {flag: 1});
-        console.log('updated flag of bill successfully')
+        await Customer.updateOne({facebookId: 1}, {nameCustomer: 'Không xác định', avatar: 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'})
+        await Customer.updateOne({facebookId: 2}, {nameCustomer: 'Không xác định', avatar: 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'})
+
+        // await BoxTransaction.updateMany({}, {flag: 1});
+        // console.log('updated flag of box successfully')
+        // await Transaction.updateMany({}, {flag: 1});
+        // console.log('updated flag of transaction successfully')
+        // await Bill.updateMany({}, {flag: 1});
+        // console.log('updated flag of bill successfully')
     } catch (e) {
         console.log(e)
     }
