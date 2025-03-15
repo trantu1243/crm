@@ -152,7 +152,7 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
                 if (typeof response.data === "string" && (response.data.includes("HTTP Code 400") || response.data.includes("cURL Error")))
                     return null;
             } else if (errorCode == 100 && subCode == 33){
-                let customer = await Customer.findOne({facebookId: value});
+                let customer = await Customer.findOne({facebookId: id});
                 if (!customer) {
                     customer = await Customer.create({
                         facebookId: id,
