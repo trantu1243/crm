@@ -270,7 +270,7 @@ class Box extends Component {
                                                         <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
                                                     </button>
                                                     <button class="btn btn-warning me-1" disabled={this.state.loading2} onClick={this.handleGetInfo}>
-                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading2 ? "Đang lấy ..." : "Lấy thông tin khách hàng"}
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading2 ? "Đang update ..." : "Update user info"}
                                                     </button>
                                                     <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading2}>
                                                         <FontAwesomeIcon icon={faSave} /> {this.state.loading2 ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
@@ -279,7 +279,7 @@ class Box extends Component {
                                             </CardHeader>
                                             <CardBody>
                                                 <Row>
-                                                    <Col md={6} xs={12} className="pe-2">
+                                                    <Col md={6} xs={12} className={!this.state.isMobile && "pe-2"}>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
                                                                 <Label>Tên box</Label>
@@ -305,6 +305,7 @@ class Box extends Component {
                                                                         name="buyerId"
                                                                         id="buyerId"
                                                                         value={input.buyerId}
+                                                                        onKeyDown={(e) => e.key === "Enter" && !this.state.loading2 && this.handleSave()}
                                                                         onChange={(e) => {
                                                                             const value = e.target.value;
                                                                             const match = value.match(/(\d+)/);
@@ -436,7 +437,7 @@ class Box extends Component {
                                                         </Row>
                                                     </Col>
 
-                                                    <Col md={6} xs={12} className="ps-2">
+                                                    <Col md={6} xs={12} className={!this.state.isMobile && "ps-2"}>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
                                                                 <Label>Messenger ID</Label>
@@ -602,6 +603,7 @@ class Box extends Component {
                                                     </Col>
                                                     
                                                 </Row>
+                                                <p className="m-0 fst-italic fw-bold">* Nếu người dùng không xác định, hãy điền 1 với bên mua, 2 với bên bán.</p>
                                             </CardBody>
                                         </Card>
                                     </Col>

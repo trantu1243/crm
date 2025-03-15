@@ -482,7 +482,7 @@ const updateBox = async (req, res) => {
         const { id } = req.params;
         
         const box = await BoxTransaction.findById(id);
-        if (!box || box.status === "lock") return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
+        // if (!box || box.status === "lock") return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
 
         const name = req.body.name ? req.body.name : '';
         let messengerId = req.body.messengerId ? req.body.messengerId : '';

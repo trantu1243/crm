@@ -534,7 +534,7 @@ class Box extends Component {
                                                         <FontAwesomeIcon icon={faLock}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
                                                     </button>
                                                     <button class="btn btn-warning me-1" disabled={this.state.loading} onClick={this.handleGetInfo}>
-                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading ? "Đang lấy ..." : "Lấy thông tin khách hàng"}
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading ? "Đang update ..." : "Update user info"}
                                                     </button>
                                                     <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading}>
                                                         <FontAwesomeIcon icon={faSave} /> {this.state.loading ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
