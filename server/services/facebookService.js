@@ -251,7 +251,7 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, se
                         customer = await Customer.create({
                             facebookId: data.id,
                             nameCustomer: data.name,
-                            avatar: data.picture.data.url
+                            avatar: data.picture.data ? data.picture.data.url : "https://mayman.tathanhan.com/images/avatars/null_avatar.png"
                         })
                     }
                 }

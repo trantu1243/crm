@@ -10,3 +10,4 @@ module.exports.Role = require('./role.model');
 module.exports.Staff = require('./staff.model');
 module.exports.Transaction = require('./transaction.model');
 module.exports.Setting = require('./setting.model');
+module.exports.Stk = require('./stk.model');

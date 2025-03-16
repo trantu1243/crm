@@ -6,10 +6,7 @@ const customerSchema = new mongoose.Schema({
     facebookId: { type: String, unique: true },
     avatar: { type: String },
     bankAccounts: {
-        type: [{
-            bankCode: String,
-            stk: String,
-        }],
+        type: [{ type: mongoose.Types.ObjectId, ref: 'Stk' }],
         default: []
     }
 }, {
