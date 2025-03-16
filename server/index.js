@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateCustomer()
     // getFBInfoTest()
     // updateFlag()
-    updateUser()
+    // updateUser()
 });
 
 const updateFlag = async () =>{

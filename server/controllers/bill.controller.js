@@ -82,7 +82,7 @@ const getBills = async (req, res) => {
         }
 
         if (isMissing === 'true') {
-            const startDate = new Date("2024-11-01T00:00:00.000Z");
+            const startDate = new Date("2023-11-01T00:00:00.000Z");
 
             const isMissingBoxes = await BoxTransaction.find({
                 $and: [
