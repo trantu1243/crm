@@ -92,7 +92,7 @@ const getById = async (req, res) => {
         }
         const setting = await Setting.findOne({uniqueId: 1});
 
-        if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
+        if ((!box.senders || box.senders.length === 0) && !box.isEncrypted && (!box.buyer || !box.seller)){
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
                 senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, box.messengerId, setting, box)
