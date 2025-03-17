@@ -31,19 +31,13 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    updateFlag()
+    // updateFlag()
     // updateUser()
 });
 
 const updateFlag = async () =>{
     try {
-        await Transaction.findByIdAndDelete('67d719b24566b0f8566f460f')
-        await BoxTransaction.findByIdAndDelete('67bff0460866df4cb7a3df6b');
-        
-        await Transaction.findByIdAndDelete('67d7199e4566b0f8566f45ff')
-        await Transaction.findByIdAndDelete('67d719894566b0f8566f45c8')
-        await Transaction.findByIdAndDelete('67d719084566b0f8566f43d0')
-        await Transaction.findByIdAndDelete('67d718e84566b0f8566f43c5')
+       
 
     } catch (e) {
         console.log(e)
