@@ -4,7 +4,7 @@ services:
     image: mongo:8
     volumes:
       - ./db/:/data/db
-    restart: "always"
+    restart: always
     environment:
       MONGO_INITDB_DATABASE: crm_main
     healthcheck:
