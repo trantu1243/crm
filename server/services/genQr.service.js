@@ -91,17 +91,18 @@ const generateQr = async (data) => {
         const qrImage = await loadImage(buffer);
         const logoImage = await loadImage("https://mayman.tathanhan.com/images/banks/TCB.png");
 
-        const canvas = createCanvas(600, 776);
+        const height = data.mode === 'full' ? 776 : 670;
+        const canvas = createCanvas(600, height);
         const ctx = canvas.getContext("2d");
 
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height); 
 
-        ctx.drawImage(qrImage, 41, 71, 518, 518);
+        ctx.drawImage(qrImage, 41, 75, 518, 518);
 
         ctx.strokeStyle = "#F0C55E";
         ctx.lineWidth = 2;
-        ctx.strokeRect(45, 75, 510, 510);
+        ctx.strokeRect(37, 71, 526, 526);
 
         const logoWidth = 268;
         const logoHeight = 100;
@@ -110,7 +111,7 @@ const generateQr = async (data) => {
 
         ctx.drawImage(logoImage, 0, -15, logoWidth, logoHeight);
 
-        ctx.strokeStyle = "#556DA6";
+        ctx.strokeStyle = "#F0C55E";
         ctx.lineWidth = 2;
 
         ctx.beginPath();
@@ -123,7 +124,7 @@ const generateQr = async (data) => {
         ctx.textAlign = "center";
         ctx.fillText("GDTG - Tạ Thanh An", 420, 55);
 
-        if (data.amount) {
+        if (data.amount && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
             ctx.font = "bold 24px Arial";
             ctx.textAlign = "center";
@@ -133,33 +134,33 @@ const generateQr = async (data) => {
             620
             );
         }
-        if (data.content) {
+        if (data.content && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
             ctx.font = "24px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(`Nội dung: ${data.content}`, 310, 650);
+            ctx.fillText(`Nội dung: ${data.content}`, 310, 660);
         }
-        if (data.bankAccount) {
+        if (data.bankAccount && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
             ctx.font = "bold 24px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(`Số TK: ${data.bankAccount}`, 310, 680);
+            ctx.fillText(`Số TK: ${data.bankAccount}`, 310, 690);
         }
-        if (data.bankAccountName) {
+        if (data.bankAccountName && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
             ctx.font = "24px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(`Chủ TK: ${data.bankAccountName}`, 310, 710);
+            ctx.fillText(`Chủ TK: ${data.bankAccountName}`, 310, 720);
         }
-        if (data.checkCode) {
+        if (data.checkCode && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
             ctx.font = "bold 24px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(`Mã check: ${data.checkCode}`, 310, 740);
+            ctx.fillText(`Mã check: ${data.checkCode}`, 310, 750);
             ctx.fillStyle = "#204CB4";
             ctx.font = "24px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(`Check tại https://check.tathanhan.com`, 310, 770);
+            ctx.fillText(`Check tại https://check.tathanhan.com`, 310, 780);
         }
         const base64Image = canvas.toDataURL("image/png"); 
         return base64Image;

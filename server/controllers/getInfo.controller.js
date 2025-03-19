@@ -97,7 +97,7 @@ const getTransactions = async (req, res) => {
 
 const genQr = async (req, res) => {
     try {
-        const { bankCode, amount, content, checkCode } = req.body;
+        const { bankCode, amount, content, checkCode, mode = 'lite' } = req.body;
 
         const bank = await BankAccount.findOne({bankCode});
 
@@ -106,6 +106,7 @@ const genQr = async (req, res) => {
             logo: bank.logo,
             bankAccount: bank.bankAccount,
             bankAccountName: bank.bankAccountName,
+            mode: mode ? mode : 'lite'
         }
 
         if (amount) data.amount = Number(amount);
