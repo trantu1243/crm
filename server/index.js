@@ -37,7 +37,10 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 
 const updateFlag = async () =>{
     try {
-       
+       await Transaction.findByIdAndDelete('67da2cb395696203add15605')
+       await Transaction.findByIdAndDelete('67da2cb195696203add155f9')
+       await Transaction.findByIdAndDelete('67da2c5795696203add155ed')
+
     } catch (error) {
         console.error(error);
     }
