@@ -71,11 +71,19 @@ const getTransactions = async (req, res) => {
                 { path: 'buyer', select: 'nameCustomer facebookId avatar' },
                 { path: 'seller', select: 'nameCustomer facebookId avatar' },
             ]
-        );;
+        );
+
+        const setting = await Setting.findOne({uniqueId: 1}).populate(
+            [
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+            ]
+        );
 
         if (!boxTransaction) {
             return res.status(404).json({ message: 'BoxTransaction not found' });
         }
+
+        const gdtgAccounts = setting.uuidFbs.filter(item => boxTransaction.senders.includes(item.facebookId));
 
         const transactions = await Transaction.find({
             boxId: boxTransaction._id,
@@ -86,6 +94,8 @@ const getTransactions = async (req, res) => {
             amount: boxTransaction.amount,
             buyer: boxTransaction.buyer,
             seller: boxTransaction.seller,
+            numOfAccount: boxTransaction.senders.length,
+            gdtgAccounts,
             transactions
         });
 
