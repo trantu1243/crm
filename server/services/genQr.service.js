@@ -89,40 +89,52 @@ const generateQr = async (data) => {
     try {
         const buffer = await qrCodeImage.getRawData("png");
         const qrImage = await loadImage(buffer);
-        const logoImage = await loadImage("https://mayman.tathanhan.com/images/banks/TCB.png");
 
-        const height = data.mode === 'full' ? 776 : 670;
+        const height = data.mode === 'full' ? 776 : 600;
         const canvas = createCanvas(600, height);
         const ctx = canvas.getContext("2d");
 
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height); 
 
-        ctx.drawImage(qrImage, 41, 75, 518, 518);
+        if (data.mode === 'full') {
+            ctx.drawImage(qrImage, 41, 75, 518, 518);
 
-        ctx.strokeStyle = "#F0C55E";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(37, 71, 526, 526);
+            ctx.strokeStyle = "#F0C55E";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(37, 71, 526, 526);
+        } else {
+            ctx.drawImage(qrImage, 41, 41, 518, 518);
 
-        const logoWidth = 268;
-        const logoHeight = 100;
-        const logoX = (canvas.width - logoWidth) / 2;
-        const logoY = 670;
+            ctx.strokeStyle = "#F0C55E";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(37, 37, 526, 526);
+        }
+       
+        
+        if (data.mode === 'full') {
+            const logoImage = await loadImage("https://mayman.tathanhan.com/images/banks/TCB.png");
 
-        ctx.drawImage(logoImage, 0, -15, logoWidth, logoHeight);
+            const logoWidth = 268;
+            const logoHeight = 100;
+            const logoX = (canvas.width - logoWidth) / 2;
+            const logoY = 670;
 
-        ctx.strokeStyle = "#F0C55E";
-        ctx.lineWidth = 2;
+            ctx.drawImage(logoImage, 0, -15, logoWidth, logoHeight);
 
-        ctx.beginPath();
-        ctx.moveTo(253, 25);
-        ctx.lineTo(253, 65);
-        ctx.stroke();
+            ctx.strokeStyle = "#F0C55E";
+            ctx.lineWidth = 2;
 
-        ctx.fillStyle = "#153070";
-        ctx.font = "bold 30px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText("GDTG - Tạ Thanh An", 430, 55);
+            ctx.beginPath();
+            ctx.moveTo(253, 25);
+            ctx.lineTo(253, 65);
+            ctx.stroke();
+
+            ctx.fillStyle = "#153070";
+            ctx.font = "bold 30px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("GDTG - Tạ Thanh An", 430, 55);
+        }
 
         if (data.amount && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
