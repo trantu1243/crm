@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:lts
 
 RUN mkdir -p /usr/src/server && chown -R node:node /usr/src/server
 
