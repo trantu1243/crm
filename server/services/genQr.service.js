@@ -130,7 +130,7 @@ const generateQr = async (data) => {
             ctx.textAlign = "center";
             ctx.fillText(
             `Số tiền: ${new Intl.NumberFormat("en-US").format(data.amount)} VND`,
-            310,
+            320,
             620
             );
         }
