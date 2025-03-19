@@ -120,7 +120,7 @@ const generateQr = async (data) => {
         ctx.stroke();
 
         ctx.fillStyle = "#153070";
-        ctx.font = "bold 30px Tahoma";
+        ctx.font = "bold 30px Arial";
         ctx.textAlign = "center";
         ctx.fillText("GDTG - Tạ Thanh An", 420, 55);
 
