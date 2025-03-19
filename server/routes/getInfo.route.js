@@ -10,4 +10,6 @@ router.get('/fb-account', apiAuthMiddleware, getInfoController.getGDAccount);
 
 router.get('/banks', apiAuthMiddleware, getInfoController.getBanks);
 
+router.get('/box/:id', apiAuthMiddleware, getInfoController.getTransactions);
+
 module.exports = router;

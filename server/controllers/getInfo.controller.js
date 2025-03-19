@@ -1,4 +1,4 @@
-const { Transaction, Setting, BankAccount } = require("../models");
+const { Transaction, Setting, BankAccount, BoxTransaction } = require("../models");
 
 
 const checkTransaction = async (req, res) => {
@@ -61,8 +61,42 @@ const getBanks = async (req, res) => {
     }
 }
 
+const getTransactions = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const boxTransaction = await BoxTransaction.findOne({ messengerId: id }).populate(
+            [
+                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
+                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+            ]
+        );;
+
+        if (!boxTransaction) {
+            return res.status(404).json({ message: 'BoxTransaction not found' });
+        }
+
+        const transactions = await Transaction.find({
+            boxId: boxTransaction._id,
+            flag: boxTransaction.flag
+        }).select("amount content fee totalAmount status boxId bankId");
+
+        res.json({ 
+            amount: boxTransaction.amount,
+            buyer: boxTransaction.buyer,
+            seller: boxTransaction.seller,
+            transactions
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     checkTransaction,
     getGDAccount,
-    getBanks
+    getBanks,
+    getTransactions
 }
