@@ -31,33 +31,15 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    updateFlag()
+    // updateFlag()
     // updateUser()
 });
 
 const updateFlag = async () =>{
     try {
-        const response = await axios.get("https://api.vietqr.io/v2/banks");
-        const banks = response.data.data;
-
-        // Tạo thư mục imgs/banks nếu chưa có
-        const dirPath = path.join(__dirname, 'imgs', 'banks');
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-        }
-
-        // Lặp qua danh sách ngân hàng để tải logo
-        for (const bank of banks) {
-            
-            const bankApi = await BankApi.findOneAndUpdate({bankCode: bank.code}, { logo: `https://mayman.tathanhan.com/images/banks/${bank.code}.png`, name: bank.name})
-            const bankAccount = await BankAccount.findOneAndUpdate({bankCode: bank.code}, { logo: `https://mayman.tathanhan.com/images/banks/${bank.code}.png`, name: bank.name})
-
-            console.log(`✅ Đã tải logo: ${bank.name} - ${bank.code}`);
-        }
-
-        console.log('🎉 Tất cả logo đã được tải về thành công!');
+       
     } catch (error) {
-        console.error('❌ Lỗi khi tải logo:', error);
+        console.error(error);
     }
 }
 
