@@ -6,6 +6,8 @@ const bankApiSchema = new mongoose.Schema({
     bankName: { type: String },
     bankCode: { type: String },
     binBank: { type: String },
+    logo: { type: String },
+    name: { type: String }
 }, {
     timestamps: true,
 });

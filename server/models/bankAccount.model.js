@@ -9,6 +9,8 @@ const bankAccountSchema = new mongoose.Schema({
     bankAccountName: { type: String },
     createdBy: { type: String },
     binBank: { type: String },
+    name: { type: String },
+    logo: { type: String },
     totalAmount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },
 }, {

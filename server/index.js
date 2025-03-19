@@ -14,11 +14,13 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer } = require('./models');
+const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, BankAccount } = require('./models');
 const { updateFlags, updateCustomer } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
 const { updateUser } = require('./services/updateUserInfo');
+const axios = require('axios');
+const fs = require('fs');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -29,16 +31,33 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    // updateFlag()
+    updateFlag()
     // updateUser()
 });
 
 const updateFlag = async () =>{
     try {
-       
+        const response = await axios.get("https://api.vietqr.io/v2/banks");
+        const banks = response.data.data;
 
-    } catch (e) {
-        console.log(e)
+        // Tạo thư mục imgs/banks nếu chưa có
+        const dirPath = path.join(__dirname, 'imgs', 'banks');
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+
+        // Lặp qua danh sách ngân hàng để tải logo
+        for (const bank of banks) {
+            
+            const bankApi = await BankApi.findOneAndUpdate({bankCode: bank.code}, { logo: `https://mayman.tathanhan.com/images/banks/${bank.code}.png`, name: bank.name})
+            const bankAccount = await BankAccount.findOneAndUpdate({bankCode: bank.code}, { logo: `https://mayman.tathanhan.com/images/banks/${bank.code}.png`, name: bank.name})
+
+            console.log(`✅ Đã tải logo: ${bank.name} - ${bank.code}`);
+        }
+
+        console.log('🎉 Tất cả logo đã được tải về thành công!');
+    } catch (error) {
+        console.error('❌ Lỗi khi tải logo:', error);
     }
 }
 
