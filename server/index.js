@@ -15,7 +15,7 @@ const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
 const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, BankAccount } = require('./models');
-const { updateFlags, updateCustomer } = require('./services/updateFlags');
+const { updateFlags, updateCustomer, updateBank } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
 const { updateUser } = require('./services/updateUserInfo');
@@ -31,15 +31,14 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    updateFlag()
+    // updateFlag()
+    // updateBank()
     // updateUser()
 });
 
 const updateFlag = async () =>{
     try {
-       await Transaction.findByIdAndDelete('67da2cb395696203add15605')
-       await Transaction.findByIdAndDelete('67da2cb195696203add155f9')
-       await Transaction.findByIdAndDelete('67da2c5795696203add155ed')
+       
 
     } catch (error) {
         console.error(error);

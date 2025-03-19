@@ -1,4 +1,5 @@
-const { Transaction, BoxTransaction, Bill, Setting } = require('../models');
+const { Transaction, BoxTransaction, Bill, Setting, BankAccount } = require('../models');
+const { makeVietQRContent } = require('./encodeQr.service');
 const { getMessGroupInfo } = require('./facebookService');
 const axios = require('axios');
 
@@ -153,8 +154,35 @@ const updateCustomer = async () =>{
 
 const updateBank = async () =>{
     try {
-        const data = await axios.get("https://api.vietqr.io/v2/banks");
-        console.log(data)
+        const banks = await BankAccount.find({});
+
+        for( const bank of banks) {
+            const encode = makeVietQRContent({
+                bankId: bank.binBank, 
+                accountId: bank.bankAccount,
+            })
+
+            console.log(`${bank.bankCode}: ${encode}`);
+        }
+
+        await BankAccount.findOneAndUpdate({bankCode: 'TCB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'VCB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'ICB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'BIDV'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'MB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'TPB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'VPB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'VIB'}, {qrImage: ''})
+
+        await BankAccount.findOneAndUpdate({bankCode: 'OCB'}, {qrImage: ''})
+
 
     } catch (e) {
         console.log(e)

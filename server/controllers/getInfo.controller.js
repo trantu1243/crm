@@ -1,4 +1,5 @@
 const { Transaction, Setting, BankAccount, BoxTransaction } = require("../models");
+const { generateQr } = require("../services/genQr.service");
 
 
 const checkTransaction = async (req, res) => {
@@ -8,7 +9,7 @@ const checkTransaction = async (req, res) => {
         const transaction = await Transaction.findOne({ checkCode: code })
             .select("amount content fee totalAmount status boxId bankId")
             .populate([
-                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
                     path: 'boxId', 
                     select: 'amount messengerId buyer seller isEncrypted',
@@ -50,7 +51,7 @@ const getGDAccount = async (req, res) => {
 
 const getBanks = async (req, res) => {
     try {
-        const banks = await BankAccount.find().select('bankName bankCode bankAccount bankAccountName binBank');
+        const banks = await BankAccount.find().select('bankName bankCode bankAccount bankAccountName binBank name');
        
         return res.status(200).json({
                 data: banks
@@ -94,9 +95,38 @@ const getTransactions = async (req, res) => {
     }
 }
 
+const genQr = async (req, res) => {
+    try {
+        const { bankCode, amount, content } = req.body;
+
+        const bank = await BankAccount.findOne({bankCode});
+
+        let data = {
+            binBank: bank.binBank,
+            logo: bank.logo,
+            bankAccount: bank.bankAccount,
+            bankAccountName: bank.bankAccountName,
+        }
+
+        if (amount) data.amount = Number(amount);
+        if (content) data.content = content;
+
+        const base64 = await generateQr(data);
+       
+        return res.status(200).json({
+            base64
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     checkTransaction,
     getGDAccount,
     getBanks,
-    getTransactions
+    getTransactions,
+    genQr
 }

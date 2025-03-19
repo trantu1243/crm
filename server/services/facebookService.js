@@ -248,6 +248,7 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, se
                 if (!customer) {
                     const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, proxy, proxyAuth, value)
                     if (data) {
+                        console.log(data)
                         customer = await Customer.create({
                             facebookId: data.id,
                             nameCustomer: data.name,
