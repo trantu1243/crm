@@ -11,3 +11,4 @@ module.exports.roleController = require('./role.controller');
 module.exports.statisticController = require('./statistic.controller');
 module.exports.settingController = require('./setting.controller');
 module.exports.userLogController = require('./userLog.controller');
+module.exports.getInfoController = require('./getInfo.controller');

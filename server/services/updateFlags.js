@@ -1,6 +1,6 @@
 const { Transaction, BoxTransaction, Bill, Setting } = require('../models');
 const { getMessGroupInfo } = require('./facebookService');
-
+const axios = require('axios');
 
 const checkAndUpdateConsecutiveSums = async (transactions, bills, box) => {
     // Tính mảng tổng tích lũy cho transactions
@@ -151,7 +151,18 @@ const updateCustomer = async () =>{
     }
 }
 
+const updateBank = async () =>{
+    try {
+        const data = await axios.get("https://api.vietqr.io/v2/banks");
+        console.log(data)
+
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 module.exports = {
     updateFlags,
-    updateCustomer
+    updateCustomer,
+    updateBank
 }

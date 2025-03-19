@@ -4,6 +4,32 @@ const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
 const { saveUserLogToQueue } = require("../services/log.service");
 const { getMessGroupInfo } = require("../services/facebookService");
+const { makeVietQRContent } = require("../services/encodeQr.service");
+
+const generateUUID = async () => {
+    const { customAlphabet } = await import('nanoid');
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const nanoid = customAlphabet(alphabet, 8);
+    
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    while (attempts < maxAttempts) {
+        try {
+            const code = nanoid();
+            const transaction = await Transaction.findOne({ checkCode: code });
+
+            if (!transaction) return code;
+
+            attempts++;
+        } catch (error) {
+            console.error("Lỗi khi tạo checkCode:", error);
+            throw new Error("Không thể tạo checkCode, thử lại sau.");
+        }
+    }
+
+    throw new Error("Tạo checkCode thất bại sau nhiều lần thử.");
+};
 
 const getTransactions = async (req, res) => {
     try {
@@ -266,7 +292,13 @@ const createTransaction = async (req, res) => {
                 await box.save();
             }
         }
-        
+        const checkCode = await generateUUID();
+        const decodeQr = makeVietQRContent({
+            bankId: bank.binBank,         
+            accountId: bank.bankAccount,
+            amount: totalAmount,           
+            description: content
+        })
         const newTransaction = await Transaction.create({
             boxId: box._id,
             bankId: bank._id,
@@ -279,7 +311,9 @@ const createTransaction = async (req, res) => {
             staffId: user._id,
             typeFee,
             bonus: Number(bonus),
-            flag: box.flag ? box.flag : 1
+            flag: box.flag ? box.flag : 1,
+            checkCode,
+            decodeQr
         });
 
         await saveUserLogToQueue(user._id, newTransaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);
@@ -423,6 +457,12 @@ const updateTransaction = async (req, res) => {
             await box.save({ session });
         }
 
+        const decodeQr = makeVietQRContent({
+            bankId: bank.binBank,         
+            accountId: bank.bankAccount,
+            amount: totalAmount,           
+            description: content
+        })
         // 8. Update transaction
         const updatedTran = await Transaction.findByIdAndUpdate(
             id,
@@ -437,7 +477,8 @@ const updateTransaction = async (req, res) => {
                 messengerId,
                 typeFee,
                 bonus: Number(bonus),
-                flag: box.flag ? box.flag : 1
+                flag: box.flag ? box.flag : 1,
+                decodeQr
             },
             { new: true, session }
         ).populate([

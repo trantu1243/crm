@@ -22,6 +22,11 @@ const transactionSchema = new mongoose.Schema({
         enum: ["buyer", "seller", "split", "free"],
         required: true
     },
+    checkCode: {
+        type: String,
+        unique: true,
+        index: true
+    },
     bonus: { type: Number, default: 0 },
     flag: { type: Number, default: 1 },
     decodeQr: { type: String },
