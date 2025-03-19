@@ -5,26 +5,39 @@ const { generateQr } = require("../services/genQr.service");
 const checkTransaction = async (req, res) => {
     try {
         const { code } = req.params;
-
+        
         const transaction = await Transaction.findOne({ checkCode: code })
             .select("amount content fee totalAmount status boxId bankId")
             .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
                     path: 'boxId', 
-                    select: 'amount messengerId buyer seller isEncrypted',
+                    select: 'amount messengerId buyer seller isEncrypted senders',
                     populate: [
                         { path: 'buyer', select: 'facebookId nameCustomer avatar' },
                         { path: 'seller', select: 'facebookId nameCustomer avatar' }
                     ] 
                 }
             ]);
-            if (transaction) return res.status(200).json({
-                status: true,
-                transaction
-            });
+        
+        if (!transaction) return res.status(400).json({ status: false, message: 'Not found' });
+        
+        const setting = await Setting.findOne({uniqueId: 1}).populate(
+            [
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+            ]
+        );
 
-            return res.status(400).json({ status: false, message: 'Not found' });
+        const gdtgAccounts = setting.uuidFbs.filter(item => transaction.boxId.senders.includes(item.facebookId));
+
+        return res.status(200).json({
+            status: true,
+            transaction,
+            gdtgAccounts,
+            numOfAccount: transaction.senders.senders.length,
+        });
+
+        
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Internal server error' });
