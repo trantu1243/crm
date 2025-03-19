@@ -122,7 +122,7 @@ const generateQr = async (data) => {
         ctx.fillStyle = "#153070";
         ctx.font = "bold 30px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("GDTG - Tạ Thanh An", 420, 55);
+        ctx.fillText("GDTG - Tạ Thanh An", 430, 55);
 
         if (data.amount && data.mode === 'full') {
             ctx.fillStyle = "#204CB4";
@@ -130,7 +130,7 @@ const generateQr = async (data) => {
             ctx.textAlign = "center";
             ctx.fillText(
             `Số tiền: ${new Intl.NumberFormat("en-US").format(data.amount)} VND`,
-            320,
+            310,
             620
             );
         }
