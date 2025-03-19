@@ -34,7 +34,7 @@ const checkTransaction = async (req, res) => {
             status: true,
             transaction,
             gdtgAccounts,
-            numOfAccount: transaction.senders.senders.length,
+            numOfAccount: transaction.boxId.senders.length,
         });
 
         
