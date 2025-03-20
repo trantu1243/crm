@@ -189,6 +189,11 @@ const undoBox = async (req, res) => {
                 }
             }
 
+            if (latestTransaction.status === 2){
+                box.status = 'active';
+                await Transaction.updateMany({ boxId: box._id, flag: box.flag, status: { $in: [ 2, 6, 8], $ne: 3 } }, { status: 7 });
+            }
+
             await box.save();
 
             // Đánh dấu tất cả các giao dịch thuộc box này về trạng thái 7

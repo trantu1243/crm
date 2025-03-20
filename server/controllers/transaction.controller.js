@@ -320,13 +320,18 @@ const createTransaction = async (req, res) => {
 
         const io = getSocket();
 
+        const tran = await Transaction.findById(newTransaction._id).populate([
+            { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+            { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
+        ]);
+
         io.emit('create_transaction', {
-            transaction: newTransaction,
+            transaction: tran,
         });
         
         return res.status(201).json({
             message: 'Transaction created successfully',
-            transaction: newTransaction,
+            transaction: tran,
             box
         });
     } catch (error) {
