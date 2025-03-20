@@ -6,7 +6,8 @@ const permissions = [
     { name: "Tạo giao dịch", slug: "create-transaction", status: "active" },
     { name: "Tạo thanh khoản", slug: "create-bill", status: "active" },
     { name: "Khoá box", slug: "lock-box", status: "active" },
-    { name: "Mở box", slug: "unlock-box", status: "active" }
+    { name: "Mở box", slug: "unlock-box", status: "active" },
+    { name: "Sửa cookie", slug: "edit-cookie", status: "active" }
 ];
 
 // Hàm thêm quyền vào database

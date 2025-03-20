@@ -1,5 +1,6 @@
-const { Setting, FeeTransaction, Customer } = require("../models");
+const { Setting, FeeTransaction, Customer, Staff } = require("../models");
 const { updateAccessToken, getFBInfo, updateAccessToken1 } = require("../services/facebookService");
+const { getPermissions } = require("../services/permission.service");
 
   
 const getSetting = async (req, res) => {
@@ -128,6 +129,13 @@ const toggleFeeSetting = async (req, res) => {
 
 const getToken = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+        const user = await Staff.findById(req.user.id);
+        
+        if (!permissions.some(permission => permission.slug === 'edit-cookie') && user.is_admin !== 1) {
+            return res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const { cookie, proxy, proxy_auth } = req.body;
 
         const setting = await Setting.findOne({uniqueId: 1});
@@ -174,6 +182,13 @@ const getToken = async (req, res) => {
 
 const getToken1 = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+        const user = await Staff.findById(req.user.id);
+        
+        if (!permissions.some(permission => permission.slug === 'edit-cookie') && user.is_admin !==1) {
+            return res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         const { cookie, proxy, proxy_auth } = req.body;
 
         const setting = await Setting.findOne({uniqueId: 1});

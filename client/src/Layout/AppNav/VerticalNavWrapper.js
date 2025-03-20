@@ -19,11 +19,12 @@ class Nav extends Component {
         const { user } = this.props;
 
         let filteredNav = MainNav.filter(item => {
-            if (item.label === "Phân quyền hệ thống" || item.label === "Cấu hình hệ thống") {
+            if (item.label === "Phân quyền hệ thống") {
                 return user?.is_admin === 1;
             }
             return true;
         });
+        
         const filteredNav2 = filteredNav[0].content.filter(item => {
             if (item.label === "Thống kê chung") {
                 return user?.is_admin === 1;
@@ -32,6 +33,18 @@ class Nav extends Component {
         });
 
         filteredNav[0].content = filteredNav2;
+
+        if (user?.is_admin !== 1) {
+            const filteredNav3 = filteredNav[2].content.filter(item => {
+                if (item.label === "Cấu hình ngân hàng" || item.label === "Cấu hình phí") {
+                    return user?.is_admin === 1;
+                }
+                return true;
+            });
+    
+            filteredNav[2].content = filteredNav3;
+        }
+        
 
         return (
             <Fragment>

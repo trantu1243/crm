@@ -93,28 +93,30 @@ const getTransactions = async (req, res) => {
         );
 
         if (!boxTransaction) {
-            return res.status(404).json({ message: 'BoxTransaction not found' });
+            return res.status(404).json({ status: false, message: 'BoxTransaction not found' });
         }
 
         const gdtgAccounts = setting.uuidFbs.filter(item => boxTransaction.senders.includes(item.facebookId));
 
         const transactions = await Transaction.find({
             boxId: boxTransaction._id,
-            flag: boxTransaction.flag
-        }).select("amount content fee totalAmount status boxId bankId");
+        }).select("amount content fee totalAmount status boxId bankId").populate([
+            { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' }
+        ]);
 
         res.json({ 
+            status: true,
             amount: boxTransaction.amount,
             buyer: boxTransaction.buyer,
             seller: boxTransaction.seller,
-            numOfAccount: boxTransaction.senders.length,
             gdtgAccounts,
+            numOfAccount: boxTransaction.senders.length,
             transactions
         });
 
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ status: false, message: 'Internal server error' });
     }
 }
 

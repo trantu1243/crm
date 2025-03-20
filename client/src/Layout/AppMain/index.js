@@ -57,9 +57,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                localStorage.removeItem("token");
-                dispatch(logout());
-                setIsAuth(false);
+                // localStorage.removeItem("token");
+                // dispatch(logout());
+                // setIsAuth(false);
             }
         };
 
@@ -463,7 +463,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/config/setting" render={() => isAdmin ? <Setting /> : <Redirect to="/login" />
+                <Route path="/config/setting" render={() => isAuth ? <Setting /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
@@ -479,7 +479,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/login" render={() => isAuth ? <Redirect to="/dashboards" /> : <UserPages />
+                <Route path="/login" render={() => isAuth ? <Redirect to="/transactions" /> : <UserPages />
                 }  />
             </Suspense>
 

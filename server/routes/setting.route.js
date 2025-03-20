@@ -9,13 +9,13 @@ router.get("/", authenticateToken, isAdmin, settingController.getSetting);
 
 router.post("/toggle/fee", authenticateToken, isAdmin, settingController.toggleFeeSetting);
 
-router.get("/all", authenticateToken, isAdmin, settingController.getSettings);
+router.get("/all", authenticateToken, settingController.getSettings);
 
 router.post("/update", authenticateToken, isAdmin, settingController.updateSettings);
 
-router.post("/get-token", authenticateToken, isAdmin, settingController.getToken);
+router.post("/get-token", authenticateToken, settingController.getToken);
 
-router.post("/get-token1", authenticateToken, isAdmin, settingController.getToken1);
+router.post("/get-token1", authenticateToken, settingController.getToken1);
 
 router.post("/add-account", authenticateToken, isAdmin, settingController.addGDTGAccount);
 
