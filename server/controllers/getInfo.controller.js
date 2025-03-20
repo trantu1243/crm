@@ -1,6 +1,20 @@
 const { Transaction, Setting, BankAccount, BoxTransaction } = require("../models");
 const { generateQr } = require("../services/genQr.service");
 
+function formatDate(isoString) {
+    let date = new Date(isoString);
+
+    let day = String(date.getDate()).padStart(2, '0');
+    let month = String(date.getMonth() + 1).padStart(2, '0');
+    let year = date.getFullYear();
+
+    let hours = String(date.getHours()).padStart(2, '0');
+    let minutes = String(date.getMinutes()).padStart(2, '0');
+    let seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
 
 const checkTransaction = async (req, res) => {
     try {
@@ -18,7 +32,7 @@ const checkTransaction = async (req, res) => {
                         { path: 'seller', select: 'facebookId nameCustomer avatar' }
                     ] 
                 }
-            ]);
+            ]).lean(); ;
         
         if (!transaction) return res.status(400).json({ status: false, message: 'Not found' });
         
@@ -30,6 +44,7 @@ const checkTransaction = async (req, res) => {
 
         const gdtgAccounts = setting.uuidFbs.filter(item => transaction.boxId.senders.includes(item.facebookId));
 
+        transaction.createdAt = formatDate(transaction.createdAt)
         return res.status(200).json({
             status: true,
             transaction,
@@ -99,10 +114,11 @@ const getTransactions = async (req, res) => {
         const gdtgAccounts = setting.uuidFbs.filter(item => boxTransaction.senders.includes(item.facebookId));
 
         const transactions = await Transaction.find({
-            boxId: boxTransaction._id
+            boxId: boxTransaction._id,
+            status: { $nin: [3] }
         }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId createdAt").populate([
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' }
-        ]);
+        ]).lean(); ;
 
         const transaction = await Transaction.findOne({ boxId: boxTransaction._id }).sort({ createdAt: -1 })
             .select("amount content fee totalAmount status boxId bankId createdAt")
@@ -116,8 +132,12 @@ const getTransactions = async (req, res) => {
                         { path: 'seller', select: 'facebookId nameCustomer avatar' }
                     ] 
                 }
-            ]);
-
+            ]).lean(); ;
+        transaction.createdAt = formatDate(transaction.createdAt)
+        transactions.map((item)=>{
+            item.createdAt = formatDate(item.createdAt)
+            return item
+        })
         res.json({ 
             status: true,
             transaction,
