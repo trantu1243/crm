@@ -21,6 +21,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { createBill } from "../../../services/billService";
 import { fetchBankApi } from "../../../services/bankApiService";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import QRCodeComponent from "../../CreateTransaction/QRCode";
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -1012,7 +1013,27 @@ class TransactionsTable extends Component {
                                         <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                             <Loader type="ball-spin-fade-loader" />
                                         </div> 
-                                        : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}} onClick={this.copyImageToClipboard}></img>} 
+                                        : <>
+                                            {this.state.updateTransaction?.decodeQr ? 
+                                            <QRCodeComponent 
+                                                encodedData={this.state.updateTransaction?.decodeQr}
+                                                logo={this.state.updateTransaction?.bankId.logo}
+                                                data={{
+                                                    amount: this.state.updateTransaction?.totalAmount,
+                                                    content: `${this.state.updateTransaction?.content} - ${this.state.updateTransaction?.checkCode}`,
+                                                    bankAccount: this.state.updateTransaction?.bankId.bankAccount,
+                                                    bankAccountName: this.state.updateTransaction?.bankId.bankAccountName,
+                                                    checkCode: this.state.updateTransaction?.checkCode,
+                                                }}
+                                                style={{
+                                                    width: '100%', 
+                                                    height: '100%', 
+                                                    padding: this.state.isMobile ? '0' : '0 3rem'
+                                                }}
+                                            /> 
+                                            : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}} onClick={this.copyImageToClipboard}></img>
+                                            }
+                                        </>} 
                                     </Row>
                                     <Row className="mb-3 ms-2">
                                         <Col md={12} xs={12}>

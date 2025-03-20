@@ -1,7 +1,9 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import QRCodeStyling from "qr-code-styling";
+import Loader from "react-loaders";
 
-const QRCodeComponent = ({ encodedData, logo, data }) => {
+const QRCodeComponent = ({ encodedData, logo, data, style }) => {
+    const [isLoading, setIsLoading] = useState(true);
     const qrRef = useRef(null);
     const canvasRef = useRef(null);
     const qrCode = useRef(
@@ -70,10 +72,14 @@ const QRCodeComponent = ({ encodedData, logo, data }) => {
     );
 
     const drawLogo = useCallback(() => {
+        setIsLoading(false);
         const canvas = canvasRef.current;
+
+        if (!canvas) return;
+
         const ctx = canvas.getContext("2d");
 
-        if (!canvas || !ctx) return;
+        if (!ctx) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#ffffff";
@@ -89,6 +95,7 @@ const QRCodeComponent = ({ encodedData, logo, data }) => {
         ctx.strokeRect(45, 75, 510, 510);
 
         const logoImg = new Image();
+        console.log(logo)
         logoImg.src = logo;
         logoImg.onload = () => {
             const logoWidth = 268;
@@ -151,6 +158,7 @@ const QRCodeComponent = ({ encodedData, logo, data }) => {
     }, [data, logo]);
 
     useEffect(() => {
+        setIsLoading(true);
         if (qrRef.current) {
             qrCode.current.append(qrRef.current);
             setTimeout(drawLogo, 500);
@@ -159,15 +167,13 @@ const QRCodeComponent = ({ encodedData, logo, data }) => {
 
     return (
         <div style={{ textAlign: "center" }}>
-            <canvas
-                ref={canvasRef}
-                width={600}
-                height={776}
-                style={{
-                width: "300px",
-                height: "auto",
-                }}
-            ></canvas>
+           {isLoading ? (
+                <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
+                    <Loader type="ball-spin-fade-loader" />
+                </div> 
+            ) : (
+                <canvas ref={canvasRef} width={600} height={776} style={{ ...style }}></canvas>
+            )}
             <div ref={qrRef} style={{ display: "none" }}></div>
         </div>
     );

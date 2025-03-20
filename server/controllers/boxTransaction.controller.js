@@ -121,7 +121,7 @@ const getById = async (req, res) => {
                     ] 
                 },
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
             ]
         );
         const bills = await Bill.find({ boxId: id }).sort({ createdAt: -1 }).populate([
@@ -168,7 +168,7 @@ const undoBox = async (req, res) => {
         const latestTransaction = transactions[0]; // Giao dịch mới nhất
 
         // Nếu transaction mới nhất có status = 8 -> Cập nhật lại hóa đơn (Bill) và số dư trong box
-        if (latestTransaction.status === 8) {
+        if (latestTransaction.status === 8 || latestTransaction.status === 2) {
             if (user.is_admin === 0) return res.status(400).json({ message: 'Không thể hoàn lại thanh khoản đã hoàn thành' });
 
             const lastestBill = await Bill.findOne({ boxId: box._id, status: { $ne: 3 } }).sort({ createdAt: -1 });

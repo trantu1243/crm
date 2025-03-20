@@ -144,7 +144,7 @@ const getTransactions = async (req, res) => {
             limit: Number(limit),
             populate: [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' },
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' },
                 {
                     path: 'boxId', 
                     select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
@@ -174,7 +174,7 @@ const getById = async (req, res) => {
         const transaction = await Transaction.findById(id).populate(
             [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
             ]
         );
         if (!transaction) {
@@ -279,7 +279,7 @@ const createTransaction = async (req, res) => {
             if (box.status === 'active') {
                 const tran = await Transaction.findOne({ boxId: box._id, status: { $nin: [ 2, 3 ] } }).sort({ createdAt: -1 }).populate(
                     [
-                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
                     ]);
                 if (tran && tran.bankId.bankCode !== bank.bankCode) {
 
@@ -297,7 +297,7 @@ const createTransaction = async (req, res) => {
             bankId: bank.binBank,         
             accountId: bank.bankAccount,
             amount: totalAmount,           
-            description: content
+            description: `${content} - ${checkCode}`
         })
         const newTransaction = await Transaction.create({
             boxId: box._id,
@@ -306,7 +306,7 @@ const createTransaction = async (req, res) => {
             content,
             fee,
             totalAmount,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + Number(bonus)}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + Number(bonus)}&addInfo=${content} - ${checkCode}&accountName=${bank.bankAccountName}`,
             messengerId,
             staffId: user._id,
             typeFee,
@@ -434,7 +434,7 @@ const updateTransaction = async (req, res) => {
             if (box.status === 'active') {
                 const tran = await Transaction.findOne({ boxId: box._id }).sort({ createdAt: -1 }).populate(
                     [
-                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+                        { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
                     ]);
                 // if (tran && tran.bankId.bankCode !== bank.bankCode) {
 
@@ -461,7 +461,7 @@ const updateTransaction = async (req, res) => {
             bankId: bank.binBank,         
             accountId: bank.bankAccount,
             amount: totalAmount,           
-            description: content
+            description: `${content} - ${tran.checkCode}`
         })
         // 8. Update transaction
         const updatedTran = await Transaction.findByIdAndUpdate(
@@ -473,7 +473,7 @@ const updateTransaction = async (req, res) => {
                 content,
                 fee,
                 totalAmount,
-                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content}&accountName=${bank.bankAccountName}`,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content} - ${tran.checkCode}&accountName=${bank.bankAccountName}`,
                 messengerId,
                 typeFee,
                 bonus: Number(bonus),
@@ -483,7 +483,7 @@ const updateTransaction = async (req, res) => {
             { new: true, session }
         ).populate([
             { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-            { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank' }
+            { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank logo name' }
         ]);
 
         // 9. Commit transaction

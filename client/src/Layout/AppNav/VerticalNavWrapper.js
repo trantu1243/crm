@@ -45,7 +45,6 @@ class Nav extends Component {
             filteredNav[2].content = filteredNav3;
         }
         
-
         return (
             <Fragment>
                 <h5 className="app-sidebar__heading">Menu</h5>
