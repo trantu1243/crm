@@ -24,6 +24,7 @@ import {
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
+import QRCodeComponent from "./QRCode";
 
 library.add(
     fab,
@@ -193,13 +194,13 @@ class CreateTransaction extends Component {
             this.setState({loading: true});
             if (this.state.input.isToggleOn) {
                 const res = await createTransaction(this.state.input);
-                this.props.setTransaction(res.transaction);
+                await this.props.setTransaction(res.transaction);
                 const bank = this.state.bankAccounts.find(bank => bank._id === this.state.input.bankId);
                 this.setState({
                     isCreated: true,
                     loading: false,
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
-                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content}`
+                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content} -${this.props.transaction.checkCode}\n-------------------------------\nCheck tại: https://check.tathanhan.com/${this.props.transaction.checkCode}`
                 });
                 const box = res.box;
                 
@@ -228,6 +229,25 @@ class CreateTransaction extends Component {
 
                 this.setState({loading: false});
             } else {
+                await this.props.setTransaction({
+                    _id: '',
+                    amount: 0,
+                    bankId: null,
+                    bonus: 0,
+                    boxId: '',
+                    content: '',
+                    fee:'',
+                    status: 1,
+                    messengerId: '',
+                    linkQr: '',
+                    totalAmount: '',
+                    typeFee: '',
+                    createdAt: '',
+                    updatedAt: '',
+                    decodeQr: '',
+                    checkCode: ''
+                });
+
                 const { amount = 0, bankId, bonus = 0, content, fee = 0, typeFee } = this.state.input;
                 if ((!bankId || !typeFee) || ( amount === 0 && bonus === 0)) {
                     this.setState({loading: false})
@@ -353,6 +373,14 @@ class CreateTransaction extends Component {
             await getFBInfo(id);
             const data = await getSenderInfo(this.props.transaction.boxId);
             this.setState({senders: data.senders});
+            if (this.state.updateBox.buyerId) {
+                const result = this.state.senders.find(item => item.facebookId === this.state.updateBox.buyerId);
+                this.setState({buyerSender: result})
+            }
+            if (this.state.updateBox.sellerId) {
+                const result = this.state.senders.find(item => item.facebookId === this.state.updateBox.sellerId);
+                this.setState({sellerSender: result})
+            }
             this.setState({loading: false});
         } catch (error) {
             this.setState({
@@ -574,7 +602,7 @@ class CreateTransaction extends Component {
                                                     </Row>}
                                                     <Row className="mb-4">
                                                         <Col sm={12} xs={12} style={{position: 'relative'}}>
-                                                            <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                                            <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
                                                             <div style={{position: 'absolute', right: 0, top: 0}}>
                                                                 <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
                                                                     <Button color="link">
@@ -609,21 +637,41 @@ class CreateTransaction extends Component {
                                                 {this.state.isCreated && <>
 
                                                     <Row>
-                                                        <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 2em', position: 'relative'}}>
-                                                            <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}} onClick={this.copyImageToClipboard}></img>
+                                                        <div style={{width: '100%',padding: this.state.isMobile ? '0' : '0 2em'}}>
+                                                            {this.props.transaction.decodeQr ? <QRCodeComponent 
+                                                                encodedData={this.props.transaction?.decodeQr}
+                                                                logo={this.props.transaction?.bankId.logo}
+                                                                data={{
+                                                                    amount: this.props.transaction?.totalAmount,
+                                                                    content: `${this.props.transaction?.content} - ${this.props.transaction?.checkCode}`,
+                                                                    bankAccount: this.props.transaction?.bankId.bankAccount,
+                                                                    bankAccountName: this.props.transaction?.bankId.bankAccountName,
+                                                                    checkCode: this.props.transaction?.checkCode,
+                                                                }}
+                                                                style={{
+                                                                    width: '100%', 
+                                                                    height: '100%', 
+                                                                    padding: this.state.isMobile ? '0' : '0 3rem'
+                                                                }}
+                                                            /> : <img src={this.state.linkQr} alt="" style={{width: '100%', height: '100%'}} onClick={this.copyImageToClipboard}></img>}
+                                                            
                                                             
                                                         </div>
-                                                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
-                                                            <Button color="link" onClick={this.copyImageToClipboard}>
-                                                                <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg" />
-                                                            </Button>
-                                                        </div>
 
-                                                        {this.state.imageCopied ? (
-                                                            <div className="text-center" style={{width: '100%'}}>
-                                                                <FormText color="success">Image has been copied.</FormText>
+                                                        {!this.props.transaction.decodeQr && <>
+                                                            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", width: "100%"}}>
+                                                                <Button color="link" onClick={this.copyImageToClipboard}>
+                                                                    <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg" />
+                                                                </Button>
                                                             </div>
-                                                        ) : null}
+
+                                                            {this.state.imageCopied ? (
+                                                                <div className="text-center" style={{width: '100%'}}>
+                                                                    <FormText color="success">Image has been copied.</FormText>
+                                                                </div>
+                                                            ) : null}
+                                                        </>}
+                                                        
                                                     </Row>
                                                     {this.state.input.isToggleOn && <>
                                                         <Row className="mb-3 ms-2">
@@ -871,7 +919,9 @@ const mapStateToProps = (state) => ({
         totalAmount: '',
         typeFee: '',
         createdAt: '',
-        updatedAt: ''
+        updatedAt: '',
+        decodeQr: '',
+        checkCode: ''
     },
     loading: state.transactions.loading  || false,
     bankAccounts: state.user.user.permission_bank || [],

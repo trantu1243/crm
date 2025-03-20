@@ -993,7 +993,7 @@ class TransactionsTable extends Component {
                                     
                                 </Col>
                                 <Col md={6} xs={12}>
-                                    <Row>
+                                    {!this.state.updateTransaction?.decodeQr && <Row>
                                         <Col md={6}>
 
                                         </Col>
@@ -1007,7 +1007,8 @@ class TransactionsTable extends Component {
                                                 </CopyToClipboard>
                                             </InputGroup>
                                         </Col>
-                                    </Row>
+                                    </Row>}
+                                    
                                     <Row>
                                         {this.state.loading ? 
                                         <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">

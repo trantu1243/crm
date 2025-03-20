@@ -23,6 +23,7 @@ import SweetAlert from 'react-bootstrap-sweetalert';
 import { fetchBankApi } from "../../../services/bankApiService";
 import { createBill } from "../../../services/billService";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import QRCodeComponent from "../../CreateTransaction/QRCode";
 
 const statusList = [
     { value: 0, name: "Tất cả" },
@@ -989,7 +990,7 @@ class TransactionsTable extends Component {
                                 
                             </Col>
                             <Col md={6} xs={12}>
-                                <Row>
+                                {!this.state.updateTransaction?.decodeQr && <Row>
                                     <Col md={6}>
 
                                     </Col>
@@ -1003,13 +1004,34 @@ class TransactionsTable extends Component {
                                             </CopyToClipboard>
                                         </InputGroup>
                                     </Col>
-                                </Row>
+                                </Row>}
+                                
                                 <Row>
                                     {this.state.loading ? 
                                     <div className="loader-wrapper d-flex justify-content-center align-items-center w-100 mt-5">
                                         <Loader type="ball-spin-fade-loader" />
                                     </div> 
-                                    : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}}></img>} 
+                                    : <>
+                                        {this.state.updateTransaction?.decodeQr ? 
+                                        <QRCodeComponent 
+                                            encodedData={this.state.updateTransaction?.decodeQr}
+                                            logo={this.state.updateTransaction?.bankId.logo}
+                                            data={{
+                                                amount: this.state.updateTransaction?.totalAmount,
+                                                content: `${this.state.updateTransaction?.content} - ${this.state.updateTransaction?.checkCode}`,
+                                                bankAccount: this.state.updateTransaction?.bankId.bankAccount,
+                                                bankAccountName: this.state.updateTransaction?.bankId.bankAccountName,
+                                                checkCode: this.state.updateTransaction?.checkCode,
+                                            }}
+                                            style={{
+                                                width: '100%', 
+                                                height: '100%', 
+                                                padding: this.state.isMobile ? '0' : '0 3rem'
+                                            }}
+                                        /> 
+                                        : <img src={this.state.updateTransaction?.linkQr} alt="" style={{width: '100%', height: '100%', padding: this.state.isMobile ? '0' : '0 3rem'}} onClick={this.copyImageToClipboard}></img>
+                                        }
+                                    </>} 
                                 </Row>
                                 <Row className="mb-3 ms-2">
                                     <Col md={12} xs={12}>
