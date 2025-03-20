@@ -25,7 +25,7 @@ const fs = require('fs');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
-    // seedPermissions();
+    seedPermissions();
     // resetPass();
 
     // updateFlags()
