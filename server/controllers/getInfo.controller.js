@@ -99,16 +99,28 @@ const getTransactions = async (req, res) => {
         const gdtgAccounts = setting.uuidFbs.filter(item => boxTransaction.senders.includes(item.facebookId));
 
         const transactions = await Transaction.find({
-            boxId: boxTransaction._id,
-        }).select("amount content fee totalAmount status boxId bankId").populate([
+            boxId: boxTransaction._id
+        }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId").populate([
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' }
         ]);
 
+        const transaction = await Transaction.findOne({ boxId: boxTransaction._id }).sort({ createdAt: -1 })
+            .select("amount content fee totalAmount status boxId bankId")
+            .populate([
+                { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
+                {
+                    path: 'boxId', 
+                    select: 'amount messengerId buyer seller isEncrypted senders',
+                    populate: [
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar' }
+                    ] 
+                }
+            ]);
+
         res.json({ 
             status: true,
-            amount: boxTransaction.amount,
-            buyer: boxTransaction.buyer,
-            seller: boxTransaction.seller,
+            transaction,
             gdtgAccounts,
             numOfAccount: boxTransaction.senders.length,
             transactions
