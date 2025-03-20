@@ -44,7 +44,9 @@ const checkTransaction = async (req, res) => {
 
         const gdtgAccounts = setting.uuidFbs.filter(item => transaction.boxId.senders.includes(item.facebookId));
 
-        transaction.createdAt = formatDate(transaction.createdAt)
+        transaction.createdAt = formatDate(transaction.createdAt);
+        if (!transaction.checkCode) transaction.checkCode = null;
+
         return res.status(200).json({
             status: true,
             transaction,
@@ -132,10 +134,13 @@ const getTransactions = async (req, res) => {
                         { path: 'seller', select: 'facebookId nameCustomer avatar' }
                     ] 
                 }
-            ]).lean(); ;
+            ]).lean();
         transaction.createdAt = formatDate(transaction.createdAt)
+        if (!transaction.checkCode) transaction.checkCode = null;
+
         transactions.map((item)=>{
-            item.createdAt = formatDate(item.createdAt)
+            item.createdAt = formatDate(item.createdAt);
+            if (!item.checkCode) item.checkCode = null;
             return item
         })
         res.json({ 
