@@ -7,7 +7,7 @@ const checkTransaction = async (req, res) => {
         const { code } = req.params;
         
         const transaction = await Transaction.findOne({ checkCode: code })
-            .select("amount content fee totalAmount status boxId bankId")
+            .select("amount content fee totalAmount status boxId bankId createdAt")
             .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
@@ -100,12 +100,12 @@ const getTransactions = async (req, res) => {
 
         const transactions = await Transaction.find({
             boxId: boxTransaction._id
-        }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId").populate([
+        }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId createdAt").populate([
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' }
         ]);
 
         const transaction = await Transaction.findOne({ boxId: boxTransaction._id }).sort({ createdAt: -1 })
-            .select("amount content fee totalAmount status boxId bankId")
+            .select("amount content fee totalAmount status boxId bankId createdAt")
             .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
