@@ -13,7 +13,6 @@ const permissions = [
 // Hàm thêm quyền vào database
 const seedPermissions = async () => {
     try {
-        await Permission.deleteMany({});
         for (const perm of permissions) {
             const exists = await Permission.findOne({ slug: perm.slug });
             if (!exists) {

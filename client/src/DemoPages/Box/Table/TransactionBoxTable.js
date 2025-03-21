@@ -346,7 +346,7 @@ class TransactionsTable extends Component {
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
             this.setState({
                 updateTransaction: res.transaction,
-                textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\nNội dung: ${res.transaction.content}`,
+                textCopy: `${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\nNội dung: ${res.transaction.content} - ${res.transaction.checkCode}\n-------------------------------\nCheck tại: https://check.tathanhan.com/${res.transaction.checkCode}`,
             });
             await this.props.getBoxByIdNoLoad(this.props.boxId);
             this.setState({loading: false});
@@ -714,7 +714,7 @@ class TransactionsTable extends Component {
                                             onClick={() => {
                                                 this.setState({
                                                     updateTransaction: item,
-                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\nNội dung: ${item.content}`,
+                                                    textCopy: `${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\nNội dung: ${item.content} - ${item.checkCode}\n-------------------------------\nCheck tại: https://check.tathanhan.com/${item.checkCode}`,
                                                     update: {
                                                         amount: String(item.amount),
                                                         bankId: item.bankId._id,
@@ -976,7 +976,7 @@ class TransactionsTable extends Component {
                                     </Row>
                                     <Row className="mb-4">
                                         <Col md={12} xs={12} style={{position: 'relative'}}>
-                                            <textarea rows={5} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                            <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
                                             <div style={{position: 'absolute', right: 8, top: 0}}>
                                                 <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
                                                     <Button color="link">
