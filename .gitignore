@@ -1,5 +1,13 @@
 db.sql
 
+backup-mongodb.sh
+
+backup.log
+
+mongo-keyfile
+
+rclone-backup.json
+
 /db
 
 /backup
