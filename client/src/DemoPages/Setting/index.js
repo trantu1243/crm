@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
 
-import { Button, ButtonGroup, Card, CardBody, CardTitle, Col, Container, Input, InputGroup, Label, ListGroup, ListGroupItem } from "reactstrap";
+import { Button, ButtonGroup, Card, CardBody, CardTitle, Col, Container, Input, InputGroup, Label, ListGroup, ListGroupItem, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
 import Row from "../Components/GuidedTours/Examples/Row";
 import AppSidebar from "../../Layout/AppSidebar";
@@ -10,8 +10,8 @@ import cx from "classnames";
 
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { addGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken, updateToken1 } from "../../services/settingService";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { addGDTGAccount, editGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken, updateToken1 } from "../../services/settingService";
 import { SERVER_URL } from "../../services/url";
 
 class Setting extends Component {
@@ -22,6 +22,8 @@ class Setting extends Component {
             value: [],
             loading: false,
             alert: false,
+            updateModal: false,
+            updateAccount: null,
             errorMsg: '',
             profiles: [],
             id: '',
@@ -35,8 +37,15 @@ class Setting extends Component {
                 numOfDay: 0,
                 isOn: false
             },
+            update: {
+                facebookId: '',
+                nameCustomer: '',
+                username: ''
+            }
         };
         this.handleClick = this.handleClick.bind(this);
+        this.toggleUpdate = this.toggleUpdate.bind(this);
+
     }
 
     componentDidMount() {
@@ -44,8 +53,10 @@ class Setting extends Component {
         this.getSetting()
     }
 
-    componentDidUpdate(prevProps) {
-        
+    toggleUpdate() {
+        this.setState({
+            updateModal: !this.state.updateModal,
+        });
     }
 
     componentWillUnmount() {
@@ -158,6 +169,24 @@ class Setting extends Component {
                 errorMsg: error
             })
             this.setState({loading: false})
+        }
+    }
+
+    handleEdit = async () => {
+        try{
+            this.setState({ loading: true });
+            await editGDTGAccount(this.state.updateAccount?._id, this.state.update);
+            await this.getSetting();
+            this.setState({loading: false});
+            this.toggleUpdate();
+        } catch (error) {
+            this.toggleUpdate();
+            await this.getSetting();
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false});
         }
     }
 
@@ -359,6 +388,23 @@ class Setting extends Component {
                                                                         </div>
                                                                         <div className="widget-content-right">
                                                                             <ButtonGroup size="sm">
+                                                                                <Button 
+                                                                                    className="me-2" 
+                                                                                    color="info" 
+                                                                                    onClick={() => {
+                                                                                        this.setState({
+                                                                                            update: {
+                                                                                                facebookId: item.facebookId,
+                                                                                                nameCustomer: item.nameCustomer,
+                                                                                                username: item.username ? item.username : ''
+                                                                                            },
+                                                                                            updateAccount: item
+                                                                                        })
+                                                                                        this.toggleUpdate();
+                                                                                    }}
+                                                                                >
+                                                                                    <FontAwesomeIcon icon={faPen}></FontAwesomeIcon>
+                                                                                </Button>
                                                                                 <Button color="danger" onClick={() => {this.handleRemove(item.facebookId)}}>
                                                                                     <FontAwesomeIcon icon={faTrash}></FontAwesomeIcon>
                                                                                 </Button>
@@ -397,6 +443,84 @@ class Setting extends Component {
                         </div>
                     </div>
                 </div>
+                <Modal isOpen={this.state.updateModal} toggle={this.toggleUpdate} className="modal-lg" style={{marginTop: '10rem'}}>
+                    <ModalHeader toggle={this.toggleUpdate}>Cập nhật account</ModalHeader>
+                        <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleEdit()}>
+                            <Row className="mb-4">
+                                <Col md={3}>
+                                    <Label>Facebook ID</Label>
+                                </Col>
+                                <Col md={9}>
+                                    <Input
+                                        type="text"
+                                        name="facebookId"
+                                        value={this.state.update.facebookId}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            const match = value.match(/(\d+)/);
+                                            this.setState((prevState) => ({
+                                                update: {
+                                                    ...prevState.update,
+                                                    facebookId: match ? match[0] : ""
+                                                },
+                                            }));
+                                        }}
+                                        required
+                                    />
+                                </Col>
+                            </Row>
+                            <Row className="mb-4">
+                                <Col md={3}>
+                                    <Label>Username</Label>
+                                </Col>
+                                <Col md={9}>
+                                    <Input
+                                        type="text"
+                                        name="username"
+                                        value={this.state.update.username}
+                                        onChange={(e) => {
+                                            this.setState((prevState) => ({
+                                                update: {
+                                                    ...prevState.update,
+                                                    username: e.target.value,
+                                                },
+                                            }));
+                                        }}
+                                        required
+                                    />
+                                </Col>
+                            </Row>
+                            <Row className="mb-4">
+                                <Col md={3}>
+                                    <Label>Tên</Label>
+                                </Col>
+                                <Col md={9}>
+                                    <Input
+                                        type="text"
+                                        name="nameCustomer"
+                                        value={this.state.update.nameCustomer}
+                                        onChange={(e) => {
+                                            this.setState((prevState) => ({
+                                                update: {
+                                                    ...prevState.update,
+                                                    nameCustomer: e.target.value
+                                                },
+                                            }));
+                                        }}
+                                        required
+                                    />
+                                </Col>
+                            </Row>
+                        </ModalBody>
+                    <ModalFooter>
+                        <Button color="link" onClick={this.toggleUpdate}>
+                            Hủy
+                        </Button>
+                        <Button color="primary" disabled={this.state.loading} onClick={this.handleEdit}>
+                            {this.state.loading ? "Đang cập nhật..." : "Cập nhật"}
+                        </Button>
+                    </ModalFooter>
+                </Modal>
                 <SweetAlert title={this.state.errorMsg} show={this.state.alert}
                     type="error" onConfirm={() => this.setState({alert: false})}/>
             </Fragment>

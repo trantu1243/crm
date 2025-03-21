@@ -21,4 +21,6 @@ router.post("/add-account", authenticateToken, isAdmin, settingController.addGDT
 
 router.post("/remove-account", authenticateToken, isAdmin, settingController.removeGDTGAccount);
 
+router.post("/edit-account/:id", authenticateToken, isAdmin, settingController.editGDTGAccount);
+
 module.exports = router;

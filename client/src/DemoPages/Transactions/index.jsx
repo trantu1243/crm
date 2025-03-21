@@ -14,6 +14,7 @@ import { fetchStaffs } from "../../services/staffService";
 import { fetchBankAccounts } from "../../services/bankAccountService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faSearch } from "@fortawesome/free-solid-svg-icons";
+import QuickAnswer from "../../Layout/QuickAnswer";
 
 export const dummyData = [
   {
@@ -131,6 +132,7 @@ class Transactions extends Component {
         return (
             <Fragment>
                 <AppHeader />
+                <QuickAnswer />
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">

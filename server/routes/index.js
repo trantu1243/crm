@@ -13,6 +13,7 @@ const statisticRoutes = require('./statistic.route');
 const settingRoutes = require('./setting.route');
 const userLogRoutes = require('./userLog.route');
 const getInfoRoutes = require('./getInfo.route');
+const quickAnswerRoutes = require('./quickAnswer.route');
 
 const router = express.Router();
 
@@ -72,6 +73,10 @@ const defaultRoutes = [
     {
         path: '/get',
         route: getInfoRoutes
+    },
+    {
+        path: '/quick-answer',
+        route: quickAnswerRoutes
     },
 ];
 

@@ -25,6 +25,7 @@ import {
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
+import QuickAnswer from "../../Layout/QuickAnswer";
 
 library.add(
     fab,
@@ -246,6 +247,7 @@ class Box extends Component {
         return (
             <Fragment>
                 <AppHeader />
+                <QuickAnswer />
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">

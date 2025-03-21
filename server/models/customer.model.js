@@ -5,6 +5,7 @@ const customerSchema = new mongoose.Schema({
     nameCustomer: { type: String },
     facebookId: { type: String, unique: true },
     avatar: { type: String },
+    username: { type: String, unique: true },
     bankAccounts: {
         type: [{ type: mongoose.Types.ObjectId, ref: 'Stk' }],
         default: []

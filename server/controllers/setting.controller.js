@@ -21,7 +21,7 @@ const getSettings = async (req, res) => {
     try {
         const setting = await Setting.findOne({uniqueId: 1}).populate(
             [
-                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar username' },
             ]
         );;
         
@@ -235,7 +235,6 @@ const getToken1 = async (req, res) => {
 
 const addGDTGAccount = async (req, res) => {
     try {
-        
         const { id } = req.body;
         if (!id) return res.status(400).json({ message: `Chưa nhập id` });
 
@@ -305,6 +304,33 @@ const removeGDTGAccount = async (req, res) => {
     }
 };
 
+const editGDTGAccount = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: `Chưa nhập id` });
+
+        const { facebookId, nameCustomer, username } = req.body;
+        console.log(req.body)
+
+        let customer = await Customer.findById(id);
+        if (!customer) return res.status(400).json({ message: `Chưa nhập id` });
+       
+        if (facebookId) customer.facebookId = facebookId;
+        if (nameCustomer) customer.nameCustomer = nameCustomer;
+        if (username) customer.username = username;
+        await customer.save();
+
+        console.log(customer)
+        return res.json({ 
+            status: true,
+            message: 'Edit customer successfully',
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = { 
     getSetting,
     toggleFeeSetting,
@@ -313,5 +339,6 @@ module.exports = {
     getToken, 
     addGDTGAccount,
     removeGDTGAccount,
-    getToken1
+    getToken1,
+    editGDTGAccount
 };

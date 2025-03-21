@@ -28,8 +28,8 @@ const checkTransaction = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId buyer seller isEncrypted senders',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar' }
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar username' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar username' }
                     ] 
                 }
             ]).lean(); ;
@@ -38,7 +38,7 @@ const checkTransaction = async (req, res) => {
         
         const setting = await Setting.findOne({uniqueId: 1}).populate(
             [
-                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar username' },
             ]
         );
 
@@ -66,7 +66,7 @@ const getGDAccount = async (req, res) => {
     try {
         const setting = await Setting.findOne({uniqueId: 1}).populate(
             [
-                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar username' },
             ]
         );
        
@@ -98,14 +98,14 @@ const getTransactions = async (req, res) => {
 
         const boxTransaction = await BoxTransaction.findOne({ messengerId: id }).populate(
             [
-                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
-                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+                { path: 'buyer', select: 'nameCustomer facebookId avatar username' },
+                { path: 'seller', select: 'nameCustomer facebookId avatar username' },
             ]
         );
 
         const setting = await Setting.findOne({uniqueId: 1}).populate(
             [
-                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar' },
+                { path: 'uuidFbs', select: 'nameCustomer facebookId avatar username' },
             ]
         );
 
@@ -130,8 +130,8 @@ const getTransactions = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId buyer seller isEncrypted senders',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar' }
+                        { path: 'buyer', select: 'facebookId nameCustomer avatar username' },
+                        { path: 'seller', select: 'facebookId nameCustomer avatar username' }
                     ] 
                 }
             ]).lean();

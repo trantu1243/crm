@@ -312,10 +312,16 @@
   }
 }
 
+@include media-breakpoint-down(sm) {
+  
+  .ui-theme-settings {
+    display: none;
+  }
+}
+
 @include media-breakpoint-between(xs, md) {
 
-  .app-page-title .page-title-icon,
-  .ui-theme-settings {
+  .app-page-title .page-title-icon {
     display: none;
   }
 

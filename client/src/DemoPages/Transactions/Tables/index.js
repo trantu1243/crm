@@ -973,7 +973,7 @@ class TransactionsTable extends Component {
                                 </Row>
                                 <Row className="mb-4">
                                     <Col md={12} xs={12} style={{position: 'relative'}}>
-                                        <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                        <textarea rows={7} cols={10} className="form-control" value={this.state.textCopy} disabled/>
                                         <div style={{position: 'absolute', right: 8, top: 0}}>
                                             <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
                                                 <Button color="link">
