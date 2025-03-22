@@ -1056,7 +1056,7 @@ class TransactionsTable extends Component {
                                                 type="text"
                                                 name="buyerName"
                                                 id="buyerName"
-                                                value={this.state.updateTransaction?.boxId.buyer?.facebookId}
+                                                value={this.state.updateTransaction?.boxId.buyer?.nameCustomer}
                                                 disabled
                                             />
                                             <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
