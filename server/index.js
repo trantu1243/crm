@@ -46,23 +46,35 @@ const updateFlag = async () =>{
     }
 }
 
+const allowedOrigins = ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin) || /\.tathanhan\.com$/.test(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'], 
-        methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+const io = new Server(server, { cors: corsOptions });
+
+io.use((socket, next) => {
+    const origin = socket.handshake.headers.origin;
+    if (!origin || allowedOrigins.includes(origin) || /\.tathanhan\.com$/.test(origin)) {
+        return next();
     }
+    return next(new Error("CORS policy violation"));
 });
 
 io.use(verifySocketConnection);
 
-app.use(cors({
-	origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'], 
-	methods: ['GET', 'POST', 'PUT', 'DELETE'], 
-	allowedHeaders: ['Content-Type', 'Authorization'], 
-}));
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
