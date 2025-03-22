@@ -31,7 +31,6 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    // updateFlag()
     // updateBank()
     // updateUser()
 });
@@ -39,42 +38,29 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 const updateFlag = async () =>{
     try {
        
-        await Customer.updateMany({ avatar: 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'}, { avatar: 'https://tathanhan.com/no-avatar.jpg'})
 
     } catch (error) {
         console.error(error);
     }
 }
 
-const allowedOrigins = ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com', 'https://thantai.tathanhan.vn'];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || /\.tathanhan\.com$/.test(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-};
-
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: corsOptions });
-
-io.use((socket, next) => {
-    const origin = socket.handshake.headers.origin;
-    if (!origin || allowedOrigins.includes(origin) || /\.tathanhan\.com$/.test(origin)) {
-        return next();
+const io = new Server(server, {
+    cors: {
+        origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com', 'https://thantai.tathanhan.vn'], 
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization']
     }
-    return next(new Error("CORS policy violation"));
 });
 
 io.use(verifySocketConnection);
 
-app.use(cors(corsOptions));
+app.use(cors({
+	origin: ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com', 'https://thantai.tathanhan.vn'], 
+	methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+	allowedHeaders: ['Content-Type', 'Authorization'], 
+}));
 
 app.use((req, res, next) => {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");

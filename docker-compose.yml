@@ -1,108 +1,39 @@
-# name: crm
-# services:
-#   mongodb:
-#     image: mongo:8
-#     volumes:
-#       - ./db/:/data/db
-#     restart: always
-#     environment:
-#       MONGO_INITDB_DATABASE: crm_main
-#     healthcheck:
-#       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-#       interval: 10s
-#       timeout: 10s
-#       retries: 5
-#       start_period: 40s
-#     ports:
-#       - "27017:27017"
-#     command: "--bind_ip_all --quiet --logpath /dev/null --replSet rs0"
-#     networks:
-#       - crm_network
-#   mongo-init:
-#     image: mongo:8
-#     restart: "no"
-#     depends_on:
-#       mongodb:
-#         condition: service_healthy
-#     command: >
-#       mongosh --host mongodb:27017 --eval
-#       '
-#       rs.initiate( {
-#          _id : "rs0",
-#          members: [
-#             { _id: 0, host: "mongodb:27017" }
-#          ]
-#       })
-#       '
-#   traefik:
-#     image: traefik:v3.2
-#     container_name: traefik
-#     command: --api.insecure=true --providers.docker
-#     ports:
-#       - "80:80"
-#       - "443:443"
-#     volumes:
-#       - /var/run/docker.sock:/var/run/docker.sock
-#       - ./traefik.yml:/etc/traefik/traefik.yml
-#     networks:
-#       - crm_network
-#   redis:
-#     image: redis:alpine
-#     container_name: redis
-#     expose:
-#       - "6379"
-#     restart: always
-#     networks:
-#       - crm_network
-#   server:
-#     build:
-#       context: ./server
-#       dockerfile: Dockerfile
-#     container_name: server
-#     environment:
-#       - PORT=80
-#       - MONGODB_URL=mongodb://mongodb:27017/crm_main?replicaSet=rs0
-#       - REDIS_HOST=redis
-#       - REDIS_PORT=6379
-#     ports:
-#       - "80"
-#     restart: always
-#     depends_on:
-#       - "mongodb"
-#     volumes:
-#        - ./server:/usr/src/server
-#        - /usr/src/server/node_modules
-#     labels:
-#       - "traefik.enable=true"
-#       - "traefik.http.routers.server.rule=Host(`mayman.tathanhan.com`)"
-#       - "traefik.http.services.server.loadbalancer.server.port=80"
-#     networks:
-#       - crm_network
-#   client:
-#     build:
-#       context: ./client
-#       dockerfile: Dockerfile
-#     container_name: client
-#     ports:
-#       - "80"
-#     restart: always
-#     depends_on:
-#       - "mongodb"
-#     volumes:
-#        - ./client:/usr/src/client
-#        - /usr/src/client/node_modules
-#     labels:
-#       - "traefik.enable=true"
-#       - "traefik.http.routers.client.rule=Host(`thantai.tathanhan.com`)"
-#       - "traefik.http.services.client.loadbalancer.server.port=80"
-#     networks:
-#       - crm_network
-# networks:
-#   crm_network:
-#     driver: bridge
-
 name: crm
 services:
+  mongodb:
+    image: mongo:8
+    volumes:
+      - ./db/:/data/db
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: crm_main
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    ports:
+      - "27017:27017"
+    command: "--bind_ip_all --quiet --logpath /dev/null --replSet rs0"
+    networks:
+      - crm_network
+  mongo-init:
+    image: mongo:8
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: >
+      mongosh --host mongodb:27017 --eval
+      '
+      rs.initiate( {
+         _id : "rs0",
+         members: [
+            { _id: 0, host: "mongodb:27017" }
+         ]
+      })
+      '
   traefik:
     image: traefik:v3.2
     container_name: traefik
@@ -118,8 +49,9 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
+    restart: always
     networks:
       - crm_network
   server:
@@ -129,17 +61,20 @@ services:
     container_name: server
     environment:
       - PORT=80
+      - MONGODB_URL=mongodb://mongodb:27017/crm_main?replicaSet=rs0
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
       - "80"
     restart: always
+    depends_on:
+      - "mongodb"
     volumes:
        - ./server:/usr/src/server
        - /usr/src/server/node_modules
     labels:
       - "traefik.enable=true"
-      # - "traefik.http.routers.server.rule=Host(`apidev.tathanhan.com`)"
+      - "traefik.http.routers.server.rule=Host(`mayman.tathanhan.com`) || Host(`mayman.tathanhan.vn`)"
       - "traefik.http.services.server.loadbalancer.server.port=80"
     networks:
       - crm_network
@@ -151,15 +86,80 @@ services:
     ports:
       - "80"
     restart: always
+    depends_on:
+      - "mongodb"
     volumes:
        - ./client:/usr/src/client
        - /usr/src/client/node_modules
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=Host(`dev.tathanhan.com`) || Host(`apidev.tathanhan.com`)"
+      - "traefik.http.routers.client.rule=Host(`thantai.tathanhan.com`) || Host(`thantai.tathanhan.vn`)"
       - "traefik.http.services.client.loadbalancer.server.port=80"
     networks:
       - crm_network
 networks:
   crm_network:
     driver: bridge
+
+# name: crm
+# services:
+#   traefik:
+#     image: traefik:v3.2
+#     container_name: traefik
+#     command: --api.insecure=true --providers.docker
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - /var/run/docker.sock:/var/run/docker.sock
+#       - ./traefik.yml:/etc/traefik/traefik.yml
+#     networks:
+#       - crm_network
+#   redis:
+#     image: redis:alpine
+#     container_name: redis
+#     ports:
+#       - "6379:6379"
+#     networks:
+#       - crm_network
+#   server:
+#     build:
+#       context: ./server
+#       dockerfile: Dockerfile
+#     container_name: server
+#     environment:
+#       - PORT=80
+#       - REDIS_HOST=redis
+#       - REDIS_PORT=6379
+#     ports:
+#       - "80"
+#     restart: always
+#     volumes:
+#        - ./server:/usr/src/server
+#        - /usr/src/server/node_modules
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.server.rule=Host(`apidev.tathanhan.com`)"
+#       - "traefik.http.services.server.loadbalancer.server.port=80"
+#     networks:
+#       - crm_network
+#   client:
+#     build:
+#       context: ./client
+#       dockerfile: Dockerfile
+#     container_name: client
+#     ports:
+#       - "80"
+#     restart: always
+#     volumes:
+#        - ./client:/usr/src/client
+#        - /usr/src/client/node_modules
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.client.rule=Host(`dev.tathanhan.com`)"
+#       - "traefik.http.services.client.loadbalancer.server.port=80"
+#     networks:
+#       - crm_network
+# networks:
+#   crm_network:
+#     driver: bridge
