@@ -63,6 +63,10 @@ export const MainNav = [
                 to: "/config/fee",
             },
             {
+                label: "Các câu trả lời nhanh",
+                to: "/config/quick-answer",
+            },
+            {
                 label: "Settings",
                 to: "/config/setting",
             },

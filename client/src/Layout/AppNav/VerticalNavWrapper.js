@@ -36,7 +36,7 @@ class Nav extends Component {
 
         if (user?.is_admin !== 1) {
             const filteredNav3 = filteredNav[2].content.filter(item => {
-                if (item.label === "Cấu hình ngân hàng" || item.label === "Cấu hình phí") {
+                if (item.label === "Cấu hình ngân hàng" || item.label === "Cấu hình phí" || item.label === "Các câu trả lời nhanh") {
                     return user?.is_admin === 1;
                 }
                 return true;

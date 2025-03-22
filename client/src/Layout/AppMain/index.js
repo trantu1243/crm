@@ -37,7 +37,7 @@ const AppMain = () => {
     const transactions = useSelector(state => state.transactions);
     const box = useSelector(state => state.box);
     const bills = useSelector(state => state.bills);
-
+    const isLogout = useSelector(state => state.user.isLogout);
     useEffect(() => {
         const checkAuth = async () => {
             if (!tokenState) {
@@ -58,9 +58,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                // localStorage.removeItem("token");
-                // dispatch(logout());
-                // setIsAuth(false);
+                localStorage.removeItem("token");
+                dispatch(logout());
+                setIsAuth(false);
             }
         };
 
@@ -496,7 +496,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/login" render={() => isAuth ? <Redirect to="/transactions" /> : <UserPages />
+                <Route path="/login" render={() => (isAuth && !isLogout) ? <Redirect to="/transactions" /> : <UserPages />
                 }  />
             </Suspense>
 

@@ -5,6 +5,7 @@ const initialState = {
     token: null,
     loading: false,
     error: null,
+    isLogout: false,
 };
 
 const userSlice = createSlice({
@@ -17,6 +18,7 @@ const userSlice = createSlice({
         },
         loginSuccess: (state, action) => {
             state.token = action.payload.token;
+            state.isLogout = false;
             state.loading = false;
         },
         loginFailure: (state, action) => {
@@ -37,6 +39,7 @@ const userSlice = createSlice({
         },
         logout: (state) => {
             state.user = null;
+            state.isLogout = true;
             localStorage.removeItem("token");
             state.token = null;
             window.location.href = "/login";
