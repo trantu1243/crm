@@ -284,16 +284,24 @@ class Box extends Component {
                                                     <Col md={6} xs={12} className={!this.state.isMobile && "pe-2"}>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
-                                                                <Label>Tên box</Label>
+                                                                <Label>Link check</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
-                                                                <Input
-                                                                    type="text"
-                                                                    name="name"
-                                                                    id="name"
-                                                                    value={input.name}
-                                                                    onChange={this.handleInputChange}
-                                                                />
+                                                                <InputGroup>
+                                                                    <Input
+                                                                        type="text"
+                                                                        name="linkCheck"
+                                                                        id="name"
+                                                                        value={`https://check.tathanhan.com/${this.props.box.messengerId}/message_id`}
+                                                                        disabled
+                                                                    />
+                                                                    <CopyToClipboard text={`https://check.tathanhan.com/${this.props.box.messengerId}/message_id`}>
+                                                                        <button class="input-group-text">
+                                                                            <FontAwesomeIcon icon={faCopy} color="#545cd8"></FontAwesomeIcon>
+                                                                        </button>
+                                                                    </CopyToClipboard>
+                                                                </InputGroup> 
+                                                                
                                                             </Col>
                                                         </Row>
                                                         <Row className="mb-3">
