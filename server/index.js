@@ -46,7 +46,7 @@ const updateFlag = async () =>{
     }
 }
 
-const allowedOrigins = ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com'];
+const allowedOrigins = ['https://thantai.tathanhan.com', 'http://localhost:3001', 'https://dev.tathanhan.com', 'https://thantai.tathanhan.vn'];
 
 const corsOptions = {
     origin: function (origin, callback) {
