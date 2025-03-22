@@ -22,18 +22,11 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
     // seedPermissions();
-    
-    updateFlag()
+
 });
 
 const updateFlag = async () =>{
     try {
-       await Transaction.findByIdAndDelete('67dd6e34b1dd4f7f74a259d9');
-       await Transaction.findByIdAndDelete('67dd6df3b1dd4f7f74a259cd');
-
-       await Transaction.findByIdAndDelete('67dd6db6b1dd4f7f74a259be');
-
-       await Transaction.findByIdAndDelete('67dd6db0b1dd4f7f74a259b2');
 
 
     } catch (error) {
