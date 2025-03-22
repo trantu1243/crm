@@ -247,7 +247,7 @@ class Box extends Component {
         return (
             <Fragment>
                 <AppHeader />
-                <QuickAnswer />
+                {/* <QuickAnswer /> */}
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">

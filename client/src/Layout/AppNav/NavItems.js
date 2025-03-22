@@ -29,7 +29,10 @@ export const MainNav = [
                 label: "Quản lý thanh khoản",
                 to: "/bills",
             },
-            
+            {
+                label: "Các câu trả lời nhanh",
+                to: "/quick-reply",
+            },
         ],
     },
     {

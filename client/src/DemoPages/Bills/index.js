@@ -127,7 +127,7 @@ class Bills extends Component {
                 <AppHeader />
                 <div className="app-main">
                     <AppSidebar />
-                    <QuickAnswer />
+                    {/* <QuickAnswer /> */}
                     <div className="app-main__outer">
                         <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>

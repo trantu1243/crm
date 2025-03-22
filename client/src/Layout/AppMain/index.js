@@ -24,6 +24,7 @@ import FeeConfig from "../../DemoPages/FeeConfig";
 import BankAccountConfig from "../../DemoPages/BankAccountConfig";
 import Setting from "../../DemoPages/Setting";
 import QuickAnswer from "../../DemoPages/QuickAnswer";
+import QuickReply from "../../DemoPages/QuickReply";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -352,7 +353,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/permission" render={() => isAuth ? <Permissions /> : <Redirect to="/login" />
+                <Route path="/permission" render={() => isAdmin ? <Permissions /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
@@ -368,7 +369,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/role" render={() => isAuth ? <Roles /> : <Redirect to="/login" />
+                <Route path="/role" render={() => isAdmin ? <Roles /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
@@ -384,7 +385,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/fee" render={() => isAuth ? <FeeConfig /> : <Redirect to="/login" />
+                <Route path="/fee" render={() => isAdmin ? <FeeConfig /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
@@ -400,7 +401,7 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/staff" render={() => isAuth ? <Staffs /> : <Redirect to="/login" />
+                <Route path="/staff" render={() => isAdmin ? <Staffs /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
@@ -481,6 +482,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/config/quick-answer" render={() => isAuth ? <QuickAnswer /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/quick-reply" render={() => isAuth ? <QuickReply /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 
