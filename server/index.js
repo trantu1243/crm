@@ -9,16 +9,12 @@ require('dotenv').config();
 const { CronJob } = require('cron');
 
 const routes = require('./routes/index');
-const { resetPass } = require('./utils/resetPass');
 const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
 const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, BankAccount } = require('./models');
-const { updateFlags, updateCustomer, updateBank } = require('./services/updateFlags');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
-const { getMessGroupInfo, getFBInfoTest } = require('./services/facebookService');
-const { updateUser } = require('./services/updateUserInfo');
 const axios = require('axios');
 const fs = require('fs');
 
@@ -26,13 +22,8 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
     // seedPermissions();
-    // resetPass();
-
-    // updateFlags()
-    // updateCustomer()
-    // getFBInfoTest()
-    // updateBank()
-    // updateUser()
+    
+    updateFlag()
 });
 
 const updateFlag = async () =>{
