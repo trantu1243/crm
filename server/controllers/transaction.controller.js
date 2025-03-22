@@ -297,7 +297,7 @@ const createTransaction = async (req, res) => {
             bankId: bank.binBank,         
             accountId: bank.bankAccount,
             amount: totalAmount,           
-            description: `${content} - ${checkCode}`
+            description: `${content} ${checkCode}`
         })
         const newTransaction = await Transaction.create({
             boxId: box._id,
@@ -306,7 +306,7 @@ const createTransaction = async (req, res) => {
             content,
             fee,
             totalAmount,
-            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + Number(bonus)}&addInfo=${content} - ${checkCode}&accountName=${bank.bankAccountName}`,
+            linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount + Number(bonus)}&addInfo=${content} ${checkCode}&accountName=${bank.bankAccountName}`,
             messengerId,
             staffId: user._id,
             typeFee,
@@ -466,7 +466,7 @@ const updateTransaction = async (req, res) => {
             bankId: bank.binBank,         
             accountId: bank.bankAccount,
             amount: totalAmount,           
-            description: `${content} - ${tran.checkCode}`
+            description: `${content} ${tran.checkCode}`
         })
         // 8. Update transaction
         const updatedTran = await Transaction.findByIdAndUpdate(
@@ -478,7 +478,7 @@ const updateTransaction = async (req, res) => {
                 content,
                 fee,
                 totalAmount,
-                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content} - ${tran.checkCode}&accountName=${bank.bankAccountName}`,
+                linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${totalAmount}&addInfo=${content} ${tran.checkCode}&accountName=${bank.bankAccountName}`,
                 messengerId,
                 typeFee,
                 bonus: Number(bonus),

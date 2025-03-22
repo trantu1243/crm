@@ -313,7 +313,7 @@ class TransactionsTable extends Component {
             const res = await updateTransaction(this.state.updateTransaction?._id, this.state.update);
             this.setState({
                 updateTransaction: res.transaction,
-                textCopy: `🏦 ${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\n📝 Nội dung: ${res.transaction.content} - ${res.transaction.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${res.transaction.checkCode}`,
+                textCopy: `🏦 ${res.transaction.bankId.bankAccount} tại ${res.transaction.bankId.bankName} - ${res.transaction.bankId.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(res.transaction.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(res.transaction.fee)} vnd\n📝 Nội dung: ${res.transaction.content} ${res.transaction.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${res.transaction.checkCode}`,
             });
             await this.props.getTransactionsNoLoad(this.props.filters)
             this.setState({loading: false});
@@ -658,7 +658,7 @@ class TransactionsTable extends Component {
                                         onClick={() => {
                                             this.setState({
                                                 updateTransaction: item,
-                                                textCopy: `🏦 ${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\n📝 Nội dung: ${item.content} - ${item.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${item.checkCode}`,
+                                                textCopy: `🏦 ${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\n📝 Nội dung: ${item.content} ${item.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${item.checkCode}`,
                                                 update: {
                                                     amount: String(item.amount),
                                                     bankId: item.bankId._id,
@@ -1018,7 +1018,7 @@ class TransactionsTable extends Component {
                                             logo={this.state.updateTransaction?.bankId.logo}
                                             data={{
                                                 amount: this.state.updateTransaction?.totalAmount,
-                                                content: `${this.state.updateTransaction?.content} - ${this.state.updateTransaction?.checkCode}`,
+                                                content: `${this.state.updateTransaction?.content} ${this.state.updateTransaction?.checkCode}`,
                                                 bankAccount: this.state.updateTransaction?.bankId.bankAccount,
                                                 bankAccountName: this.state.updateTransaction?.bankId.bankAccountName,
                                                 checkCode: this.state.updateTransaction?.checkCode,
