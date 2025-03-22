@@ -201,7 +201,7 @@ class CreateTransaction extends Component {
                     isCreated: true,
                     loading: false,
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
-                    textCopy: `${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\nSố tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\nPhí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\nNội dung: ${this.props.transaction.content} - ${this.props.transaction.checkCode}\n-------------------------------\nCheck tại: https://check.tathanhan.com/${this.props.transaction.checkCode}`
+                    textCopy: `🏦 ${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\n📝 Nội dung: ${this.props.transaction.content} - ${this.props.transaction.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${this.props.transaction.checkCode}`
                 });
                 const box = res.box;
                 
