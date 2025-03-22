@@ -240,7 +240,7 @@ const addGDTGAccount = async (req, res) => {
 
         const setting = await Setting.findOne({uniqueId: 1});
 
-        if (!setting.accessToken.status || !setting.cookie.status || !setting.proxy.proxy || !setting.proxy.proxy_auth) {
+        if (!setting.accessToken1.status || !setting.cookie1.status || !setting.proxy.proxy || !setting.proxy.proxy_auth) {
             return res.status(400).json({ message: "Không thể thêm vì thiếu setting" });
         }
 
@@ -318,6 +318,21 @@ const editGDTGAccount = async (req, res) => {
         if (facebookId) customer.facebookId = facebookId;
         if (nameCustomer) customer.nameCustomer = nameCustomer;
         if (username) customer.username = username;
+
+        const setting = await Setting.findOne({uniqueId: 1});
+
+        if (!setting.accessToken1.status || !setting.cookie1.status || !setting.proxy.proxy || !setting.proxy.proxy_auth) {
+            return res.status(400).json({ message: "Không thể thêm vì thiếu setting" });
+        }
+
+        const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, facebookId)
+        if (data === null){
+            return res.status(400).json({ message: "Không thể lấy được thông tin user" });
+        }
+        
+        customer.nameCustomer = data.name;
+        customer.avatar = data.picture.data.url;
+        
         await customer.save();
 
         console.log(customer)
