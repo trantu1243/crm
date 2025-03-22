@@ -522,8 +522,8 @@ const updateBox = async (req, res) => {
                 } else {
                     buyerCustomer = await Customer.create({
                         facebookId: buyerId,
-                        nameCustomer: '',
-                        avatar: ''
+                        nameCustomer: 'Người dùng facebook',
+                        avatar: 'https://tathanhan.com/no-avatar.jpg'
                     })
                 }
 
@@ -548,7 +548,7 @@ const updateBox = async (req, res) => {
                     sellerCustomer = await Customer.create({
                         facebookId: sellerId,
                         nameCustomer: 'Người dùng facebook',
-                        avatar: 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'
+                        avatar: 'https://tathanhan.com/no-avatar.jpg'
                     })
                 }
 

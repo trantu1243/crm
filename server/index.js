@@ -25,13 +25,13 @@ const fs = require('fs');
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
-    seedPermissions();
+    // seedPermissions();
     // resetPass();
 
     // updateFlags()
     // updateCustomer()
     // getFBInfoTest()
-    // updateFlag()
+    updateFlag()
     // updateBank()
     // updateUser()
 });
@@ -39,6 +39,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 const updateFlag = async () =>{
     try {
        
+        await Customer.updateMany({ avatar: 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'}, { avatar: 'https://tathanhan.com/no-avatar.jpg'})
 
     } catch (error) {
         console.error(error);

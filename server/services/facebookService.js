@@ -157,7 +157,7 @@ async function getFBInfo(accessToken, cookies, proxy, proxy_auth, id) {
                     customer = await Customer.create({
                         facebookId: id,
                         nameCustomer: "Người dùng facebook",
-                        avatar: "https://mayman.tathanhan.com/images/avatars/null_avatar.png"
+                        avatar: "https://tathanhan.com/no-avatar.jpg"
                     })
                 }
             } else return null 
@@ -244,15 +244,20 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, se
 
             if (value !== '100003277523201' && value !== '100004703820246') {
 
-                let customer = await Customer.findOne({facebookId: value});
-                if (!customer) {
-                    const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, proxy, proxyAuth, value)
-                    if (data) {
+                const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, proxy, proxyAuth, value)
+                if (data) {
+                    let customer = await Customer.findOne({facebookId: value});
+                    if (!customer) {
                         customer = await Customer.create({
                             facebookId: data.id,
                             nameCustomer: data.name,
-                            avatar: data.picture.data ? data.picture.data.url : "https://mayman.tathanhan.com/images/avatars/null_avatar.png"
+                            avatar: data.picture.data ? data.picture.data.url : "https://tathanhan.com/no-avatar.jpg"
                         })
+                    } else {
+                        customer.facebookId = data.id;
+                        customer.nameCustomer = data.name;
+                        customer.avatar = data.picture.data ? data.picture.data.url : "https://tathanhan.com/no-avatar.jpg"
+                        await customer.save();
                     }
                 }
             }
