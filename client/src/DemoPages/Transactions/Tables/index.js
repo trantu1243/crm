@@ -482,12 +482,15 @@ class TransactionsTable extends Component {
     getFB = async (id) => {
         try{
             this.setState({getLoading: true});
-            const data = await getFBInfo(id);
+            
+            if (id) {
+                const data = await getFBInfo(id);
 
-            if (this.state.buyerSender.facebookId === data.data.facebookId) {
-                this.setState({buyerSender: data.data})
-            } else if (this.state.sellerSender.facebookId === data.data.facebookId) {
-                this.setState({sellerSender: data.data})
+                if (this.state.buyerSender.facebookId === data.data.facebookId) {
+                    this.setState({buyerSender: data.data})
+                } else if (this.state.sellerSender.facebookId === data.data.facebookId) {
+                    this.setState({sellerSender: data.data})
+                }
             }
             
             this.setState({getLoading: false});
