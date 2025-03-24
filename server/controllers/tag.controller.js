@@ -43,7 +43,21 @@ const updateTag = async (req, res) => {
         }
         existTag.color = color;
         await existTag.save();
-        res.status(201).json({ tag: existTag });
+        res.status(200).json({ tag: existTag });
+    } catch (error) {
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const deleteTag = async (req, res) => {
+    try {
+        const { tag } = req.body;
+        if (tag === undefined) {
+            return res.status(400).json({ message: 'Fields tag and color are required' });
+        }
+        const existTag = await Tag.findOneAndDelete({ tag });
+     
+        res.status(200).json({ message: 'Xoá tag thành công' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
@@ -52,5 +66,6 @@ const updateTag = async (req, res) => {
 module.exports = {
     getTags,
     createTag,
-    updateTag
+    updateTag,
+    deleteTag
 }
