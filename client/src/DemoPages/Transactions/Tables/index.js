@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
 import { Combobox } from "react-widgets/cjs";
 import Loader from "react-loaders";
-import { faCheck, faCircle, faCopy, faExclamationTriangle, faInfoCircle, faLock, faMinus, faPen, faPlus, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCircle, faCopy, faExclamationTriangle, faInfoCircle, faLock, faMinus, faPen, faPlus, faSpinner, faUndoAlt } from "@fortawesome/free-solid-svg-icons";
 import { cancelTransaction, confirmTransaction, createTransaction, updateTransaction } from "../../../services/transactionService";
 import { fetchFee } from "../../../services/feeService";
 import cx from "classnames";
@@ -24,6 +24,18 @@ import { fetchBankApi } from "../../../services/bankApiService";
 import { createBill } from "../../../services/billService";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import QRCodeComponent from "../../CreateTransaction/QRCode";
+import { getFBInfo } from "../../../services/boxService";
+import {
+    IoIosRefresh,
+  } from "react-icons/io";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fab } from "@fortawesome/free-brands-svg-icons";
+
+library.add(
+    fab,
+    faSpinner,
+);
 
 const statusList = [
     { value: 0, name: "Tất cả" },
@@ -58,6 +70,7 @@ class TransactionsTable extends Component {
             updateTransaction: null,
             cancelTransaction: null,
             loading: false,
+            getLoading: false,
             textCopy: '',
             copied: false,
             alert: false,
@@ -466,6 +479,27 @@ class TransactionsTable extends Component {
         
     };
 
+    getFB = async (id) => {
+        try{
+            this.setState({getLoading: true});
+            const data = await getFBInfo(id);
+
+            if (this.state.buyerSender.facebookId === data.data.facebookId) {
+                this.setState({buyerSender: data.data})
+            } else if (this.state.sellerSender.facebookId === data.data.facebookId) {
+                this.setState({sellerSender: data.data})
+            }
+            
+            this.setState({getLoading: false});
+        } catch (error) {
+            this.setState({
+                alert: true,
+                errorMsg: error,
+                getLoading: false
+            })
+        }
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -659,6 +693,8 @@ class TransactionsTable extends Component {
                                             this.setState({
                                                 updateTransaction: item,
                                                 textCopy: `🏦 ${item.bankId.bankAccount} tại ${item.bankId.bankName} - ${item.bankId.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(item.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(item.fee)} vnd\n📝 Nội dung: ${item.content} ${item.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${item.checkCode}`,
+                                                buyerSender: item.boxId.buyer,
+                                                sellerSender: item.boxId.seller,
                                                 update: {
                                                     amount: String(item.amount),
                                                     bankId: item.bankId._id,
@@ -1043,10 +1079,16 @@ class TransactionsTable extends Component {
                                                 type="text"
                                                 name="buyerId"
                                                 id="buyerId"
-                                                value={this.state.updateTransaction?.boxId.buyer?.facebookId}
-                                                autoComplete="off"
+                                                value={this.state.buyerSender?.facebookId}
                                                 disabled
+                                                autoComplete="off"
                                             />
+                                            <div className="input-group-text">
+                                                <div role="button" disabled={this.state.getLoading} onClick={()=>{this.state.buyerSender && !this.state.getLoading && this.getFB(this.state.buyerSender.facebookId)}}>
+                                                    {this.state.getLoading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                    : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                </div>
+                                            </div>
                                         </InputGroup>
                                                                                                             
                                     </Col>
@@ -1056,12 +1098,12 @@ class TransactionsTable extends Component {
                                                 type="text"
                                                 name="buyerName"
                                                 id="buyerName"
-                                                value={this.state.updateTransaction?.boxId.buyer?.nameCustomer}
+                                                value={this.state.buyerSender?.nameCustomer}
                                                 disabled
                                             />
                                             <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
-                                                <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.buyer?.facebookId}`} rel="noreferrer" target="_blank">
-                                                    <img src={this.state.updateTransaction?.boxId.buyer && this.state.updateTransaction?.boxId.buyer.avatar ? this.state.updateTransaction?.boxId.buyer.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                 </a>
                                             </div>
                                         </InputGroup>
@@ -1078,11 +1120,16 @@ class TransactionsTable extends Component {
                                                 type="text"
                                                 name="sellerId"
                                                 id="sellerId"
-                                                value={this.state.updateTransaction?.boxId.seller?.facebookId}
-                                                autoComplete="off"
+                                                value={this.state.sellerSender?.facebookId}
                                                 disabled
+                                                autoComplete="off"
                                             />
-                                            
+                                            <div className="input-group-text">
+                                                <div role="button" disabled={this.state.getLoading} onClick={()=>{this.state.sellerSender && !this.state.getLoading && this.getFB(this.state.sellerSender.facebookId)}}>
+                                                    {this.state.getLoading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                    : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                </div>
+                                            </div>
                                         </InputGroup>
                                                                                                     
                                     </Col>
@@ -1092,12 +1139,12 @@ class TransactionsTable extends Component {
                                                 type="text"
                                                 name="sellerName"
                                                 id="sellerName"
-                                                value={this.state.updateTransaction?.boxId.seller?.nameCustomer}
+                                                value={this.state.sellerSender?.nameCustomer}
                                                 disabled
                                             />
                                             <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
-                                                <a href={`https://www.facebook.com/${this.state.updateTransaction?.boxId.seller?.facebookId}`} rel="noreferrer" target="_blank">
-                                                    <img src={this.state.updateTransaction?.boxId.seller && this.state.updateTransaction?.boxId.seller.avatar ? this.state.updateTransaction?.boxId.seller.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
                                                 </a>
                                             </div>
                                         </InputGroup>
@@ -1163,21 +1210,6 @@ class TransactionsTable extends Component {
                                     </Col>
                                     <Col md={4} xs={6} className="pe-1">
                                         <InputGroup>
-                                            <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
-                                                <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
-                                            </div>
-                                            <Input
-                                                type="text"
-                                                name="buyerName"
-                                                id="buyerName"
-                                                value={this.state.buyerSender?.nameCustomer}
-                                                disabled
-                                            />
-                                        </InputGroup>
-                                        
-                                    </Col>
-                                    <Col md={4} xs={6} className="ps-1">
-                                        <InputGroup>
                                             <Input
                                                 type="text"
                                                 name="buyerId"
@@ -1187,13 +1219,32 @@ class TransactionsTable extends Component {
                                                 autoComplete="off"
                                             />
                                             <div className="input-group-text">
-                                                <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                    <FontAwesomeIcon icon={faFacebook} size="lg"/>
-                                                </a>
+                                                <div role="button" disabled={this.state.getLoading} onClick={()=>{this.state.buyerSender && !this.state.getLoading && this.getFB(this.state.buyerSender.facebookId)}}>
+                                                    {this.state.getLoading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                    : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                </div>
                                             </div>
                                         </InputGroup>
                                                                                                     
                                     </Col>
+                                    <Col md={4} xs={6} className="ps-1">
+                                        
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="buyerName"
+                                                id="buyerName"
+                                                value={this.state.buyerSender?.nameCustomer}
+                                                disabled
+                                            />
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                <a href={`https://www.facebook.com/${this.state.buyerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.buyerSender && this.state.buyerSender.avatar ? this.state.buyerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </a>
+                                            </div>
+                                        </InputGroup>
+                                    </Col>
+                                    
                                 </Row>
                                 <Row className="mb-3">
                                     <Col md={4}>
@@ -1352,21 +1403,6 @@ class TransactionsTable extends Component {
                                     </Col>
                                     <Col md={4} xs={6} className="pe-1">
                                         <InputGroup>
-                                            <div className="input-group-text" style={{padding: '0.1rem 0.2rem'}}>
-                                                <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://scontent-hkg4-2.xx.fbcdn.net/v/t1.30497-1/453178253_471506465671661_2781666950760530985_n.png?stp=cp0_dst-png_s50x50&_nc_cat=1&ccb=1-7&_nc_sid=22ec41&_nc_eui2=AeE9TwOP7wEuiZ2qY8BFwt1lWt9TLzuBU1Ba31MvO4FTUGf8ADKeTGTU-o43Z-i0l0K-jfGG1Z8MmBxnRngVwfmr&_nc_ohc=NtrlBO4xUsUQ7kNvgEqW2p5&_nc_zt=24&_nc_ht=scontent-hkg4-2.xx&_nc_gid=AolcEUubYfwv6yHkXKiD81H&oh=00_AYGTs7ZIZj93EBzaF2Y5UQyytpW2Bc9CwlZD7A4wC0RoRA&oe=67F82FFA'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
-                                            </div>
-                                            <Input
-                                                type="text"
-                                                name="sellerName"
-                                                id="sellerName"
-                                                value={this.state.sellerSender?.nameCustomer}
-                                                disabled
-                                            />
-                                        </InputGroup>
-                                        
-                                    </Col>
-                                    <Col md={4} xs={6} className="ps-1">
-                                        <InputGroup>
                                             <Input
                                                 type="text"
                                                 name="sellerId"
@@ -1376,12 +1412,30 @@ class TransactionsTable extends Component {
                                                 autoComplete="off"
                                             />
                                             <div className="input-group-text">
-                                                <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
-                                                    <FontAwesomeIcon icon={faFacebook} size="lg"/>
-                                                </a>
+                                                <div role="button" disabled={this.state.getLoading} onClick={()=>{this.state.sellerSender && !this.state.getLoading && this.getFB(this.state.sellerSender.facebookId)}}>
+                                                    {this.state.getLoading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                    : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
+                                                </div>
                                             </div>
                                         </InputGroup>
                                                                                                     
+                                    </Col>
+                                    <Col md={4} xs={6} className="ps-1">
+                                        
+                                        <InputGroup>
+                                            <Input
+                                                type="text"
+                                                name="sellerName"
+                                                id="sellerName"
+                                                value={this.state.sellerSender?.nameCustomer}
+                                                disabled
+                                            />
+                                            <div className="input-group-text" style={{padding: '0.1rem 0.44rem'}}>
+                                                <a href={`https://www.facebook.com/${this.state.sellerSender?.facebookId}`} rel="noreferrer" target="_blank">
+                                                    <img src={this.state.sellerSender && this.state.sellerSender.avatar ? this.state.sellerSender.avatar : 'https://mayman.tathanhan.com/images/avatars/null_avatar.png'} alt='' style={{ width: 29, height: 29, borderRadius: '50%' }} />
+                                                </a>
+                                            </div>
+                                        </InputGroup>
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">

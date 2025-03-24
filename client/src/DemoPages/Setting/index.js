@@ -380,7 +380,7 @@ class Setting extends Component {
                                                                         </div>
                                                                         <div className="widget-content-left">
                                                                             <div className="widget-heading">
-                                                                                {item.facebookId}
+                                                                                {item.facebookId} {item.username ? `(${item.username})` : ''}
                                                                             </div>
                                                                             <div className="widget-subheading">
                                                                                 {item.nameCustomer}

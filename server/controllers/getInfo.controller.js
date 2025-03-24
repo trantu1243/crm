@@ -1,5 +1,7 @@
 const { Transaction, Setting, BankAccount, BoxTransaction } = require("../models");
 const { generateQr } = require("../services/genQr.service");
+const axios = require('axios');
+const qs = require('qs');
 
 function formatDate(isoString) {
     let date = new Date(isoString);
@@ -187,10 +189,44 @@ const genQr = async (req, res) => {
     }
 }
 
+const checkUIDFacebook = async (req, res) => {
+    try {
+        const { link } = req.body;
+        
+        if (!link) {
+            return res.status(400).json({ message: 'Vui lòng nhập link' });
+        }
+        let data = qs.stringify({
+            'link': link
+        });
+          
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.tathanhan.com/getUID_V2.php',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data : data
+        };
+          
+        const response = await axios.request(config);
+               
+        return res.status(200).json({
+            data: response.data
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = {
     checkTransaction,
     getGDAccount,
     getBanks,
     getTransactions,
-    genQr
+    genQr,
+    checkUIDFacebook
 }

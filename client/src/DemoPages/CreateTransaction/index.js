@@ -25,7 +25,7 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import QRCodeComponent from "./QRCode";
-import QuickAnswer from "../../Layout/QuickAnswer";
+import CheckUID from "../../Layout/CheckUID";
 
 library.add(
     fab,
@@ -398,6 +398,7 @@ class CreateTransaction extends Component {
             <Fragment>
                 <AppHeader />
                 {/* <QuickAnswer /> */}
+                <CheckUID />
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
