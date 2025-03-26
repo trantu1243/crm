@@ -1502,8 +1502,8 @@ const getHourlyStats = async (req, res) => {
             hourVN: (stat._id + 7) % 24
         }));
 
-        const dailyStatsMap = new Map(hourlyStatsVN.map(item => [item._id, item]));
-        const billStatsMap = new Map(hourlyBllStats.map(item => [item._id, item]));
+        const dailyStatsMap = new Map(hourlyStatsVN.map(item => [item.hourVN, item]));
+        const billStatsMap = new Map(hourlyBllStats.map(item => [item.hourVN, item]));
 
         const allHours = new Set([...dailyStatsMap.keys(), ...billStatsMap.keys()]);
         const mergedStats = [];
