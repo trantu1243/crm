@@ -1442,7 +1442,52 @@ const getStatisticBill = async (req, res) => {
     }
 }
 
+const getHourlyStats = async (req, res) => {
+    try {
+        let { day, month, year } = req.query;
 
+        const today = new Date();
+
+        day = day ? parseInt(day) : today.getDate();
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfDayVN = new Date(year, month - 1, day, 0, 0, 0);
+        const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
+        const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
+        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
+
+        const hourlyStats = await Transaction.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $hour: "$createdAt" },
+                    totalAmount: { $sum: "$amount" },
+                    totalFee: { $sum: "$fee" },
+                    totalTransactions: { $sum: 1 },
+                    transactions: { $push: { id: "$_id", createdAt: "$createdAt" } }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        return res.json({
+            hourlyStats
+        })
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 module.exports = {
     getMonthlyStats,
@@ -1456,5 +1501,6 @@ module.exports = {
     getStaffShareInMonth,
     getDailyShareOfStaff,
     getStatisticBill,
-    getTotalTransaction
+    getTotalTransaction,
+    getHourlyStats
 }
