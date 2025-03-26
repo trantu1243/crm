@@ -26,6 +26,7 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import QuickAnswer from "../../Layout/QuickAnswer";
+import CheckUID from "../../Layout/CheckUID";
 
 library.add(
     fab,
@@ -49,7 +50,7 @@ class Box extends Component {
     
         this.toggle = this.toggle.bind(this);
         this.state = {
-            isMobile: window.innerWidth < 768,
+            isMobile: window.innerWidth < 526,
             activeTab: "1",
             showMore: false,
             transform: true,
@@ -91,7 +92,7 @@ class Box extends Component {
     }
     
     updateScreenSize = () => {
-        this.setState({ isMobile: window.innerWidth < 768 });
+        this.setState({ isMobile: window.innerWidth < 526 });
     };
 
     componentDidUpdate(prevProps) {
@@ -247,7 +248,7 @@ class Box extends Component {
         return (
             <Fragment>
                 <AppHeader />
-                {/* <QuickAnswer /> */}
+                <CheckUID />
                 <div className="app-main">
                     <AppSidebar />
                     <div className="app-main__outer">
@@ -269,13 +270,13 @@ class Box extends Component {
                                                 </CardTitle>
                                                 <div class="btn-actions-pane-right">
                                                     <button class={box.status !== 'lock' ? "btn btn-danger me-1" : "btn btn-success me-1"} disabled={this.state.loading2} onClick={this.handleLock}>
-                                                        <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {box.status !== 'lock' ? 'Khóa box' : 'Mở khóa'}
+                                                        <FontAwesomeIcon icon={box.status !== 'lock' ? faLock : faLockOpen}/> {!this.state.isMobile && (box.status !== 'lock' ? 'Khóa box' : 'Mở khóa')}
                                                     </button>
                                                     <button class="btn btn-warning me-1" disabled={this.state.loading2} onClick={this.handleGetInfo}>
-                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {this.state.loading2 ? "Đang update ..." : "Update user info"}
+                                                        <FontAwesomeIcon icon={faCloudDownloadAlt}/> {!this.state.isMobile && (this.state.loading2 ? "Đang update ..." : "Update user info")}
                                                     </button>
                                                     <button class="btn btn-primary me-1" onClick={this.handleSave} disabled={this.state.loading2}>
-                                                        <FontAwesomeIcon icon={faSave} /> {this.state.loading2 ? "Đang lưu ..." : "Lưu cập nhật thông tin"}
+                                                        <FontAwesomeIcon icon={faSave} /> {!this.state.isMobile && (this.state.loading2 ? "Đang lưu ..." : "Lưu thông tin")}
                                                     </button>
                                                 </div>
                                             </CardHeader>

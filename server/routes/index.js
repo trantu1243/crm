@@ -14,6 +14,7 @@ const settingRoutes = require('./setting.route');
 const userLogRoutes = require('./userLog.route');
 const getInfoRoutes = require('./getInfo.route');
 const quickAnswerRoutes = require('./quickAnswer.route');
+const tagRoutes = require('./tag.route');
 
 const router = express.Router();
 
@@ -77,6 +78,10 @@ const defaultRoutes = [
     {
         path: '/quick-answer',
         route: quickAnswerRoutes
+    },
+    {
+        path: '/tag',
+        route: tagRoutes
     },
 ];
 

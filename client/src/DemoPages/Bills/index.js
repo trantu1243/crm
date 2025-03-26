@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { fetchBankApi } from "../../services/bankApiService";
 import QuickAnswer from "../../Layout/QuickAnswer";
+import CheckUID from "../../Layout/CheckUID";
 
 export const dummyData = [
   {
@@ -127,7 +128,7 @@ class Bills extends Component {
                 <AppHeader />
                 <div className="app-main">
                     <AppSidebar />
-                    {/* <QuickAnswer /> */}
+                    <CheckUID />
                     <div className="app-main__outer">
                         <div className="app-main__inner" style={this.state.isMobile ? {padding: 0} : {}}>
                             <Container fluid>
