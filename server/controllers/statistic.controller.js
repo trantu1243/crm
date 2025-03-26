@@ -1456,10 +1456,6 @@ const getHourlyStats = async (req, res) => {
         const endOfDayVN = new Date(year, month - 1, day, 23, 59, 59);
         const startOfDayUTC = new Date(startOfDayVN.getTime() - (7 * 60 * 60 * 1000));
         const endOfDayUTC = new Date(endOfDayVN.getTime() - (7 * 60 * 60 * 1000));
-        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
-        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
-        const startOfMonthUTC = new Date(startOfMonth.getTime() - (7 * 60 * 60 * 1000));
-        const endOfMonthUTC = new Date(endOfMonth.getTime() - (7 * 60 * 60 * 1000));
 
         const hourlyStats = await Transaction.aggregate([
             {
@@ -1474,14 +1470,59 @@ const getHourlyStats = async (req, res) => {
                     totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 },
-                    transactions: { $push: { id: "$_id", createdAt: "$createdAt" } }
                 }
             },
             { $sort: { _id: 1 } }
         ]);
 
+        const hourlyStatsVN = hourlyStats.map(stat => ({
+            ...stat,
+            hourVN: (stat._id + 7) % 24
+        }));
+
+        const billStats = await Bill.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startOfDayUTC, $lt: endOfDayUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $hour: "$createdAt" },
+                    totalBillAmount: { $sum: "$amount" },
+                    totalBill: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const hourlyBllStats = billStats.map(stat => ({
+            ...stat,
+            hourVN: (stat._id + 7) % 24
+        }));
+
+        const dailyStatsMap = new Map(hourlyStatsVN.map(item => [item._id, item]));
+        const billStatsMap = new Map(hourlyBllStats.map(item => [item._id, item]));
+
+        const allHours = new Set([...dailyStatsMap.keys(), ...billStatsMap.keys()]);
+        const mergedStats = [];
+
+        for (const hour of allHours) {
+            mergedStats.push({
+                hour,
+                totalAmount: dailyStatsMap.get(hour)?.totalAmount || 0,
+                totalFee: dailyStatsMap.get(hour)?.totalFee || 0,
+                totalTransactions: dailyStatsMap.get(hour)?.totalTransactions || 0,
+                totalBillAmount: billStatsMap.get(hour)?.totalBillAmount || 0,
+                totalBill: billStatsMap.get(hour)?.totalBill || 0
+            });
+        }
+
+        mergedStats.sort((a, b) => a.hour - b.hour);
+
         return res.json({
-            hourlyStats
+            mergedStats
         })
     } catch (err) {
         console.error(err);
