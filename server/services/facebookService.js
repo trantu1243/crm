@@ -1,4 +1,4 @@
-const { Setting, Customer, BoxTransaction } = require("../models");
+const { Setting, Customer, BoxTransaction, Cookie } = require("../models");
 const axios = require("axios");
 const qs = require('qs');
 
@@ -275,93 +275,280 @@ async function getMessGroupInfo(cookie, proxy, proxyAuth, token, messengerId, se
     }
 }
 
-const getFBInfoTest = async () => {
-    try{
-        const customers = await Customer.find({});
-        for (let customer of customers) {
-            if (!customer.nameCustomer) {
-                const result = await getFBInfo(
-                    '',
-                    '',
-                    '',
-                    '',
-                    customer.facebookId
-                )
-                if (result) {
-                    customer.nameCustomer = result.name;
-                    customer.avatar = result.picture.data.url;
-                    await customer.save();
-                }
+async function updateToken(cookieFb) {
+    try {
+
+        if (!cookieFb.cookie || !cookieFb.proxy || !cookieFb.proxy_auth) {
+            cookieFb.token = '';
+            return cookieFb;
+        }
+
+        const accessToken = await getFacebookAccessToken(cookieFb.cookie, cookieFb.proxy, cookieFb.proxy_auth);
+        if (accessToken) {
+            cookieFb.token = accessToken;
+        } else {
+            cookieFb.token = '';
+        }
+
+        return cookieFb;
+    } catch (error) {
+        console.error("Lỗi cập nhật access token:", error);
+        cookieFb.token = '';
+        return cookieFb;
+    } 
+}
+
+
+async function getMess(cookieFb, messengerId) {
+    try {
+        if (!cookieFb.cookie || !cookieFb.proxy || !cookieFb.proxy_auth || !cookieFb.token) {
+            return {
+                status: false,
+                data: [],
+                error: 'Thiếu token hoặc cookie'
+            };
+        }
+
+        let data = qs.stringify({
+            'cookie': cookieFb.cookie,
+            'proxy': cookieFb.proxy,
+            'proxy_auth': cookieFb.proxy_auth,
+            'token': cookieFb.token,
+            'message_id': messengerId
+        });
+    
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.tathanhan.com/getTheard.php',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data
+        };
+
+        let response = await axios.request(config);
+        if (typeof response.data === "string" && response.data.includes("cURL Error")) {
+            return {
+                status: false,
+                data: [],
+                code: 123,
+            };
+        }
+
+        if (typeof response.data === "string" && response.data.includes("HTTP Code 400") ) {
+            const jsonStartIndex = response.data.indexOf('{');
+            const jsonString = response.data.substring(jsonStartIndex);
+            const responseData = JSON.parse(jsonString);
+            const errorCode = responseData?.error?.code;
+            return {
+                status: false,
+                data: [],
+                code: errorCode,
+            };
+        }
+
+        const senderIds = response.data.senders.data.map(sender => sender.id);
+        
+        return {
+            status: true,
+            data: senderIds,
+        };
+    } catch (error) {
+        console.error(error);
+        return {
+            status: false,
+            data: [],
+            code: 321,
+        };
+    } 
+}
+
+async function getMessInfo(messengerId) {
+    try {
+        const today = new Date();
+        const isEvenDay = today.getDate() % 2 === 0;
+    
+        let cookie = null;
+        if (isEvenDay) {
+            cookie = await Cookie.findOne({uniqueId: 1});
+            if (!cookie.token) {
+                cookie = await Cookie.findOne({uniqueId: 2});
+            }
+        } else {
+            cookie = await Cookie.findOne({uniqueId: 2});
+            if (!cookie.token) {
+                cookie = await Cookie.findOne({uniqueId: 1});
             }
         }
-        console.log('complete 1')
 
-        const result = await BoxTransaction.aggregate([
-            {
-                $unwind: "$senders" // Tách từng phần tử của mảng senders
-            },
-            {
-                $group: { 
-                    _id: null, 
-                    allSenders: { $addToSet: "$senders" } // Gom senders thành 1 mảng duy nhất, loại bỏ trùng lặp
+        const result = await getMess(cookie, messengerId);
+        
+        if (!result.status) {
+            if (result.code === 190) {
+                const cookieFb = await updateToken(cookie);
+                if (cookieFb.token) {
+                    cookie.token === cookieFb.token;
+                    await cookie.save();
+                    result = await getMess(cookie, messengerId);
+                } else {
+                    cookie.token === '';
+                    await cookie.save();
                 }
-            },
-            {
-                $lookup: {
-                    from: "customers",
-                    localField: "allSenders",
-                    foreignField: "facebookId",
-                    as: "matchedCustomers"
-                }
-            },
-            {
-                $project: {
-                    allSenders: 1,
-                    matchedFacebookIds: "$matchedCustomers.facebookId" // Lấy danh sách facebookId của customers
-                }
-            },
-            {
-                $project: {
-                    uniqueSenders: {
-                        $setDifference: ["$allSenders", "$matchedFacebookIds"] // Loại bỏ các sender có trong danh sách facebookId
+            } else return result;
+        }
+        for (let value of result.data) {
+            if (value !== '100003277523201' && value !== '100004703820246') {
+                const res = await getUserInfo(value);
+                if (res.status) {
+                    let customer = await Customer.findOne({facebookId: value});
+                    if (!customer) {
+                        customer = await Customer.create({
+                            facebookId: res.data.id,
+                            nameCustomer: res.data.name,
+                            avatar: res.data.picture.data ? res.data.picture.data.url : "https://tathanhan.com/no-avatar.jpg"
+                        })
+                    } else {
+                        customer.facebookId = res.data.id;
+                        customer.nameCustomer = res.data.name;
+                        customer.avatar = res.data.picture.data ? res.data.picture.data.url : "https://tathanhan.com/no-avatar.jpg"
+                        await customer.save();
                     }
                 }
             }
-        ]);
+        }
+        return result;
+    }
+    catch (error) {
+        console.error(error);
+        return {
+            status: false,
+            data: [],
+            code: 321,
+        };
+    }
+}
 
-        const ids = result[0]?.uniqueSenders || [];
-        console.log(ids.length);
+async function getUser(cookieFb, id) {
+    try {
+        let data = qs.stringify({
+            'cookie': cookieFb.cookie,
+            'proxy': cookieFb.proxy,
+            'proxy_auth': cookieFb.proxy_auth,
+            'token': cookieFb.token,
+            'user_id': id
+        });
 
-        for (const id of ids) {
-            const result = await getFBInfo(
-                '',
-                '',
-                '',
-                '',
-                id
-            )
-            if (result) {
-                await Customer.create({
-                    facebookId: result.id,
-                    nameCustomer: result.name,
-                    avatar: result.picture.data.url
-                })
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.tathanhan.com/getInfo.php',
+            headers: { 
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: data
+        };
+
+        const response = await axios.request(config);
+
+        if (typeof response.data === "string" && response.data.includes("cURL Error")) {
+            return {
+                status: false,
+                data: null,
+                code: 123,
             }
         }
 
-        console.log('complete 2')
+        if (typeof response.data === "string" && response.data.includes("HTTP Code 400")) {
+            const jsonStartIndex = response.data.indexOf('{');
+            const jsonString = response.data.substring(jsonStartIndex);
+            const responseData = JSON.parse(jsonString);
+            const errorCode = responseData?.error?.code;
+            const subCode = responseData?.error?.error_subcode;
+            return {
+                status: false,
+                data: null,
+                code: errorCode,
+                subCode
+            };
+        }
 
-    } catch (e) {
-        console.log(e)
+        return {
+            status: true,
+            data: response.data,
+        }
     }
+    catch (error) {
+        console.error(error);
+        return {
+            status: false,
+            data: null,
+            code: 321,
+        }
+        
+    }
+}
+
+async function getUserInfo(id) {
+    try {
+        const today = new Date();
+        const isEvenDay = today.getDate() % 2 === 0;
     
-    
+        let cookie = null;
+        if (isEvenDay) {
+            cookie = await Cookie.findOne({uniqueId: 3});
+            if (!cookie.token) {
+                cookie = await Cookie.findOne({uniqueId: 4});
+            }
+        } else {
+            cookie = await Cookie.findOne({uniqueId: 4});
+            if (!cookie.token) {
+                cookie = await Cookie.findOne({uniqueId: 3});
+            }
+        }
+
+        let result = await getUser(cookie, id);
+        if (!result.status) {
+            if (result.code === 190) {
+                const cookieFb = await updateToken(cookie);
+                if (cookieFb.token) {
+                    cookie.token === cookieFb.token;
+                    await cookie.save();
+                    result = await getUser(cookie, id);
+                } else {
+                    cookie.token === '';
+                    await cookie.save();
+                }
+            } else if (result.code == 100 && result.subCode == 33){
+                let customer = await Customer.findOne({facebookId: id});
+                if (!customer) {
+                    customer = await Customer.create({
+                        facebookId: id,
+                        nameCustomer: "Người dùng facebook",
+                        avatar: "https://tathanhan.com/no-avatar.jpg"
+                    })
+                }
+            } 
+        }
+
+       return result;
+    }
+    catch (error) {
+        console.error(error);
+        return {
+            status: false,
+            data: null,
+            code: 321,
+        }
+    }
 }
 
 module.exports = {
     updateAccessToken,
     getFBInfo,
     getMessGroupInfo,
-    getFBInfoTest,
-    updateAccessToken1
+    updateAccessToken1,
+    updateToken,
+    getMessInfo,
+    getUserInfo
 }

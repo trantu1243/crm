@@ -1,5 +1,5 @@
-const { Setting, FeeTransaction, Customer, Staff } = require("../models");
-const { updateAccessToken, getFBInfo, updateAccessToken1 } = require("../services/facebookService");
+const { Setting, Cookie, Customer, Staff } = require("../models");
+const { updateAccessToken, getFBInfo, updateAccessToken1, updateToken } = require("../services/facebookService");
 const { getPermissions } = require("../services/permission.service");
 
   
@@ -108,9 +108,9 @@ const toggleFeeSetting = async (req, res) => {
         const setting = await Setting.findOne({uniqueId: 1});
 
         if (setting.fee.isOn) {
-            await FeeTransaction.updateMany({}, { $inc: { feeDefault: -1 * setting.fee.amount } });
+            await Cookie.updateMany({}, { $inc: { feeDefault: -1 * setting.fee.amount } });
         } else {
-            await FeeTransaction.updateMany({}, { $inc: { feeDefault: Number(amount) } });
+            await Cookie.updateMany({}, { $inc: { feeDefault: Number(amount) } });
         }
         
         setting.fee.amount = Number(amount);
@@ -346,6 +346,54 @@ const editGDTGAccount = async (req, res) => {
     }
 }
 
+const getCookies = async (req, res) => {
+    try {
+        const cookies = await Cookie.find({});
+
+        res.status(200).json({
+            message: 'cookie fetched successfully',
+            data: cookies,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+const updateCookie = async (req, res) => {
+    try {
+        let {cookieFb1, cookieFb2, cookieFb3, cookieFb4} = req.body;
+
+        if(cookieFb1) {
+            cookieFb1 = await updateToken(cookieFb1);
+            const {cookie, token, proxy, proxy_auth} = cookieFb1;
+            await Cookie.findOneAndUpdate({uniqueId: 1}, {cookie, token, proxy, proxy_auth})
+        }
+        if(cookieFb2) {
+            cookieFb2 = await updateToken(cookieFb2);
+            const {cookie, token, proxy, proxy_auth} = cookieFb2;
+            await Cookie.findOneAndUpdate({uniqueId: 2}, {cookie, token, proxy, proxy_auth})
+        }
+        if(cookieFb3) {
+            cookieFb3 = await updateToken(cookieFb3);
+            const {cookie, token, proxy, proxy_auth} = cookieFb3;
+            await Cookie.findOneAndUpdate({uniqueId: 3}, {cookie, token, proxy, proxy_auth})
+        }
+        if(cookieFb4) {
+            cookieFb4 = await updateToken(cookieFb4);
+            const {cookie, token, proxy, proxy_auth} = cookieFb4;
+            await Cookie.findOneAndUpdate({uniqueId: 4}, {cookie, token, proxy, proxy_auth})
+        }
+
+        return res.json({
+            status: true
+        })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 module.exports = { 
     getSetting,
     toggleFeeSetting,
@@ -355,5 +403,7 @@ module.exports = {
     addGDTGAccount,
     removeGDTGAccount,
     getToken1,
-    editGDTGAccount
+    editGDTGAccount,
+    updateCookie,
+    getCookies
 };

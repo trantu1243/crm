@@ -13,7 +13,7 @@ const path = require('path');
 const { seedPermissions } = require('./services/createrPermission.service');
 const { verifySocketConnection } = require('./middlewares/validateSocket');
 const { initSocket } = require('./socket/socketHandler');
-const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, BankAccount } = require('./models');
+const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, BankAccount, Cookie } = require('./models');
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const axios = require('axios');
 const fs = require('fs');
@@ -22,12 +22,18 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
     // seedPermissions();
-
+    updateCookie()
 });
 
-const updateFlag = async () =>{
+const updateCookie = async () =>{
     try {
-
+        const arr = [1, 2, 3, 4];
+        for (const value of arr) {
+            const exists = await Cookie.findOne({ uniqueId: value });
+            if (!exists) {
+                await Cookie.create({uniqueId: value});
+            } 
+        }
 
     } catch (error) {
         console.error(error);

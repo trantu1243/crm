@@ -23,4 +23,8 @@ router.post("/remove-account", authenticateToken, isAdmin, settingController.rem
 
 router.post("/edit-account/:id", authenticateToken, isAdmin, settingController.editGDTGAccount);
 
+router.get("/cookies", authenticateToken, settingController.getCookies);
+
+router.post("/update-cookie", authenticateToken, settingController.updateCookie);
+
 module.exports = router;

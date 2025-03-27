@@ -3,7 +3,7 @@ const { getPermissions } = require("../services/permission.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
 const { saveUserLogToQueue } = require("../services/log.service");
-const { getMessGroupInfo } = require("../services/facebookService");
+const { getMessGroupInfo, getMessInfo } = require("../services/facebookService");
 const { makeVietQRContent } = require("../services/encodeQr.service");
 
 const generateUUID = async () => {
@@ -251,7 +251,7 @@ const createTransaction = async (req, res) => {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId, setting)
+                senders = (await getMessInfo(messengerId)).data;
             }
             
             box = await BoxTransaction.create({
@@ -423,7 +423,7 @@ const updateTransaction = async (req, res) => {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
             if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = await getMessGroupInfo(setting.cookie.value, setting.proxy.proxy, setting.proxy.proxy_auth, setting.accessToken.value, messengerId, setting)
+                senders = (await getMessInfo(messengerId)).data;
             }
             box = await BoxTransaction.create([{
                 name: '',

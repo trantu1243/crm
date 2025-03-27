@@ -12,3 +12,4 @@ module.exports.Transaction = require('./transaction.model');
 module.exports.Setting = require('./setting.model');
 module.exports.Stk = require('./stk.model');
 module.exports.QuickAnswer = require('./quickAnswer.model');
+module.exports.Cookie = require('./cookie.model');

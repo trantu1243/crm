@@ -76,10 +76,6 @@ const settingSchema = new mongoose.Schema({
             default: ''
         }
     },
-    customQr: {
-        type: Boolean,
-        default: false,
-    }
 }, { 
     timestamps: true 
 });

@@ -196,3 +196,47 @@ export const editGDTGAccount = async (id, data) => {
     }  
 };
 
+export const fetchCookies = async () => {
+    try {
+
+        const response = await axios.get(`${API_URL}/cookies`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching cookies", error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to fetch cookies!";
+    }
+};
+
+export const updateCookie = async (data) => {
+    try {
+        const response = await axios.post(`${API_URL}/update-cookie`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(error);
+
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+
+        throw error.response?.data?.message || "Failed to edit cookie!";
+    }  
+};
+

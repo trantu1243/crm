@@ -1530,6 +1530,198 @@ const getHourlyStats = async (req, res) => {
     }
 }
 
+const getDaily = async (req, res) => {
+    try {
+        let { month, year } = req.query;
+        const today = new Date();
+
+        month = month ? parseInt(month) : today.getMonth() + 1;
+        year = year ? parseInt(year) : today.getFullYear();
+
+        const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0);
+        const endOfMonth = new Date(year, month, 1, 0, 0, 0);
+        
+        const dailyStats = await Transaction.aggregate([
+            {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dayOfMonth: "$createdAtVN" }, // Lấy ngày theo giờ Việt Nam
+                    totalAmount: { $sum: "$amount" },
+                    totalFee: { $sum: "$fee" },
+                    totalTransactions: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const billStats = await Bill.aggregate([
+            {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dayOfMonth: "$createdAtVN" },
+                    totalBillAmount: { $sum: "$amount" },
+                    totalBill: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const dailyStatsMap = new Map(dailyStats.map(item => [item._id, item]));
+        const billStatsMap = new Map(billStats.map(item => [item._id, item]));
+
+        const allDays = new Set([...dailyStatsMap.keys(), ...billStatsMap.keys()]);
+        const mergedStats = [];
+
+        for (const day of allDays) {
+            mergedStats.push({
+                day,
+                totalAmount: dailyStatsMap.get(day)?.totalAmount || 0,
+                totalFee: dailyStatsMap.get(day)?.totalFee || 0,
+                totalTransactions: dailyStatsMap.get(day)?.totalTransactions || 0,
+                totalBillAmount: billStatsMap.get(day)?.totalBillAmount || 0,
+                totalBill: billStatsMap.get(day)?.totalBill || 0
+            });
+        }
+
+        mergedStats.sort((a, b) => a.day - b.day);
+
+        return res.json({ mergedStats });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+const getMonthly = async (req, res) => {
+    try {
+        let { year } = req.query;
+        const today = new Date();
+        year = year ? parseInt(year) : today.getFullYear();
+        
+        const startOfYearUTC = new Date(Date.UTC(year, 0, 1));
+        const endOfYearUTC = new Date(Date.UTC(year, 11, 31, 23, 59, 59));
+        
+        const monthlyStats = await Transaction.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startOfYearUTC, $lt: endOfYearUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    totalAmount: { $sum: "$amount" },
+                    totalFee: { $sum: "$fee" },
+                    totalTransactions: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        
+        const billStats = await Bill.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startOfYearUTC, $lt: endOfYearUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: "$createdAt" },
+                    totalBillAmount: { $sum: "$amount" },
+                    totalBill: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        
+        const monthlyStatsMap = new Map(monthlyStats.map(item => [item._id, item]));
+        const billStatsMap = new Map(billStats.map(item => [item._id, item]));
+        
+        const allMonths = new Set([...monthlyStatsMap.keys(), ...billStatsMap.keys()]);
+        const mergedStats = [];
+        
+        for (const month of allMonths) {
+            mergedStats.push({
+                month,
+                totalAmount: monthlyStatsMap.get(month)?.totalAmount || 0,
+                totalFee: monthlyStatsMap.get(month)?.totalFee || 0,
+                totalTransactions: monthlyStatsMap.get(month)?.totalTransactions || 0,
+                totalBillAmount: billStatsMap.get(month)?.totalBillAmount || 0,
+                totalBill: billStatsMap.get(month)?.totalBill || 0
+            });
+        }
+        
+        mergedStats.sort((a, b) => a.month - b.month);
+        return res.json({ mergedStats });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+const getYearlyStats = async (req, res) => {
+    try {
+        let { year } = req.query;
+        const today = new Date();
+        year = year ? parseInt(year) : today.getFullYear();
+        
+        const startOfRangeUTC = new Date(Date.UTC(year - 5, 0, 1));
+        const endOfRangeUTC = new Date(Date.UTC(year + 5, 11, 31, 23, 59, 59));
+
+        const yearlyStats = await Transaction.aggregate([
+            { $match: { createdAt: { $gte: startOfRangeUTC, $lt: endOfRangeUTC }, status: { $nin: [3, "3", 1, "1"] } } },
+            { $group: { _id: { $year: "$createdAt" }, totalAmount: { $sum: "$amount" }, totalTransactions: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const billStats = await Bill.aggregate([
+            { $match: { createdAt: { $gte: startOfRangeUTC, $lt: endOfRangeUTC }, status: { $nin: [3, "3", 1, "1"] } } },
+            { $group: { _id: { $year: "$createdAt" }, totalBillAmount: { $sum: "$amount" }, totalBill: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ]);
+
+        return res.json({ yearlyStats, billStats });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
 module.exports = {
     getMonthlyStats,
     getDailyStats,
@@ -1543,5 +1735,6 @@ module.exports = {
     getDailyShareOfStaff,
     getStatisticBill,
     getTotalTransaction,
-    getHourlyStats
+    getHourlyStats,
+    getDaily
 }

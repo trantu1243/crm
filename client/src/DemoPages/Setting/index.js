@@ -11,7 +11,7 @@ import cx from "classnames";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { addGDTGAccount, editGDTGAccount, fetchSettings, removeGDTGAccount, updateSetting, updateToken, updateToken1 } from "../../services/settingService";
+import { addGDTGAccount, editGDTGAccount, fetchCookies, fetchSettings, removeGDTGAccount, updateCookie, updateSetting, updateToken, updateToken1 } from "../../services/settingService";
 import { SERVER_URL } from "../../services/url";
 
 class Setting extends Component {
@@ -41,7 +41,35 @@ class Setting extends Component {
                 facebookId: '',
                 nameCustomer: '',
                 username: ''
-            }
+            },
+            cookieFb1: {
+                uniqueId: 1,
+                cookie: '',
+                token: '',
+                proxy: '',
+                proxy_auth: '',
+            },
+            cookieFb2: {
+                uniqueId: 2,
+                cookie: '',
+                token: '',
+                proxy: '',
+                proxy_auth: '',
+            },
+            cookieFb3: {
+                uniqueId: 3,
+                cookie: '',
+                token: '',
+                proxy: '',
+                proxy_auth: '',
+            },
+            cookieFb4: {
+                uniqueId: 4,
+                cookie: '',
+                token: '',
+                proxy: '',
+                proxy_auth: '',
+            },
         };
         this.handleClick = this.handleClick.bind(this);
         this.toggleUpdate = this.toggleUpdate.bind(this);
@@ -51,6 +79,7 @@ class Setting extends Component {
     componentDidMount() {
         window.addEventListener("resize", this.updateScreenSize);
         this.getSetting()
+        this.getCookies()
     }
 
     toggleUpdate() {
@@ -81,6 +110,16 @@ class Setting extends Component {
                 proxy_auth: data.data.proxy.proxy_auth,
             },
             profiles: data.data.uuidFbs
+        })
+    }
+
+    getCookies = async () => {
+        const data = await fetchCookies();
+        this.setState({ 
+            cookieFb1: data.data.find(el => el.uniqueId === 1),
+            cookieFb2: data.data.find(el => el.uniqueId === 2),
+            cookieFb3: data.data.find(el => el.uniqueId === 3),
+            cookieFb4: data.data.find(el => el.uniqueId === 4),
         })
     }
 
@@ -190,7 +229,45 @@ class Setting extends Component {
         }
     }
 
+    handleUpdateCookie = async () => {
+        try{
+            this.setState({ loading: true });
+            const {cookieFb1, cookieFb2, cookieFb3, cookieFb4} = this.state;
+            await updateCookie({cookieFb1, cookieFb2, cookieFb3, cookieFb4});
+            await this.getCookies();
+            this.setState({loading: false});
+        } catch (error) {
+            await this.getCookies();
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false});
+        }
+    }
+
+    handleUpdateOneCookie = async (cookieFb) => {
+        try{
+            this.setState({ loading: true });
+            const {cookieFb1, cookieFb2, cookieFb3, cookieFb4} = this.state;
+            if (cookieFb.uniqueId === 1) await updateCookie({cookieFb1});
+            else if (cookieFb.uniqueId === 2) await updateCookie({cookieFb2});
+            else if (cookieFb.uniqueId === 3) await updateCookie({cookieFb3});
+            else if (cookieFb.uniqueId === 4) await updateCookie({cookieFb4});
+            await this.getCookies();
+            this.setState({loading: false});
+        } catch (error) {
+            await this.getCookies();
+            this.setState({
+                alert: true,
+                errorMsg: error
+            })
+            this.setState({loading: false});
+        }
+    }
+
     render() {
+        const {cookieFb1, cookieFb2, cookieFb3, cookieFb4} = this.state;
         return (
             <Fragment>
                 <AppHeader />
@@ -201,97 +278,7 @@ class Setting extends Component {
                             <Container fluid>
                                 <Card className="main-card mb-3" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleUpdate(e)}>
                                     <CardTitle></CardTitle>
-                                    <CardBody>
-                                        {this.props.user?.is_admin === 1 && <Row className="mb-4">
-                                            
-                                            <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                                <Label>Proxy</Label>
-                                                <Input
-                                                    type="text"
-                                                    name="proxy"
-                                                    value={this.state.input.proxy}
-                                                    onChange={(e) => {
-                                                        this.setState({input: {...this.state.input, proxy: e.target.value}})
-                                                    }}
-                                                />
-                                            </Col>
-                                            <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                <Label>Proxy Auth</Label>
-                                                <Input
-                                                    type="text"
-                                                    name="proxy_auth"
-                                                    value={this.state.input.proxy_auth}
-                                                    onChange={(e) => {
-                                                        this.setState({input: {...this.state.input, proxy_auth: e.target.value}})
-                                                    }}
-                                                />
-                                            </Col>
-                                        </Row>}
-                                        
-                                        <Row className="mb-4">
-                                        
-                                            <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                                <Label>Cookie lấy dữ liệu nhóm chat</Label>
-                                                <Input
-                                                    type="text"
-                                                    name="cookie"
-                                                    value={this.state.input.cookie}
-                                                    onChange={(e) => {
-                                                        this.setState({input: {...this.state.input, cookie: e.target.value}})
-                                                    }}
-                                                />
-                                            </Col>
-                                            <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                <Label>Access token lấy dữ liệu nhóm chat</Label>
-                                                <InputGroup>
-                                                    <Input
-                                                        type="text"
-                                                        name="accessToken"
-                                                        value={this.state.input.accessToken}
-                                                        onChange={(e) => {
-                                                            this.setState({input: {...this.state.input, accessToken: e.target.value}})
-                                                        }}
-                                                    />
-                                                    <Button color="primary" disabled={this.state.loading} onClick={this.handleGetToken}>
-                                                        {this.state.loading ? "Get..." : "Get"}
-                                                    </Button>
-                                                </InputGroup>
-                                               
-
-                                            </Col>   
-                                        </Row>
-                                        <Row className="mb-4">
-                                        
-                                            <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
-                                                <Label>Cookie lấy dữ liệu user</Label>
-                                                <Input
-                                                    type="text"
-                                                    name="cookie1"
-                                                    value={this.state.input.cookie1}
-                                                    onChange={(e) => {
-                                                        this.setState({input: {...this.state.input, cookie1: e.target.value}})
-                                                    }}
-                                                />
-                                            </Col>
-                                            <Col sm={6} xs={12} className={cx({ "ps-2": !this.state.isMobile })}>
-                                                <Label>Access token lấy dữ liệu</Label>
-                                                <InputGroup>
-                                                    <Input
-                                                        type="text"
-                                                        name="accessToken1"
-                                                        value={this.state.input.accessToken1}
-                                                        onChange={(e) => {
-                                                            this.setState({input: {...this.state.input, accessToken1: e.target.value}})
-                                                        }}
-                                                    />
-                                                    <Button color="primary" disabled={this.state.loading} onClick={this.handleGetToken1}>
-                                                        {this.state.loading ? "Get..." : "Get"}
-                                                    </Button>
-                                                </InputGroup>
-                                               
-
-                                            </Col>   
-                                        </Row>                
+                                    <CardBody>               
                                         {this.props.user?.is_admin === 1 && <>
                                             <Row className="mb-3">
                                                 <Col sm={6} xs={12} className={cx({ "pe-2": !this.state.isMobile, "mb-4": this.state.isMobile })}>
@@ -436,7 +423,238 @@ class Setting extends Component {
                                         
                                     </CardBody>
                                 </Card>
-      
+                                <Card className="main-card mb-3" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleUpdateCookie()}>
+                                    <CardTitle></CardTitle>
+                                    <CardBody>
+                                        <h4>Cookie lấy dữ liệu nhóm chat</h4>
+                                        <Row className="mb-4">
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy1"
+                                                    value={cookieFb1.proxy}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb1: {...cookieFb1, proxy: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy Auth</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy_auth1"
+                                                    value={cookieFb1.proxy_auth}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb1: {...cookieFb1, proxy_auth: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Cookie</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="cookie1"
+                                                    value={cookieFb1.cookie}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb1: {...cookieFb1, cookie: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Access token</Label>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="accessToken1"
+                                                        value={cookieFb1.token}
+                                                        onChange={(e) => {
+                                                            this.setState({cookieFb1: {...cookieFb1, token: e.target.value}})
+                                                        }}
+                                                    />
+                                                    <Button color="primary" disabled={this.state.loading} onClick={() => {this.handleUpdateOneCookie(cookieFb1)}}>
+                                                        {this.state.loading ? "Get..." : "Get"}
+                                                    </Button>
+                                                </InputGroup>
+                                            
+                                            </Col>   
+                                        </Row>
+                                        <Row className="mb-4">
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy2"
+                                                    value={cookieFb2.proxy}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb2: {...cookieFb2, proxy: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy Auth</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy_auth2"
+                                                    value={cookieFb2.proxy_auth}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb2: {...cookieFb2, proxy_auth: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Cookie</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="cookie2"
+                                                    value={cookieFb2.cookie}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb2: {...cookieFb2, cookie: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Access token</Label>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="accessToken2"
+                                                        value={cookieFb2.token}
+                                                        onChange={(e) => {
+                                                            this.setState({cookieFb2: {...cookieFb2, token: e.target.value}})
+                                                        }}
+                                                    />
+                                                    <Button color="primary" disabled={this.state.loading} onClick={() => {this.handleUpdateOneCookie(cookieFb2)}}>
+                                                        {this.state.loading ? "Get..." : "Get"}
+                                                    </Button>
+                                                </InputGroup>
+                                            
+                                            </Col>   
+                                        </Row>
+
+                                        <h4>Cookie lấy dữ liệu user</h4>
+
+                                        <Row className="mb-4">
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy3"
+                                                    value={cookieFb3.proxy}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb3: {...cookieFb3, proxy: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy Auth</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy_auth3"
+                                                    value={cookieFb3.proxy_auth}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb3: {...cookieFb3, proxy_auth: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Cookie lấy</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="cookie3"
+                                                    value={cookieFb3.cookie}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb3: {...cookieFb3, cookie: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Access token</Label>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="accessToken3"
+                                                        value={cookieFb3.token}
+                                                        onChange={(e) => {
+                                                            this.setState({cookieFb3: {...cookieFb3, token: e.target.value}})
+                                                        }}
+                                                    />
+                                                    <Button color="primary" disabled={this.state.loading} onClick={() => {this.handleUpdateOneCookie(cookieFb3)}}>
+                                                        {this.state.loading ? "Get..." : "Get"}
+                                                    </Button>
+                                                </InputGroup>
+                                            
+                                            </Col>   
+                                        </Row>
+                                        <Row className="mb-4">
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy4"
+                                                    value={cookieFb4.proxy}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb4: {...cookieFb4, proxy: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={2} xs={6} className='pe-2'>
+                                                <Label>Proxy Auth</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="proxy_auth4"
+                                                    value={cookieFb4.proxy_auth}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb4: {...cookieFb4, proxy_auth: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Cookie</Label>
+                                                <Input
+                                                    type="text"
+                                                    name="cookie4"
+                                                    value={cookieFb4.cookie}
+                                                    onChange={(e) => {
+                                                        this.setState({cookieFb4: {...cookieFb4, cookie: e.target.value}})
+                                                    }}
+                                                />
+                                            </Col>
+                                            <Col sm={4} xs={6} className='pe-2'>
+                                                <Label>Access token</Label>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        name="accessToken4"
+                                                        value={cookieFb4.token}
+                                                        onChange={(e) => {
+                                                            this.setState({cookieFb4: {...cookieFb4, token: e.target.value}})
+                                                        }}
+                                                    />
+                                                    <Button color="primary" disabled={this.state.loading} onClick={() => {this.handleUpdateOneCookie(cookieFb4)}}>
+                                                        {this.state.loading ? "Get..." : "Get"}
+                                                    </Button>
+                                                </InputGroup>
+                                            
+                                            </Col>   
+                                        </Row>
+                                        <Row>
+                                            <div className="btn-actions-pane-right">
+                                                
+                                                <Button 
+                                                    className="btn-wide me-2 mt-2 btn-dashed w-100" 
+                                                    color="primary" 
+                                                    onClick={this.handleUpdateCookie}
+                                                    disabled={this.state.loading}    
+                                                >
+                                                    {this.state.loading ? "Đang lưu..." : "Lưu"}
+                                                </Button>
+                                            </div>
+                                        </Row>
+               
+                                        
+                                    </CardBody>
+                                </Card>                            
                             </Container>
 
                             

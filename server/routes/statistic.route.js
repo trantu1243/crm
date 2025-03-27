@@ -21,5 +21,7 @@ router.get('/bill', authenticateToken, isAdmin, statisticController.getStatistic
 router.get('/transaction', authenticateToken, isAdmin, statisticController.getTotalTransaction);
 
 router.get('/hourly-stats', statisticController.getHourlyStats);
+router.get('/daily-stats', statisticController.getDaily);
+
 
 module.exports = router;
