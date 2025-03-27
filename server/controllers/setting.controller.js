@@ -362,6 +362,13 @@ const getCookies = async (req, res) => {
 
 const updateCookie = async (req, res) => {
     try {
+        const permissions = await getPermissions(req.user.id);
+        const user = await Staff.findById(req.user.id);
+        
+        if (!permissions.some(permission => permission.slug === 'edit-cookie') && user.is_admin !== 1) {
+            return res.status(400).json({ message: `Không đủ quyền` });
+        }
+
         let {cookieFb1, cookieFb2, cookieFb3, cookieFb4} = req.body;
 
         if(cookieFb1) {
