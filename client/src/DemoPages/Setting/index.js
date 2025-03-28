@@ -558,7 +558,7 @@ class Setting extends Component {
                                                 />
                                             </Col>
                                             <Col sm={4} xs={6} className='pe-2'>
-                                                <Label>Cookie lấy</Label>
+                                                <Label>Cookie</Label>
                                                 <Input
                                                     type="text"
                                                     name="cookie3"

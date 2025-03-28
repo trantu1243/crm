@@ -1617,7 +1617,7 @@ const getDaily = async (req, res) => {
 
         mergedStats.sort((a, b) => a.day - b.day);
 
-        return res.json({ mergedStats });
+        return res.json({ mergedStats })
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Internal server error" });
@@ -1635,14 +1635,25 @@ const getMonthly = async (req, res) => {
         
         const monthlyStats = await Transaction.aggregate([
             {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
                 $match: {
-                    createdAt: { $gte: startOfYearUTC, $lt: endOfYearUTC },
+                    createdAtVN: { $gte: startOfYearUTC, $lt: endOfYearUTC },
                     status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
                 $group: {
-                    _id: { $month: "$createdAt" },
+                    _id: { $month: "$createdAtVN" },
                     totalAmount: { $sum: "$amount" },
                     totalFee: { $sum: "$fee" },
                     totalTransactions: { $sum: 1 }
@@ -1653,14 +1664,25 @@ const getMonthly = async (req, res) => {
         
         const billStats = await Bill.aggregate([
             {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
                 $match: {
-                    createdAt: { $gte: startOfYearUTC, $lt: endOfYearUTC },
+                    createdAtVN: { $gte: startOfYearUTC, $lt: endOfYearUTC },
                     status: { $exists: true, $nin: [3, "3", 1, "1"] }
                 }
             },
             {
                 $group: {
-                    _id: { $month: "$createdAt" },
+                    _id: { $month: "$createdAtVN" },
                     totalBillAmount: { $sum: "$amount" },
                     totalBill: { $sum: 1 }
                 }
@@ -1703,18 +1725,81 @@ const getYearlyStats = async (req, res) => {
         const endOfRangeUTC = new Date(Date.UTC(year + 5, 11, 31, 23, 59, 59));
 
         const yearlyStats = await Transaction.aggregate([
-            { $match: { createdAt: { $gte: startOfRangeUTC, $lt: endOfRangeUTC }, status: { $nin: [3, "3", 1, "1"] } } },
-            { $group: { _id: { $year: "$createdAt" }, totalAmount: { $sum: "$amount" }, totalTransactions: { $sum: 1 } } },
+            {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    createdAtVN: { $gte: startOfRangeUTC, $lt: endOfRangeUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: "$createdAtVN" },
+                    totalAmount: { $sum: "$amount" },
+                    totalFee: { $sum: "$fee" },
+                    totalTransactions: { $sum: 1 }
+                }
+            },
             { $sort: { _id: 1 } }
         ]);
-
+        
         const billStats = await Bill.aggregate([
-            { $match: { createdAt: { $gte: startOfRangeUTC, $lt: endOfRangeUTC }, status: { $nin: [3, "3", 1, "1"] } } },
-            { $group: { _id: { $year: "$createdAt" }, totalBillAmount: { $sum: "$amount" }, totalBill: { $sum: 1 } } },
+            {
+                $addFields: {
+                    createdAtVN: {
+                        $dateAdd: {
+                            startDate: "$createdAt",
+                            unit: "hour",
+                            amount: 7
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    createdAtVN: { $gte: startOfRangeUTC, $lt: endOfRangeUTC },
+                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
+                }
+            },
+            {
+                $group: {
+                    _id: { $year: "$createdAtVN" },
+                    totalBillAmount: { $sum: "$amount" },
+                    totalBill: { $sum: 1 }
+                }
+            },
             { $sort: { _id: 1 } }
         ]);
-
-        return res.json({ yearlyStats, billStats });
+        
+        const yearlyStatsMap = new Map(yearlyStats.map(item => [item._id, item]));
+        const billStatsMap = new Map(billStats.map(item => [item._id, item]));
+        
+        const allYears = new Set([...yearlyStatsMap.keys(), ...billStatsMap.keys()]);
+        const mergedStats = [];
+        
+        for (const year of allYears) {
+            mergedStats.push({
+                year,
+                totalAmount: yearlyStatsMap.get(year)?.totalAmount || 0,
+                totalFee: yearlyStatsMap.get(year)?.totalFee || 0,
+                totalTransactions: yearlyStatsMap.get(year)?.totalTransactions || 0,
+                totalBillAmount: billStatsMap.get(year)?.totalBillAmount || 0,
+                totalBill: billStatsMap.get(year)?.totalBill || 0
+            });
+        }
+        
+        mergedStats.sort((a, b) => a.year - b.year);
+        return res.json({ mergedStats });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Internal server error" });
@@ -1736,5 +1821,7 @@ module.exports = {
     getStatisticBill,
     getTotalTransaction,
     getHourlyStats,
-    getDaily
+    getDaily,
+    getMonthly,
+    getYearlyStats
 }

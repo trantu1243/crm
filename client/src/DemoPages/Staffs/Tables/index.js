@@ -103,7 +103,7 @@ class StaffTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await createStaff(this.state.input);
+            await createStaff(this.state.input);
             this.setState({
                 createLoading: false,
                 input: {
@@ -132,7 +132,7 @@ class StaffTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await updateStaff(this.state.staffId, this.state.update);
+            await updateStaff(this.state.staffId, this.state.update);
             this.setState({createLoading: false});
             this.toggleUpdate();
             this.getStaffs();
@@ -300,7 +300,6 @@ class StaffTable extends Component {
                             <th className="text-center">Trạng thái</th>
                             <th className="text-center">Ngày tạo</th>
                             <th className="text-center">#</th>
-
                         </tr>
                     </thead>
                     <tbody>
@@ -310,7 +309,6 @@ class StaffTable extends Component {
                             <td className="text-center text-muted">{item.phone_staff}</td>
                             <td className="text-center text-muted">{item.email}</td>
                             <td className="text-center text-muted">{item.uid_facebook}</td>
-                            <td className="text-center text-muted">{item.phone_staff}</td>
                             <td className="text-center text-muted">
                                 <ToggleStatus id={item._id} status={item.status} />
                             </td>
