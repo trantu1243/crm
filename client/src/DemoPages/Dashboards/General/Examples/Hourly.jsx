@@ -12,12 +12,12 @@ function formatNumber(num) {
     return num.toString();
 }
 
-const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
-    const maxDays = daysThisMonth;
+const Hourly = ({ hourlyStats }) => {
+    const maxHours = 24;
 
-    const labels = Array.from({ length: maxDays }, (_, i) => {
-        const day = i + 1;
-        return day < 10 ? `0${day}` : `${day}`;
+    const labels = Array.from({ length: maxHours }, (_, i) => {
+        const hour = i;
+        return hour < 10 ? `0${hour}` : `${hour}`;
     });
 
     const [options] = useState({
@@ -26,7 +26,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
             type: "line",
             zoom: { enabled: false },
             toolbar: {
-                show: true,
+                show: false,
                 tools: {
                     zoom: false,
                     zoomin: false,
@@ -70,37 +70,39 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
 
     const [series, setSeries] = useState([
         {
-            name: "Tháng này (Amount)",
+            name: "Tiền GDTG",
             type: "column",
-            data: Array(maxDays).fill(0),
+            data: Array(maxHours).fill(0),
         },
         {
-            name: "Tháng này (Bill)",
+            name: "Thanh khoản",
             type: "column",
-            data: Array(maxDays).fill(0),
+            data: Array(maxHours).fill(0),
         },
         {
-            name: "Tháng này (Fee)",
+            name: "Phí",
             type: "line",
-            data: Array(maxDays).fill(0),
+            data: Array(maxHours).fill(0),
         },
     ]);
 
     useEffect(() => {
-        if (!dailyStats) return;
+        if (!hourlyStats) return;
 
-        const amountArray = Array(maxDays).fill(0);
-        const billArray = Array(maxDays).fill(0);
-        const feeArray = Array(maxDays).fill(0);
+        const amountArray = Array(maxHours).fill(0);
+        const billArray = Array(maxHours).fill(0);
+        const feeArray = Array(maxHours).fill(0);
 
-        dailyStats.forEach((item) => {
-            const index = item.day - 1;
-            if (index >= 0 && index < maxDays) {
+        hourlyStats.forEach((item) => {
+            const index = item.hour;
+            if (index >= 0 && index < maxHours) {
                 amountArray[index] = item.totalAmount;
                 billArray[index] = item.totalBillAmount;
                 feeArray[index] = item.totalFee * 100;
             }
         });
+
+        console.log(hourlyStats)
 
         setSeries([
             {
@@ -119,7 +121,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 data: feeArray,
             },
         ]);
-    }, [dailyStats, maxDays]);
+    }, [hourlyStats, maxHours]);
 
     return (
         <div className="bar">
@@ -128,4 +130,4 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
     );
 };
 
-export default MixedSingleMonth;
+export default Hourly;

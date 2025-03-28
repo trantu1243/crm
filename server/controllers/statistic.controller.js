@@ -105,82 +105,6 @@ const getMonthlyStats = async (req, res) => {
             }
         ]);
 
-        const dailyStats = await Transaction.aggregate([
-            {
-                $addFields: {
-                    createdAtVN: {
-                        $dateAdd: {
-                            startDate: "$createdAt",
-                            unit: "hour",
-                            amount: 7 // Chuyển từ UTC sang UTC+7
-                        }
-                    }
-                }
-            },
-            {
-                $match: {
-                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
-                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
-                }
-            },
-            {
-                $group: {
-                    _id: { $dayOfMonth: "$createdAtVN" }, // Lấy ngày theo giờ Việt Nam
-                    totalAmount: { $sum: "$amount" },
-                    totalFee: { $sum: "$fee" },
-                    totalTransactions: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-
-        const billStats = await Bill.aggregate([
-            {
-                $addFields: {
-                    createdAtVN: {
-                        $dateAdd: {
-                            startDate: "$createdAt",
-                            unit: "hour",
-                            amount: 7 // Chuyển từ UTC sang UTC+7
-                        }
-                    }
-                }
-            },
-            {
-                $match: {
-                    createdAtVN: { $gte: startOfMonth, $lt: endOfMonth },
-                    status: { $exists: true, $nin: [3, "3", 1, "1"] }
-                }
-            },
-            {
-                $group: {
-                    _id: { $dayOfMonth: "$createdAtVN" }, // Lấy ngày theo giờ Việt Nam
-                    totalBillAmount: { $sum: "$amount" },
-                    totalBill: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
-
-        const dailyStatsMap = new Map(dailyStats.map(item => [item._id, item]));
-        const billStatsMap = new Map(billStats.map(item => [item._id, item]));
-
-        const allDays = new Set([...dailyStatsMap.keys(), ...billStatsMap.keys()]);
-        const mergedStats = [];
-
-        for (const day of allDays) {
-            mergedStats.push({
-                day,
-                totalAmount: dailyStatsMap.get(day)?.totalAmount || 0,
-                totalFee: dailyStatsMap.get(day)?.totalFee || 0,
-                totalTransactions: dailyStatsMap.get(day)?.totalTransactions || 0,
-                totalBillAmount: billStatsMap.get(day)?.totalBillAmount || 0,
-                totalBill: billStatsMap.get(day)?.totalBill || 0
-            });
-        }
-
-        mergedStats.sort((a, b) => a.day - b.day);
-
         // Lấy dữ liệu của tháng này và tháng trước
         const totalAmountThisMonth = currentMonthStats[0]?.totalAmount || 0;
         const totalAmountLastMonth = lastMonthStats[0]?.totalAmount || 0;
@@ -230,7 +154,6 @@ const getMonthlyStats = async (req, res) => {
                 totalFee: totalFeeLastMonth,
                 totalTransactions: totalTransactionsLastMonth
             },
-            dailyStats: mergedStats,
         });
     } catch (error) {
         console.error(error);

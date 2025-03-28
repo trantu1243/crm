@@ -11,13 +11,13 @@ function formatNumber(num) {
     }
     return num.toString();
 }
+const maxYears = 9;
 
-const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
-    const maxDays = daysThisMonth;
+const Yearly = ({ yearlyStats, year }) => {
 
-    const labels = Array.from({ length: maxDays }, (_, i) => {
-        const day = i + 1;
-        return day < 10 ? `0${day}` : `${day}`;
+    const labels = Array.from({ length: maxYears }, (_, i) => {
+        const value = year + i - 4;
+        return value;
     });
 
     const [options] = useState({
@@ -36,7 +36,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 },
             },
         },
-        stroke: { width: [0, 0, 3] },
+        stroke: { width: [0, 0, 5] },
         plotOptions: {
             bar: { columnWidth: "50%" },
         },
@@ -70,32 +70,37 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
 
     const [series, setSeries] = useState([
         {
-            name: "Tháng này (Amount)",
+            name: "Tiền GDTG",
             type: "column",
-            data: Array(maxDays).fill(0),
+            data: Array(maxYears).fill(0),
         },
         {
-            name: "Tháng này (Bill)",
+            name: "Thanh khoản",
             type: "column",
-            data: Array(maxDays).fill(0),
+            data: Array(maxYears).fill(0),
         },
         {
-            name: "Tháng này (Fee)",
+            name: "Phí",
             type: "line",
-            data: Array(maxDays).fill(0),
+            data: Array(maxYears).fill(0),
         },
     ]);
 
     useEffect(() => {
-        if (!dailyStats) return;
+        if (!yearlyStats) return;
 
-        const amountArray = Array(maxDays).fill(0);
-        const billArray = Array(maxDays).fill(0);
-        const feeArray = Array(maxDays).fill(0);
+        const label = Array.from({ length: maxYears }, (_, i) => {
+            const value = year + i - 4;
+            return value;
+        });
 
-        dailyStats.forEach((item) => {
-            const index = item.day - 1;
-            if (index >= 0 && index < maxDays) {
+        const amountArray = Array(maxYears).fill(0);
+        const billArray = Array(maxYears).fill(0);
+        const feeArray = Array(maxYears).fill(0);
+
+        yearlyStats.forEach((item) => {
+            const index = label.indexOf(item.year);
+            if (index >= 0 && index < maxYears) {
                 amountArray[index] = item.totalAmount;
                 billArray[index] = item.totalBillAmount;
                 feeArray[index] = item.totalFee * 100;
@@ -119,7 +124,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 data: feeArray,
             },
         ]);
-    }, [dailyStats, maxDays]);
+    }, [yearlyStats, year]);
 
     return (
         <div className="bar">
@@ -128,4 +133,4 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
     );
 };
 
-export default MixedSingleMonth;
+export default Yearly;

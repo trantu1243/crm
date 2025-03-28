@@ -12,16 +12,31 @@ import {
   Nav,
   NavItem,
   ButtonDropdown,
+  InputGroup,
 } from "reactstrap";
+import Select from "react-select";
 
 import Donut from "./Examples/Donut";
-import { getBalanceService, getDailyStatsService, getMonthlyStatsService, getTotalBillServiceByDaily, getTotalTransactionService } from "../../../services/statisticService";
+import { getBalanceService, getDailyStats, getDailyStatsService, getHourlyStats, getMonthlyStats, getMonthlyStatsService, getTotalBillServiceByDaily, getTotalTransactionService, getYearlyStats } from "../../../services/statisticService";
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
 import DonutFeeChart from "./Examples/DonutFee";
 import { DatePicker } from "react-widgets/cjs";
 import DonutTransactionsChart from "../StaffStatistic/Component/DonutTranction";
 import { NavLink } from "react-router-dom";
+import DatePickerr from "react-datepicker";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import "react-datepicker/dist/react-datepicker.css"; 
+import Hourly from "./Examples/Hourly";
+import Monthly from "./Examples/Monthly";
+import Yearly from "./Examples/Yearly";
+const chartTypes = [
+    {label: 'Giờ trong ngày', value: 'hourly'},
+    {label: 'Ngày trong tháng', value: 'daily'},
+    {label: 'Tháng trong năm', value: 'monthly'},
+    {label: 'Theo năm', value: 'yearly'},
+]
 
 export default class General extends Component {
     constructor(props) {
@@ -120,13 +135,18 @@ export default class General extends Component {
             billStats: null,
             loading: false,
             totalTransaction: null,
-            balance: []
+            balance: [],
+            chartType: 'daily',
+            chartDate: new Date(),
+            chartStats: [],
+            chartLoading: false,
         };
         this.onDismiss = this.onDismiss.bind(this);
     }
 
     componentDidMount() {
         this.loadStatistics();
+        this.loadChart();
         this.getBalance();
     }
 
@@ -174,6 +194,38 @@ export default class General extends Component {
             this.setState({ loading: false });
         }
     }
+
+    loadChart = async (date) => {
+        try {
+            this.setState({ chartLoading: true });
+            const today = date || new Date();
+            const day = today.getDate();
+            const month = today.getMonth() + 1;
+            const year = today.getFullYear();
+
+            console.log(this.state.chartType);
+
+            if (this.state.chartType === 'hourly') {
+                const res = await getHourlyStats({ day, month, year });
+                this.setState({chartStats: res.mergedStats});
+            } else if (this.state.chartType === 'daily') {
+                const res = await getDailyStats({ month, year });
+                this.setState({chartStats: res.mergedStats});
+            } else if (this.state.chartType === 'monthly') {
+                const res = await getMonthlyStats({ year });
+                console.log(res)
+                this.setState({chartStats: res.mergedStats});
+            } else if (this.state.chartType === 'yearly') {
+                const res = await getYearlyStats({ year });
+                this.setState({chartStats: res.mergedStats});
+            }
+            this.setState({ chartLoading: false });
+
+        } catch (error) {
+            console.error( error);
+            this.setState({ chartLoading: false });
+        }
+    }
     
     togglePop1() {
         this.setState({
@@ -185,13 +237,52 @@ export default class General extends Component {
         this.setState({ visible: false });
     }
 
-    render() {
-        const { loading, currentMonthStats, lastMonthStats, todayStats, billStats, totalTransaction } = this.state;
-        const today = new Date();
+    renderChartPicker() {
+        const today = this.state.chartDate;
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
 
         const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
+        switch (this.state.chartType) {
+            case "hourly":
+                return <Hourly hourlyStats={this.state.chartStats} />;
+            case "daily":
+                return <MixedSingleMonth dailyStats={this.state.chartStats} daysThisMonth={daysInCurrentMonth} />;
+            case "monthly":
+                return <Monthly monthlyStats={this.state.chartStats} />;
+            case "yearly":
+                return <Yearly yearlyStats={this.state.chartStats} year={currentYear} />;
+            default:
+                return null;
+        }
+    }
+
+    render() {
+        const { loading, currentMonthStats, lastMonthStats, todayStats, billStats, totalTransaction } = this.state;
+
+        let pickerProps = {};
+
+        switch (this.state.chartType) {
+            case "hourly":
+                pickerProps = { showTimeSelect: false, dateFormat: "dd/MM/yyyy" };
+                break;
+            case "daily":
+                pickerProps = { showMonthYearPicker: true, dateFormat: "MM/yyyy" };
+                break;
+            case "monthly":
+                pickerProps = { showYearPicker: true, dateFormat: "yyyy" };
+                break;
+            case "yearly":
+                pickerProps = {
+                    showYearPicker: true,
+                    dateFormat: "yyyy",
+                };
+                break;
+            default:
+                pickerProps = { showTimeSelect: false, dateFormat: "dd/MM/yyyy" };
+                break;
+        }
+
         return (
             <Fragment>
                 <TransitionGroup>
@@ -222,6 +313,8 @@ export default class General extends Component {
                                                                 onChange={this.handleDateChange}
                                                                 format="YYYY-MM-DD"
                                                                 max={new Date()}
+                                                                valueDisplayFormat={{ dateStyle: "medium" }}
+
                                                             />
                                                         </div>
                                                     </Fragment>    
@@ -507,15 +600,47 @@ export default class General extends Component {
                                 <Card className="mb-3" >
                                     <CardHeader className="card-header-tab">
                                         <div className="card-header-title font-size-lg text-capitalize fw-normal">
-                                            Số tiền GD trong tháng
+                                            Thống kê theo biểu đồ
                                         </div>
-                                    
+                                        <div className="page-title-actions" style={{marginLeft: 'auto', textTransform: 'none', fontWeight: 'normal'}}>  
+                                            <Fragment>
+                                                <div className="d-inline-block pe-2" style={{width: '250px'}}>
+                                                    <Select
+                                                        value={chartTypes
+                                                            .find(option => option.value === this.state.chartType)}
+                                                        onChange={async (selected) => {
+                                                            await this.setState({ chartType: selected.value });
+                                                            this.loadChart(this.state.chartDate);
+                                                        }}
+                                                        options={chartTypes}
+                                                        placeholder="Chọn loại biểu đồ"
+                                                    />
+                                                </div>
+                                                <div className="d-inline-block pe-4" style={{width: '250px'}}>
+                                                    <InputGroup>
+                                                        <DatePickerr
+                                                            selected={this.state.chartDate} 
+                                                            onChange={(date) => {
+                                                                this.setState({
+                                                                    chartDate: date,
+                                                                });
+                                                                this.loadChart(date);
+                                                            }} 
+                                                            className="form-control" 
+                                                            {...pickerProps}
+                                                            maxDate={new Date()}
+                                                        />
+                                                        <div className="input-group-text">
+                                                            <FontAwesomeIcon icon={faCalendarAlt} />
+                                                        </div>
+                                                    </InputGroup>
+                                                    
+                                                </div>
+                                            </Fragment>    
+                                        </div>
                                     </CardHeader>
                                     <CardBody className="pt-0">
-                                        <MixedSingleMonth
-                                            dailyStats={this.state.currentMonthStats?.dailyStats}
-                                            daysThisMonth={daysInCurrentMonth} // VD: new Date(year, month, 0).getDate()
-                                        />
+                                        {this.renderChartPicker()}
                                     </CardBody>
                                 </Card>
                                 
