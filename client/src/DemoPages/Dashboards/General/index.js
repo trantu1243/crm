@@ -136,7 +136,7 @@ export default class General extends Component {
             loading: false,
             totalTransaction: null,
             balance: [],
-            chartType: 'daily',
+            chartType: 'hourly',
             chartDate: new Date(),
             chartStats: [],
             chartLoading: false,
@@ -604,36 +604,48 @@ export default class General extends Component {
                                         </div>
                                         <div className="page-title-actions" style={{marginLeft: 'auto', textTransform: 'none', fontWeight: 'normal'}}>  
                                             <Fragment>
-                                                <div className="d-inline-block pe-2" style={{width: '250px'}}>
-                                                    <Select
-                                                        value={chartTypes
-                                                            .find(option => option.value === this.state.chartType)}
-                                                        onChange={async (selected) => {
-                                                            await this.setState({ chartType: selected.value });
-                                                            this.loadChart(this.state.chartDate);
-                                                        }}
-                                                        options={chartTypes}
-                                                        placeholder="Chọn loại biểu đồ"
-                                                    />
-                                                </div>
-                                                <div className="d-inline-block pe-4" style={{width: '250px'}}>
-                                                    <InputGroup>
-                                                        <DatePickerr
-                                                            selected={this.state.chartDate} 
-                                                            onChange={(date) => {
-                                                                this.setState({
-                                                                    chartDate: date,
-                                                                });
-                                                                this.loadChart(date);
-                                                            }} 
-                                                            className="form-control" 
-                                                            {...pickerProps}
-                                                            maxDate={new Date()}
-                                                        />
-                                                        <div className="input-group-text">
-                                                            <FontAwesomeIcon icon={faCalendarAlt} />
-                                                        </div>
-                                                    </InputGroup>
+                                                
+                                                <div className="d-inline-block me-4">
+                                                    <Row>
+                                                        <Col md={6} xs={6} className="p-1">
+                                                            <div style={{width: '180px', height: '38px'}}>
+                                                                <Select
+                                                                    value={chartTypes
+                                                                        .find(option => option.value === this.state.chartType)}
+                                                                    onChange={async (selected) => {
+                                                                        await this.setState({ chartType: selected.value });
+                                                                        this.loadChart(this.state.chartDate);
+                                                                    }}
+                                                                    options={chartTypes}
+                                                                    placeholder="Chọn loại biểu đồ"
+                                                                />
+                                                            </div>
+                                                        </Col>
+                                                        <Col md={6} xs={6} className="p-1">
+                                                            <div style={{ width: '180px', height: '38px', display: 'flex', alignItems: 'center' }}>
+                                                                <InputGroup>
+                                                                    <DatePickerr
+                                                                        selected={this.state.chartDate} 
+                                                                        onChange={(date) => {
+                                                                            this.setState({
+                                                                                chartDate: date,
+                                                                            });
+                                                                            this.loadChart(date);
+                                                                        }} 
+                                                                        className="form-control" 
+                                                                        {...pickerProps}
+                                                                        maxDate={new Date()}
+                                                                        style={{height: '38px'}}
+                                                                    />
+                                                                    <div className="input-group-text">
+                                                                        <FontAwesomeIcon icon={faCalendarAlt} />
+                                                                    </div>
+                                                                </InputGroup>   
+                                                            </div>
+                                                                
+                                                        </Col>
+                                                    </Row>
+                                                   
                                                     
                                                 </div>
                                             </Fragment>    
