@@ -4,7 +4,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faCopy } from "@fortawesome/free-solid-svg-icons";
-import CopyToClipboard from "react-copy-to-clipboard";
 
 const SortableItem = ({ id, item }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
