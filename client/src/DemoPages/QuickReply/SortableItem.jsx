@@ -23,7 +23,6 @@ const SortableItem = ({ id, item }) => {
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(item.content);
-            alert("Copied to clipboard!");
         } catch (error) {
             console.error("Failed to copy text: ", error);
         }
