@@ -5,6 +5,7 @@ const qs = require('qs');
 
 function formatDate(isoString) {
     let date = new Date(isoString);
+    date.setHours(date.getHours() + 7);
 
     let day = String(date.getDate()).padStart(2, '0');
     let month = String(date.getMonth() + 1).padStart(2, '0');
