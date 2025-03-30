@@ -26,7 +26,7 @@ const Monthly = ({ monthlyStats }) => {
             type: "line",
             zoom: { enabled: false },
             toolbar: {
-                show: true,
+                show: false,
                 tools: {
                     zoom: false,
                     zoomin: false,

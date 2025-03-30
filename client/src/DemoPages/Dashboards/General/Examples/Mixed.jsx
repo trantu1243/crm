@@ -26,7 +26,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
             type: "line",
             zoom: { enabled: false },
             toolbar: {
-                show: true,
+                show: false,
                 tools: {
                     zoom: false,
                     zoomin: false,

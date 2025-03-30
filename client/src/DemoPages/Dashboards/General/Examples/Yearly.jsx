@@ -26,7 +26,7 @@ const Yearly = ({ yearlyStats, year }) => {
             type: "line",
             zoom: { enabled: false },
             toolbar: {
-                show: true,
+                show: false,
                 tools: {
                     zoom: false,
                     zoomin: false,
