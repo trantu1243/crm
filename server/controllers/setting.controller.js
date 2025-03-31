@@ -238,7 +238,7 @@ const addGDTGAccount = async (req, res) => {
         const { id } = req.body;
         if (!id) return res.status(400).json({ message: `Chưa nhập id` });
 
-        const data = await getUserInfo(id)
+        const data = await (await getUserInfo(id)).data;
         if (data === null){
             return res.status(400).json({ message: "Không thể lấy được thông tin user" });
         }
@@ -313,7 +313,7 @@ const editGDTGAccount = async (req, res) => {
         if (nameCustomer) customer.nameCustomer = nameCustomer;
         if (username) customer.username = username;
 
-        const data = await getUserInfo(facebookId)
+        const data = await (await getUserInfo(facebookId)).data;
         if (data === null){
             return res.status(400).json({ message: "Không thể lấy được thông tin user" });
         }
