@@ -35,7 +35,7 @@ const checkTransaction = async (req, res) => {
                         { path: 'seller', select: 'facebookId nameCustomer avatar username' }
                     ] 
                 }
-            ]).lean(); ;
+            ]).lean();
         
         if (!transaction) return res.status(400).json({ status: false, message: 'Not found' });
         

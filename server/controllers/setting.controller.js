@@ -1,5 +1,5 @@
 const { Setting, Cookie, Customer, Staff } = require("../models");
-const { updateAccessToken, getFBInfo, updateAccessToken1, updateToken } = require("../services/facebookService");
+const { updateAccessToken, getFBInfo, updateAccessToken1, updateToken, getUserInfo } = require("../services/facebookService");
 const { getPermissions } = require("../services/permission.service");
 
   
@@ -238,13 +238,7 @@ const addGDTGAccount = async (req, res) => {
         const { id } = req.body;
         if (!id) return res.status(400).json({ message: `Chưa nhập id` });
 
-        const setting = await Setting.findOne({uniqueId: 1});
-
-        if (!setting.accessToken1.status || !setting.cookie1.status || !setting.proxy.proxy || !setting.proxy.proxy_auth) {
-            return res.status(400).json({ message: "Không thể thêm vì thiếu setting" });
-        }
-
-        const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, id)
+        const data = await getUserInfo(id)
         if (data === null){
             return res.status(400).json({ message: "Không thể lấy được thông tin user" });
         }
@@ -319,13 +313,7 @@ const editGDTGAccount = async (req, res) => {
         if (nameCustomer) customer.nameCustomer = nameCustomer;
         if (username) customer.username = username;
 
-        const setting = await Setting.findOne({uniqueId: 1});
-
-        if (!setting.accessToken1.status || !setting.cookie1.status || !setting.proxy.proxy || !setting.proxy.proxy_auth) {
-            return res.status(400).json({ message: "Không thể thêm vì thiếu setting" });
-        }
-
-        const data = await getFBInfo(setting.accessToken1.value , setting.cookie1.value, setting.proxy.proxy, setting.proxy.proxy_auth, facebookId)
+        const data = await getUserInfo(facebookId)
         if (data === null){
             return res.status(400).json({ message: "Không thể lấy được thông tin user" });
         }

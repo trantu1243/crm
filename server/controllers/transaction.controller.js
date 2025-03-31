@@ -248,11 +248,8 @@ const createTransaction = async (req, res) => {
         }
 
         if (!box) {
-            const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
-            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
                 senders = (await getMessInfo(messengerId)).data;
-            }
             
             box = await BoxTransaction.create({
                 name: '',
@@ -422,9 +419,8 @@ const updateTransaction = async (req, res) => {
         if (!box) {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
-            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = (await getMessInfo(messengerId)).data;
-            }
+            senders = (await getMessInfo(messengerId)).data;
+            
             box = await BoxTransaction.create([{
                 name: '',
                 messengerId: messengerId,

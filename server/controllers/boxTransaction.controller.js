@@ -47,9 +47,7 @@ const getSenderInfo = async (req, res) => {
 
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted){
             let senders = []
-            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = (await getMessInfo(box.messengerId)).data
-            }
+            senders = (await getMessInfo(box.messengerId)).data
             box.senders = senders;
             await box.save();
         }
@@ -94,9 +92,7 @@ const getById = async (req, res) => {
 
         if ((!box.senders || box.senders.length === 0) && !box.isEncrypted && (!box.buyer || !box.seller)){
             let senders = []
-            if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-                senders = (await getMessInfo(box.messengerId)).data
-            }
+            senders = (await getMessInfo(box.messengerId)).data
             box.senders = senders;
             await box.save();
         }
@@ -500,8 +496,6 @@ const updateBox = async (req, res) => {
         const transaction = await Transaction.findOne({ boxId: id, status: { $in: [2, 6, 7, 8]}});
         const user = await Staff.findById(req.user.id);
 
-        const setting = await Setting.findOne({ uniqueId: 1 });
-
         if(buyerId && sellerId && buyerId === sellerId) {
             return res.status(400).json({ message: 'Bên mua và bên bán trùng nhau' });
         }
@@ -674,23 +668,18 @@ const regetMessInfo = async (req, res) => {
             return res.status(404).json({ message: 'Box not found' });
         }
 
-        const setting = await Setting.findOne({uniqueId: 1});
+        const senders = await (await getMessInfo(box.messengerId)).data
+        
+        if (senders.length > 0) {
+            box.senders = senders;
+            await box.save();
 
-        if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-            const senders = await (await getMessInfo(box.messengerId)).data
-            
-            if (senders.length > 0) {
-                box.senders = senders;
-                await box.save();
-
-                if (isArrayOnlyContains(senders, '100003277523201', '100004703820246'))
-                    return res.status(400).json({ message: 'Người dùng đã rời khỏi nhóm' });
-            } else {
-                return res.status(400).json({ message: 'Nhóm chat bị mã hóa hoặc tài khoản facebook không có trong nhóm chat' });
-            }
+            if (isArrayOnlyContains(senders, '100003277523201', '100004703820246'))
+                return res.status(400).json({ message: 'Người dùng đã rời khỏi nhóm' });
         } else {
-            return res.status(400).json({ message: 'Lỗi cookie hoặc token' });
+            return res.status(400).json({ message: 'Nhóm chat bị mã hóa hoặc tài khoản facebook không có trong nhóm chat' });
         }
+        
 
         res.status(200).json({
             message: 'Get box info successfully',
@@ -709,30 +698,27 @@ const regetFBInfo = async (req, res) => {
             return res.status(400).json({ message: 'ID is required' });
         }
 
-        const setting = await Setting.findOne({uniqueId: 1});
-
         let customer = null;
-        if (setting.accessToken.status && setting.cookie.status && setting.proxy.proxy && setting.proxy.proxy_auth) {
-            const data = await getUserInfo(id)
-            
-            if (data.status) {
-                customer = await Customer.findOne({facebookId: id});
-                if (!customer) {
-                    customer = await Customer.create({
-                        facebookId: data.data.id,
-                        nameCustomer: data.data.name,
-                        avatar: data.data.picture.data.url
-                    })
-                } else {
-                    customer.nameCustomer = data.data.name;
-                    customer.avatar = data.data.picture.data.url;
-                    await customer.save()
-                }
+        
+        const data = await getUserInfo(id)
+        
+        if (data.status) {
+            customer = await Customer.findOne({facebookId: id});
+            if (!customer) {
+                customer = await Customer.create({
+                    facebookId: data.data.id,
+                    nameCustomer: data.data.name,
+                    avatar: data.data.picture.data.url
+                })
+            } else {
+                customer.nameCustomer = data.data.name;
+                customer.avatar = data.data.picture.data.url;
+                await customer.save()
             }
         } else {
             return res.status(400).json({ message: 'Lỗi cookie hoặc token' });
         }
-
+    
         res.status(200).json({
             message: 'Get fb info successfully',
             data: customer,

@@ -20,9 +20,9 @@ router.get('/bill', authenticateToken, isAdmin, statisticController.getStatistic
 
 router.get('/transaction', authenticateToken, isAdmin, statisticController.getTotalTransaction);
 
-router.get('/hourly-stats', statisticController.getHourlyStats);
-router.get('/daily-stats', statisticController.getDaily);
-router.get('/monthly-stats', statisticController.getMonthly);
-router.get('/yearly-stats', statisticController.getYearlyStats);
+router.get('/hourly-stats', authenticateToken, isAdmin, statisticController.getHourlyStats);
+router.get('/daily-stats', authenticateToken, isAdmin, statisticController.getDaily);
+router.get('/monthly-stats', authenticateToken, isAdmin, statisticController.getMonthly);
+router.get('/yearly-stats', authenticateToken, isAdmin, statisticController.getYearlyStats);
 
 module.exports = router;
