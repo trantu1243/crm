@@ -671,35 +671,7 @@ export default class General extends Component {
                                             </CardBody>
                                         </Card>
                                     </Col>
-                                    <Col sm="12" md="6" lg="6">
-                                        <Card className="mb-3">
-                                            <CardHeader className="card-header-tab">
-                                                <div className="card-header-title font-size-lg text-capitalize fw-normal">
-                                                    Số tiền GD trong ngày
-                                                </div>
-                                            
-                                            </CardHeader>
-                                            <CardBody className="p-4" style={{ minHeight: 350 }}>
-                                                <Donut bankStats={todayStats?.bankStats} />
-                                                
-                                            </CardBody>
-                                        </Card>
-                                    </Col>
-                                    
-                                    <Col sm="12" md="6" lg="6">
-                                        <Card className="mb-3">
-                                            <CardHeader className="card-header-tab">
-                                                <div className="card-header-title font-size-lg text-capitalize fw-normal">
-                                                    Phí trong ngày
-                                                </div>
-                                            
-                                            </CardHeader>
-                                            <CardBody className="p-4" style={{ minHeight: 350 }}>
-                                                <DonutFeeChart bankStats={todayStats?.bankStats} />
-                                                
-                                            </CardBody>
-                                        </Card>
-                                    </Col>
+
                                     <Col sm="12" md="6" lg="6">
                                         <Card className="mb-3">
                                             <CardHeader className="card-header-tab">

@@ -153,13 +153,18 @@ class CreateTransaction extends Component {
             },
         }));
     };
+
+    removeVietnameseAccents = (str) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
     
     handleInputChange = (e) => {
         const { name, value } = e.target;
+        const convertedValue = this.removeVietnameseAccents(value);
         this.setState((prevState) => ({
             input: {
                 ...prevState.input,
-                [name]: value,
+                [name]: convertedValue,
             },
         }));
     };

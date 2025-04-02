@@ -402,6 +402,10 @@ class TransactionsTable extends Component {
             })
         }
     };
+
+    removeVietnameseAccents = (str) => {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
     
     render() { 
         const { transactions } = this.props;
@@ -565,7 +569,15 @@ class TransactionsTable extends Component {
                                             id="content"
                                             placeholder="Nhập nội dung"
                                             value={input.content}
-                                            onChange={this.handleInputChange}
+                                            onChange={(e) => {
+                                                const convertedValue = this.removeVietnameseAccents(e.target.value);
+                                                this.setState((prevState) => ({
+                                                    input: {
+                                                        ...prevState.input,
+                                                        content: convertedValue,
+                                                    },
+                                                }));
+                                            }}
                                         />
                                     </Col>
                                 </Row>
