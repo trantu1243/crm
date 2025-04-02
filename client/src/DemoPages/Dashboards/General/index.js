@@ -243,6 +243,7 @@ export default class General extends Component {
         const currentYear = today.getFullYear();
 
         const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
+        console.log(daysInCurrentMonth)
         switch (this.state.chartType) {
             case "hourly":
                 return <Hourly hourlyStats={this.state.chartStats} />;

@@ -1,9 +1,8 @@
-const { default: mongoose } = require("mongoose");
 const { UserLog, Bill } = require("../models");
 
 const getLogs = async (req, res) => {
     try {
-        const logs = await UserLog.find({}).sort({createdAt: -1}).limit(3000);
+        const logs = await UserLog.find({}).sort({createdAt: -1}).limit(5000);
 
         res.status(200).json({
             message: 'Logs fetched successfully',
