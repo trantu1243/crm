@@ -149,8 +149,17 @@ const getTransactions = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                        { 
+                            path: 'buyer', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { 
+                            path: 'seller', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { path: 'tags', select: 'slug name color' }
                     ] 
                 }
             ],
@@ -238,8 +247,17 @@ const createTransaction = async (req, res) => {
         let box = await BoxTransaction.findOne({messengerId: messengerId}).populate(
             [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
-                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+                { 
+                    path: 'buyer', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { 
+                    path: 'seller', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { path: 'tags', select: 'slug name color' }
             ]
         );
 

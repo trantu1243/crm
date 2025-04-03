@@ -1,12 +1,12 @@
-const Tag = require("../models/tag.model");
+const { Tag } = require("../models");
 
 const getTags = async (req, res) => {
     try {
-        const feeTransactions = await Tag.find({});
+        const tags = await Tag.find({});
 
         res.status(200).json({
             message: 'Tags fetched successfully',
-            data: feeTransactions,
+            tags,
         });
     } catch (error) {
         console.error(error);
@@ -16,47 +16,55 @@ const getTags = async (req, res) => {
 
 const createTag = async (req, res) => {
     try {
-        const { color, tag } = req.body;
-        if (color === undefined || tag === undefined) {
-            return res.status(400).json({ message: 'Fields tag and color are required' });
+        const { color, slug, name } = req.body;
+        if (color === undefined || slug === undefined || name === undefined) {
+            return res.status(400).json({ message: 'Fields tag, name and color are required' });
         }
-        const existTag = await Tag.findOne({ tag });
+        const existTag = await Tag.findOne({ slug });
         if (existTag) {
             return res.status(400).json({ message: 'Tag đã tồn tại' });
         }
         const newTag = await Tag.create(req.body);
         res.status(201).json({ tag: newTag });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 const updateTag = async (req, res) => {
     try {
-        const { color, tag } = req.body;
-        if (color === undefined || tag === undefined) {
+        const { id } = req.params;
+        const { color, slug, name } = req.body;
+        if (color === undefined || slug === undefined || name === undefined) {
             return res.status(400).json({ message: 'Fields tag and color are required' });
         }
-        const existTag = await Tag.findOne({ tag });
+        const existTag = await Tag.findById(id);
         if (!existTag) {
             return res.status(400).json({ message: 'Tag ko tồn tại' });
         }
+        const checkTag = await Tag.findOne({ slug });
+
+        if (checkTag && checkTag._id.toString() !== existTag._id.toString()) {
+            return res.status(400).json({ message: 'Tag đã tồn tại' });
+        }
+        existTag.slug = slug;
         existTag.color = color;
+        existTag.name = name;
         await existTag.save();
         res.status(200).json({ tag: existTag });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Internal server error' });
     }
 };
 
 const deleteTag = async (req, res) => {
     try {
-        const { tag } = req.body;
-        if (tag === undefined) {
-            return res.status(400).json({ message: 'Fields tag and color are required' });
-        }
-        const existTag = await Tag.findOneAndDelete({ tag });
-     
+        const { id } = req.params;
+       
+        await Tag.findByIdAndDelete(id);
+    
         res.status(200).json({ message: 'Xoá tag thành công' });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });

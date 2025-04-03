@@ -25,8 +25,14 @@ import {
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
-import QuickAnswer from "../../Layout/QuickAnswer";
 import CheckUID from "../../Layout/CheckUID";
+import { colorOptions, findColorByValue } from "../Tag/Tables";
+import Select from "react-select";
+import { fetchTags } from "../../services/tagService";
+
+const DropdownIndicator = () => null;
+const ClearIndicator = () => null;
+const IndicatorSeparator = () => null;
 
 library.add(
     fab,
@@ -44,10 +50,38 @@ export const dummyData = [
     },
 ];
 
+const customStyles = {
+    multiValue: (styles, { data }) => ({
+        ...styles,
+        backgroundColor: data.color, 
+        color: "white",
+        borderRadius: '5px'
+    }),
+    multiValueLabel: (styles) => ({
+        ...styles,
+        color: "white",
+    }),
+    option: (styles, { data, isFocused, isSelected }) => ({
+        ...styles,
+        color: data.color,
+        cursor: "pointer",
+    }),
+};
+
+export const transformTags = (tags) => {
+    return tags.map(tag => {
+        const matchedColor = colorOptions.find(option => option.value === tag.color)?.color || "#000000"; // Mặc định màu đen nếu không tìm thấy
+        return {
+            label: tag.slug,
+            value: tag._id,
+            color: matchedColor
+        };
+    });
+};
+
 class Box extends Component {
     constructor(props) {
         super(props);
-    
         this.toggle = this.toggle.bind(this);
         this.state = {
             isMobile: window.innerWidth < 526,
@@ -69,12 +103,16 @@ class Box extends Component {
             buyerSender: null,
             sellerSender: null,
             sender: this.props.sender,
+            tags: [],
             input: {
                 name: this.props.box.name,
                 messengerId: this.props.box.messengerId,
                 isEncrypted: false,
+                tags: [],
                 sellerId: '',
                 buyerId: '',
+                sellerTags: [],
+                buyerTags: [],
             },
         };
 
@@ -85,6 +123,7 @@ class Box extends Component {
     componentDidMount() {
         const { id } = this.props.params; 
         this.props.getBoxById(id);
+        this.getTags();
     }
 
     componentWillUnmount() {
@@ -106,6 +145,9 @@ class Box extends Component {
                     isEncrypted:  this.props.box.isEncrypted || false,
                     buyerId: this.props.box.buyer ? this.props.box.buyer.facebookId : '',
                     sellerId: this.props.box.seller ? this.props.box.seller.facebookId : '',
+                    tags: this.props.box.tags ? transformTags(this.props.box.tags) : [],
+                    buyerTags: this.props.box.buyer ? transformTags(this.props.box.buyer.tags) : [],
+                    sellerTags: this.props.box.seller ? transformTags(this.props.box.seller.tags) : [],
                 }
             });
         }
@@ -150,6 +192,17 @@ class Box extends Component {
             },
         }));
     };
+
+    getTags = async () => {
+        const res = await fetchTags();
+        this.setState({
+            tags: res.tags.map(item => ({
+                label: item.slug,
+                value: item._id,
+                color: findColorByValue(item.color)
+            }))
+        });
+    }
 
     handleSave = async () => {
         try{
@@ -387,6 +440,26 @@ class Box extends Component {
                                                         </Row>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
+                                                                <Label>Tags bên mua</Label>
+                                                            </Col>
+                                                            <Col md={8} xs={12}>
+                                                                <Select
+                                                                    isMulti
+                                                                    options={this.state.tags}
+                                                                    styles={customStyles}
+                                                                    value={this.state.input.buyerTags}
+                                                                    onChange={(value) => {
+                                                                        this.setState((prevState) => ({
+                                                                            input: { ...prevState.input, buyerTags: value }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder="Tags ..."
+                                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                        <Row className="mb-3">
+                                                            <Col md={4} xs={12}>
                                                                 <Label>Ghi chú</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
@@ -554,6 +627,26 @@ class Box extends Component {
                                                         </Row>
                                                         <Row className="mb-3">
                                                             <Col md={4} xs={12}>
+                                                                <Label>Tags bên bán</Label>
+                                                            </Col>
+                                                            <Col md={8} xs={12}>
+                                                                <Select
+                                                                    isMulti
+                                                                    options={this.state.tags}
+                                                                    styles={customStyles}
+                                                                    value={this.state.input.sellerTags}
+                                                                    onChange={(value) => {
+                                                                        this.setState((prevState) => ({
+                                                                            input: { ...prevState.input, sellerTags: value }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder="Tags ..."
+                                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                        <Row className="mb-3">
+                                                            <Col md={4} xs={12}>
                                                                 <Label>Box mã hóa?</Label>
                                                             </Col>
                                                             <Col md={8} xs={12}>
@@ -609,6 +702,26 @@ class Box extends Component {
                                                                         </button>
                                                                     </CopyToClipboard>
                                                                 </p>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row className="mb-3">
+                                                            <Col md={4} xs={12}>
+                                                                <Label>Tags của box</Label>
+                                                            </Col>
+                                                            <Col md={8} xs={12}>
+                                                                <Select
+                                                                    isMulti
+                                                                    options={this.state.tags}
+                                                                    styles={customStyles}
+                                                                    value={this.state.input.tags}
+                                                                    onChange={(value) => {
+                                                                        this.setState((prevState) => ({
+                                                                            input: { ...prevState.input, tags: value }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder="Tags ..."
+                                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                                />
                                                             </Col>
                                                         </Row>
                                                     </Col>

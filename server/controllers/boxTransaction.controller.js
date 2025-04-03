@@ -1,5 +1,6 @@
+const mongoose = require("mongoose");
 const { Transaction, BoxTransaction, Bill, Customer, Staff, Setting } = require("../models");
-const { getMessGroupInfo, getFBInfo, getMessInfo, getUserInfo } = require("../services/facebookService");
+const { getMessInfo, getUserInfo } = require("../services/facebookService");
 const { saveUserLogToQueue } = require("../services/log.service");
 const { getPermissions } = require("../services/permission.service");
 const { getSocket } = require("../socket/socketHandler");
@@ -40,8 +41,17 @@ const getSenderInfo = async (req, res) => {
 
         const box = await BoxTransaction.findById(id).populate(
             [
-                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
-                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+                { 
+                    path: 'buyer', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { 
+                    path: 'seller', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { path: 'tags', select: 'slug name color' }
             ]
         );
 
@@ -81,8 +91,17 @@ const getById = async (req, res) => {
         const box = await BoxTransaction.findById(id).populate(
             [
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
-                { path: 'buyer', select: 'nameCustomer facebookId avatar' },
-                { path: 'seller', select: 'nameCustomer facebookId avatar' },
+                { 
+                    path: 'buyer', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { 
+                    path: 'seller', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { path: 'tags', select: 'slug name color' }
             ]
         );
         if (!box) {
@@ -112,8 +131,17 @@ const getById = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                        { 
+                            path: 'buyer', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { 
+                            path: 'seller', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { path: 'tags', select: 'slug name color' }
                     ] 
                 },
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
@@ -126,8 +154,17 @@ const getById = async (req, res) => {
                 path: 'boxId', 
                 select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                 populate: [
-                    { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
-                    { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                    { 
+                        path: 'buyer', 
+                        select: 'facebookId nameCustomer avatar bankAccounts tags',
+                        populate: [{ path: 'tags', select: 'slug name color' }]
+                    },
+                    { 
+                        path: 'seller', 
+                        select: 'facebookId nameCustomer avatar bankAccounts tags',
+                        populate: [{ path: 'tags', select: 'slug name color' }]
+                    },
+                    { path: 'tags', select: 'slug name color' }
                 ] 
             }       
         ]);
@@ -484,12 +521,14 @@ const updateBox = async (req, res) => {
         
         const box = await BoxTransaction.findById(id);
         // if (!box || box.status === "lock") return res.status(404).json({ message: 'Box không tìm thấy hoặc bị khoá' });
-
         const name = req.body.name ? req.body.name : '';
         let messengerId = req.body.messengerId ? req.body.messengerId : '';
+        const isEncrypted = req.body.isEncrypted;
+        const tags = req.body.tags ? req.body.tags : [];
         const buyerId = req.body.buyerId ? req.body.buyerId : '';
         const sellerId = req.body.sellerId ? req.body.sellerId : '';
-        const isEncrypted = req.body.isEncrypted;
+        const buyerTags = req.body.buyerTags ? req.body.buyerTags : [];
+        const sellerTags = req.body.sellerTags ? req.body.sellerTags : [];
 
         if (box.messengerId === messengerId) messengerId = '';
         
@@ -502,8 +541,13 @@ const updateBox = async (req, res) => {
 
         if (buyerId){
             const buyer = await Customer.findOne({ facebookId: buyerId });
+            const ids = [...new Set(buyerTags.map(item => new mongoose.Types.ObjectId(item.value)))];
             if (buyer) {
                 box.buyer = buyer._id;
+                await buyer.updateOne(
+                    { $set: { tags: ids } }
+                );
+
             } else {
                 const buyerInfo = await getUserInfo(buyerId);
                 let buyerCustomer;
@@ -522,13 +566,20 @@ const updateBox = async (req, res) => {
                 }
 
                 box.buyer = buyerCustomer._id;
+                await buyerCustomer.updateOne(
+                    { $set: { tags: ids } }
+                );
             }
         }
         
         if (sellerId){
             const seller = await Customer.findOne({ facebookId: sellerId });
+            const ids = [...new Set(sellerTags.map(item => new mongoose.Types.ObjectId(item.value)))];
             if (seller) {
                 box.seller = seller._id;
+                await seller.updateOne(
+                    { $set: { tags: ids } }
+                );
             } else {
                 const sellerInfo = await getUserInfo(sellerId);
                 let sellerCustomer;
@@ -547,6 +598,9 @@ const updateBox = async (req, res) => {
                 }
 
                 box.seller = sellerCustomer._id;
+                await sellerCustomer.updateOne(
+                    { $set: { tags: ids } }
+                );
             }
         }
         
@@ -587,7 +641,13 @@ const updateBox = async (req, res) => {
         if (typeof isEncrypted !== "undefined") {
             box.isEncrypted = isEncrypted;
         }
+
         await box.save();
+
+        const idArray = [...new Set(tags.map(item => new mongoose.Types.ObjectId(item.value)))];
+        await box.updateOne(
+            { $set: { tags: idArray } }
+        );
 
         await saveUserLogToQueue(user._id, box._id, "UPDATE_BOX", "Chỉnh sửa box", req);
 

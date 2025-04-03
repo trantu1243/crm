@@ -31,8 +31,17 @@ const checkTransaction = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId buyer seller isEncrypted senders',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar username' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar username' }
+                        { 
+                            path: 'buyer', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { 
+                            path: 'seller', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { path: 'tags', select: 'slug name color' }
                     ] 
                 }
             ]).lean();
@@ -101,8 +110,17 @@ const getTransactions = async (req, res) => {
 
         const boxTransaction = await BoxTransaction.findOne({ messengerId: id }).populate(
             [
-                { path: 'buyer', select: 'nameCustomer facebookId avatar username' },
-                { path: 'seller', select: 'nameCustomer facebookId avatar username' },
+                { 
+                    path: 'buyer', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { 
+                    path: 'seller', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { path: 'tags', select: 'slug name color' }
             ]
         );
 
@@ -133,8 +151,17 @@ const getTransactions = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId buyer seller isEncrypted senders',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar username' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar username' }
+                        { 
+                            path: 'buyer', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { 
+                            path: 'seller', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { path: 'tags', select: 'slug name color' }
                     ] 
                 }
             ]).lean();

@@ -28,7 +28,11 @@ const boxTransactionSchema = new mongoose.Schema({
     isEncrypted: {
         type: Boolean,
         default: false
-    }
+    },
+    tags:{
+        type: [{ type: mongoose.Types.ObjectId, ref: 'Tag' }],
+        default: []
+    },
 }, {
     timestamps: true,
 });

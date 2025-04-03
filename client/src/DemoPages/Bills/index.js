@@ -14,7 +14,6 @@ import { fetchStaffs } from "../../services/staffService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { fetchBankApi } from "../../services/bankApiService";
-import QuickAnswer from "../../Layout/QuickAnswer";
 import CheckUID from "../../Layout/CheckUID";
 
 export const dummyData = [

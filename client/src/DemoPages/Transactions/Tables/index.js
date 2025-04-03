@@ -31,11 +31,34 @@ import {
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
+import { transformTags } from "../../Box";
 
 library.add(
     fab,
     faSpinner,
 );
+
+const DropdownIndicator = () => null;
+const ClearIndicator = () => null;
+const IndicatorSeparator = () => null;
+
+const customStyles = {
+    multiValue: (styles, { data }) => ({
+        ...styles,
+        backgroundColor: data.color, 
+        color: "white",
+        borderRadius: '3px'
+    }),
+    multiValueLabel: (styles) => ({
+        ...styles,
+        color: "white",
+    }),
+    option: (styles, { data, isFocused, isSelected }) => ({
+        ...styles,
+        color: data.color,
+        cursor: "pointer",
+    }),
+};
 
 const statusList = [
     { value: 0, name: "Tất cả" },
@@ -1026,7 +1049,21 @@ class TransactionsTable extends Component {
                                         ) : null}
                                     </Col>
                                 </Row>
-                                
+                                <Row className="mb-4">
+                                    <Col md={12} xs={12}>
+                                        <Label>Tags của box</Label>
+                                    </Col>
+                                    <Col md={12} xs={12}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.updateTransaction?.boxId.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
+                                    </Col>
+                                </Row>
                             </Col>
                             <Col md={6} xs={12}>
                                 {!this.state.updateTransaction?.decodeQr && <Row>
@@ -1072,7 +1109,7 @@ class TransactionsTable extends Component {
                                         }
                                     </>} 
                                 </Row>
-                                <Row className="mb-3 ms-2">
+                                <Row className="mb-2 ms-2">
                                     <Col md={12} xs={12}>
                                         <Label>Bên mua</Label>
                                     </Col>
@@ -1115,6 +1152,18 @@ class TransactionsTable extends Component {
                                 </Row>
                                 <Row className="mb-3 ms-2">
                                     <Col md={12} xs={12}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.buyerSender?.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
+                                    </Col>
+                                </Row>
+                                <Row className="mb-2 ms-2">
+                                    <Col md={12} xs={12}>
                                         <Label>Bên bán</Label>
                                     </Col>
                                     <Col md={6} xs={6} className="pe-1">
@@ -1151,6 +1200,18 @@ class TransactionsTable extends Component {
                                                 </a>
                                             </div>
                                         </InputGroup>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3 ms-2">
+                                    <Col md={12} xs={12}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.sellerSender?.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
                                     </Col>
                                 </Row>
                             </Col>
@@ -1207,7 +1268,7 @@ class TransactionsTable extends Component {
                                         </div>
                                     </Col>
                                 </Row>
-                                <Row className="mb-3">
+                                <Row className="mb-2">
                                     <Col md={4}>
                                         <Label>Khách mua</Label>      
                                     </Col>
@@ -1248,6 +1309,21 @@ class TransactionsTable extends Component {
                                         </InputGroup>
                                     </Col>
                                     
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={4}>
+                                        
+                                    </Col>
+                                    <Col md={8}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.buyerSender?.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
+                                    </Col>
                                 </Row>
                                 <Row className="mb-3">
                                     <Col md={4}>
@@ -1400,7 +1476,7 @@ class TransactionsTable extends Component {
                                         </div>
                                     </Col>
                                 </Row>
-                                <Row className="mb-3">
+                                <Row className="mb-2">
                                     <Col md={4}>
                                         <Label>Khách bán</Label>
                                     </Col>
@@ -1439,6 +1515,21 @@ class TransactionsTable extends Component {
                                                 </a>
                                             </div>
                                         </InputGroup>
+                                    </Col>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Col md={4}>
+                                        
+                                    </Col>
+                                    <Col md={8}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.sellerSender?.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
                                     </Col>
                                 </Row>
                                 <Row className="mb-3">

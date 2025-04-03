@@ -22,6 +22,29 @@ import { createBill } from "../../../services/billService";
 import { fetchBankApi } from "../../../services/bankApiService";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import QRCodeComponent from "../../CreateTransaction/QRCode";
+import { transformTags } from "..";
+
+const DropdownIndicator = () => null;
+const ClearIndicator = () => null;
+const IndicatorSeparator = () => null;
+
+const customStyles = {
+    multiValue: (styles, { data }) => ({
+        ...styles,
+        backgroundColor: data.color, 
+        color: "white",
+        borderRadius: '5px'
+    }),
+    multiValueLabel: (styles) => ({
+        ...styles,
+        color: "white",
+    }),
+    option: (styles, { data, isFocused, isSelected }) => ({
+        ...styles,
+        color: data.color,
+        cursor: "pointer",
+    }),
+};
 
 class TransactionsTable extends Component {
     constructor(props, context) {
@@ -1048,7 +1071,7 @@ class TransactionsTable extends Component {
                                             }
                                         </>} 
                                     </Row>
-                                    <Row className="mb-3 ms-2">
+                                    <Row className="mb-2 ms-2">
                                         <Col md={12} xs={12}>
                                             <Label>Bên mua</Label>
                                         </Col>
@@ -1062,8 +1085,7 @@ class TransactionsTable extends Component {
                                                     autoComplete="off"
                                                     disabled
                                                 />
-                                            </InputGroup>
-                                                                                                                
+                                            </InputGroup>                                                 
                                         </Col>
                                         <Col md={6} xs={6} className="ps-1">
                                             <InputGroup>
@@ -1080,10 +1102,21 @@ class TransactionsTable extends Component {
                                                     </a>
                                                 </div>
                                             </InputGroup>
-                                            
                                         </Col>
                                     </Row>
                                     <Row className="mb-3 ms-2">
+                                        <Col md={12} xs={12}>
+                                            <Select
+                                                isMulti
+                                                styles={customStyles}
+                                                value={transformTags(this.state.updateTransaction?.boxId.buyer?.tags || [])}
+                                                placeholder="Tags ..."
+                                                components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                                isDisabled 
+                                            />     
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-2 ms-2">
                                         <Col md={12} xs={12}>
                                             <Label>Bên bán</Label>
                                         </Col>
@@ -1116,6 +1149,18 @@ class TransactionsTable extends Component {
                                                     </a>
                                                 </div>
                                             </InputGroup>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3 ms-2">
+                                        <Col md={12} xs={12}>
+                                            <Select
+                                                isMulti
+                                                styles={customStyles}
+                                                value={transformTags(this.state.updateTransaction?.boxId.seller?.tags || [])}
+                                                placeholder="Tags ..."
+                                                components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                                isDisabled 
+                                            />     
                                         </Col>
                                     </Row>
                                 </Col>

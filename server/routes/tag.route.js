@@ -9,6 +9,8 @@ router.get('/', authenticateToken, tagController.getTags);
 
 router.post('/create', authenticateToken, isAdmin, tagController.createTag);
 
-router.post('/update', authenticateToken, isAdmin, tagController.updateTag);
+router.post('/:id/update', authenticateToken, isAdmin, tagController.updateTag);
+
+router.post('/:id/delete', authenticateToken, isAdmin, tagController.deleteTag);
 
 module.exports = router;

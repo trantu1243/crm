@@ -25,6 +25,7 @@ import BankAccountConfig from "../../DemoPages/BankAccountConfig";
 import Setting from "../../DemoPages/Setting";
 import QuickAnswer from "../../DemoPages/QuickAnswer";
 import QuickReply from "../../DemoPages/QuickReply";
+import Tag from "../../DemoPages/Tag";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -482,6 +483,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/config/quick-answer" render={() => isAuth ? <QuickAnswer /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/config/tag" render={() => isAuth ? <Tag /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

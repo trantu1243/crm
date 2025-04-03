@@ -70,6 +70,10 @@ export const MainNav = [
                 to: "/config/quick-answer",
             },
             {
+                label: "Tags",
+                to: "/config/tag",
+            },
+            {
                 label: "Settings",
                 to: "/config/setting",
             },

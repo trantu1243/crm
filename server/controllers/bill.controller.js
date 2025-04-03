@@ -115,8 +115,17 @@ const getBills = async (req, res) => {
                     path: 'boxId', 
                     select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                     populate: [
-                        { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
-                        { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                        { 
+                            path: 'buyer', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { 
+                            path: 'seller', 
+                            select: 'facebookId nameCustomer avatar bankAccounts tags',
+                            populate: [{ path: 'tags', select: 'slug name color' }]
+                        },
+                        { path: 'tags', select: 'slug name color' }
                     ] 
                 }            ],
             sort: { createdAt: -1 },
@@ -605,12 +614,21 @@ const getById = async (req, res) => {
         const { id } = req.params;
         const bill = await Bill.findById(id).populate([
             { path: 'billId', select: 'bankCode stk content amount bonus typeTransfer boxId linkQr status staffId billId' },
-            { 
+            {
                 path: 'boxId', 
                 select: 'amount messengerId notes status typeBox senders buyer seller isEncrypted',
                 populate: [
-                    { path: 'buyer', select: 'facebookId nameCustomer avatar bankAccounts' },
-                    { path: 'seller', select: 'facebookId nameCustomer avatar bankAccounts' }
+                    { 
+                        path: 'buyer', 
+                        select: 'facebookId nameCustomer avatar bankAccounts tags',
+                        populate: [{ path: 'tags', select: 'slug name color' }]
+                    },
+                    { 
+                        path: 'seller', 
+                        select: 'facebookId nameCustomer avatar bankAccounts tags',
+                        populate: [{ path: 'tags', select: 'slug name color' }]
+                    },
+                    { path: 'tags', select: 'slug name color' }
                 ] 
             }
         ]);

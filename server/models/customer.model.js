@@ -9,7 +9,11 @@ const customerSchema = new mongoose.Schema({
     bankAccounts: {
         type: [{ type: mongoose.Types.ObjectId, ref: 'Stk' }],
         default: []
-    }
+    },
+    tags:{
+        type: [{ type: mongoose.Types.ObjectId, ref: 'Tag' }],
+        default: []
+    },
 }, {
     timestamps: true,
 });

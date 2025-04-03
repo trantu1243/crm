@@ -26,6 +26,13 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import QRCodeComponent from "./QRCode";
 import CheckUID from "../../Layout/CheckUID";
+import { transformTags } from "../Box";
+import { fetchTags } from "../../services/tagService";
+import { findColorByValue } from "../Tag/Tables";
+
+const DropdownIndicator = () => null;
+const ClearIndicator = () => null;
+const IndicatorSeparator = () => null;
 
 library.add(
     fab,
@@ -38,6 +45,24 @@ export const typeFee = [
     {name: 'Chia đôi', value: 'split'},
     {name: 'Miễn phí', value: 'free'}
 ]
+
+const customStyles = {
+    multiValue: (styles, { data }) => ({
+        ...styles,
+        backgroundColor: data.color, 
+        color: "white",
+        borderRadius: '5px'
+    }),
+    multiValueLabel: (styles) => ({
+        ...styles,
+        color: "white",
+    }),
+    option: (styles, { data, isFocused, isSelected }) => ({
+        ...styles,
+        color: data.color,
+        cursor: "pointer",
+    }),
+};
 
 class CreateTransaction extends Component {
     constructor(props) {
@@ -60,6 +85,7 @@ class CreateTransaction extends Component {
             sellerOpen: false,
             buyerSender: null,
             sellerSender: null,
+            tags: [],
             input: {
                 amount: 0,
                 bankId: '',
@@ -75,6 +101,9 @@ class CreateTransaction extends Component {
             updateBox: {
                 buyerId: '',
                 sellerId: '',
+                tags: [],
+                sellerTags: [],
+                buyerTags: [],
             }
         };
         this.handleClick = this.handleClick.bind(this);
@@ -85,6 +114,7 @@ class CreateTransaction extends Component {
     componentDidMount() {
         window.addEventListener("resize", this.updateScreenSize);
         this.getFee();
+        this.getTags();
     }
 
     componentDidUpdate(prevProps) {
@@ -107,6 +137,16 @@ class CreateTransaction extends Component {
         this.setState({
             fee: data.data
         })
+    }
+    getTags = async () => {
+        const res = await fetchTags();
+        this.setState({
+            tags: res.tags.map(item => ({
+                label: item.slug,
+                value: item._id,
+                color: findColorByValue(item.color)
+            }))
+        });
     }
 
     handleClick = () => {
@@ -212,13 +252,19 @@ class CreateTransaction extends Component {
                 
                 const data = await getSenderInfo(box._id);
                 this.setState({senders: data.senders});
-                
+                this.setState({
+                    updateBox: {
+                        ...this.state.updateBox,
+                        tags: transformTags(box.tags)
+                    }
+                })
                 if (box.buyer) {
                     this.setState({
                         buyerSender: box.buyer,
                         updateBox: {
                             ...this.state.updateBox,
-                            buyerId: box.buyer.facebookId
+                            buyerId: box.buyer.facebookId,
+                            buyerTags: transformTags(box.buyer.tags),
                         }
                     })
                 }
@@ -228,7 +274,8 @@ class CreateTransaction extends Component {
                         sellerSender: box.seller,
                         updateBox: {
                             ...this.state.updateBox,
-                            sellerId: box.seller.facebookId
+                            sellerId: box.seller.facebookId,
+                            sellerTags: transformTags(box.seller.tags),
                         }
                     })
                 }
@@ -624,6 +671,26 @@ class CreateTransaction extends Component {
                                                             ) : null}
                                                         </Col>
                                                     </Row>
+                                                    <Row className="mb-4">
+                                                        <Col sm={12} xs={12}>
+                                                            <Label className="me-3">Tags của box </Label>
+                                                        </Col>
+                                                        <Col sm={12} xs={12}>
+                                                            <Select
+                                                                isMulti
+                                                                options={this.state.tags}
+                                                                styles={customStyles}
+                                                                value={this.state.updateBox.tags}
+                                                                onChange={(value) => {
+                                                                    this.setState((prevState) => ({
+                                                                        updateBox: { ...prevState.updateBox, tags: value }
+                                                                    }));
+                                                                }}
+                                                                placeholder="Tags ..."
+                                                                components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                            />
+                                                        </Col>
+                                                    </Row>
                                                 </>}
                                             </Col>
                                             <Col sm={6} xs={12}>
@@ -682,7 +749,7 @@ class CreateTransaction extends Component {
                                                         
                                                     </Row>
                                                     {this.state.input.isToggleOn && <>
-                                                        <Row className="mb-3 ms-2">
+                                                        <Row className="mb-2 ms-2">
                                                             <Col md={12} xs={12}>
                                                                 <Label>Bên mua</Label>
                                                             </Col>
@@ -762,6 +829,23 @@ class CreateTransaction extends Component {
                                                         </Row>
                                                         <Row className="mb-3 ms-2">
                                                             <Col md={12} xs={12}>
+                                                                <Select
+                                                                    isMulti
+                                                                    options={this.state.tags}
+                                                                    styles={customStyles}
+                                                                    value={this.state.updateBox.buyerTags}
+                                                                    onChange={(value) => {
+                                                                        this.setState((prevState) => ({
+                                                                            updateBox: { ...prevState.updateBox, buyerTags: value }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder="Tags ..."
+                                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                                />     
+                                                            </Col>      
+                                                        </Row>
+                                                        <Row className="mb-2 ms-2">
+                                                            <Col md={12} xs={12}>
                                                                 <Label>Bên bán</Label>
                                                             </Col>
                                                             <Col md={6} xs={6} className="pe-1">
@@ -836,6 +920,24 @@ class CreateTransaction extends Component {
                                                                     </div>
                                                                 </InputGroup>
                                                             </Col>
+                                                        </Row>
+                                                        <Row className="mb-3 ms-2">
+                                                            <Col md={12} xs={12}>
+                                                                <Select
+                                                                    isMulti
+                                                                    options={this.state.tags}
+                                                                    styles={customStyles}
+                                                                    value={this.state.updateBox.sellerTags}
+                                                                    onChange={(value) => {
+                                                                        this.setState((prevState) => ({
+                                                                            updateBox: { ...prevState.updateBox, sellerTags: value }
+                                                                        }));
+                                                                    }}
+                                                                    placeholder="Tags ..."
+                                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                                />
+                                                            </Col>
+                                                            
                                                         </Row>
                                                         <p className="m-0 fst-italic">* Nếu tên hoặc avatar khác so với trên nhóm chat thì phải bấm ↻ để cập nhật lại dữ liệu mới nhất của người dùng</p>
                                                     </>}

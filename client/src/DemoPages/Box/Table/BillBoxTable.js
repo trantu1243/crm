@@ -20,6 +20,29 @@ import { SERVER_URL } from "../../../services/url";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { banks } from "../../Bills/Tables/data";
 import { Tooltip as ReactTooltip } from "react-tooltip";
+import { transformTags } from "..";
+
+const DropdownIndicator = () => null;
+const ClearIndicator = () => null;
+const IndicatorSeparator = () => null;
+
+const customStyles = {
+    multiValue: (styles, { data }) => ({
+        ...styles,
+        backgroundColor: data.color, 
+        color: "white",
+        borderRadius: '5px'
+    }),
+    multiValueLabel: (styles) => ({
+        ...styles,
+        color: "white",
+    }),
+    option: (styles, { data, isFocused, isSelected }) => ({
+        ...styles,
+        color: data.color,
+        cursor: "pointer",
+    }),
+};
 
 class BillsTable extends Component {
     constructor(props) {
@@ -237,7 +260,7 @@ class BillsTable extends Component {
                                                 </div>
                                             </Col>
                                         </Row>
-                                        <Row className="mb-3">
+                                        <Row className="mb-2">
                                             <Col md={4}>
                                                 <Label>Khách mua</Label>      
                                             </Col>
@@ -254,7 +277,6 @@ class BillsTable extends Component {
                                                         disabled
                                                     />
                                                 </InputGroup>
-                                                
                                             </Col>
                                             <Col md={4} xs={4} className="ps-1">
                                                 <InputGroup>
@@ -273,6 +295,21 @@ class BillsTable extends Component {
                                                     </div>
                                                 </InputGroup>
                                                                                                            
+                                            </Col>
+                                        </Row>
+                                        <Row className="mb-3">
+                                            <Col md={4}>
+                                                
+                                            </Col>
+                                            <Col md={8}>
+                                                <Select
+                                                    isMulti
+                                                    styles={customStyles}
+                                                    value={transformTags(this.props.buyer?.tags || [])}
+                                                    placeholder="Tags ..."
+                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                                    isDisabled 
+                                                />   
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">
@@ -426,7 +463,7 @@ class BillsTable extends Component {
                                                 </div>
                                             </Col>
                                         </Row>
-                                        <Row className="mb-3">
+                                        <Row className="mb-2">
                                         <Col md={4}>
                                                 <Label>Khách bán</Label>      
                                             </Col>
@@ -462,6 +499,21 @@ class BillsTable extends Component {
                                                     </div>
                                                 </InputGroup>
                                                                                                            
+                                            </Col>
+                                        </Row>
+                                        <Row className="mb-3">
+                                            <Col md={4}>
+                                                
+                                            </Col>
+                                            <Col md={8}>
+                                                <Select
+                                                    isMulti
+                                                    styles={customStyles}
+                                                    value={transformTags(this.props.seller?.tags || [])}
+                                                    placeholder="Tags ..."
+                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                                    isDisabled 
+                                                />   
                                             </Col>
                                         </Row>
                                         <Row className="mb-3">

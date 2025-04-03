@@ -1,6 +1,7 @@
 const { Setting, Customer, BoxTransaction, Cookie } = require("../models");
 const axios = require("axios");
 const qs = require('qs');
+const { sendMessage } = require("./telegram.service");
 
 async function getFacebookAccessToken(cookies, proxy, proxy_auth) {
     try {
@@ -288,6 +289,7 @@ async function updateToken(cookieFb) {
             cookieFb.token = accessToken;
         } else {
             cookieFb.token = '';
+            sendMessage("🆘Lỗi cookie, vui lòng cập nhật lại cookie!🆘");
         }
 
         return cookieFb;
