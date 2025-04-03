@@ -1034,6 +1034,21 @@ class TransactionsTable extends Component {
                                     </div>
                                 </Row>
                                 <Row className="mb-4">
+                                    <Col md={12} xs={12}>
+                                        <Label>Tags của box</Label>
+                                    </Col>
+                                    <Col md={12} xs={12}>
+                                        <Select
+                                            isMulti
+                                            styles={customStyles}
+                                            value={transformTags(this.state.updateTransaction?.boxId.tags || [])}
+                                            placeholder="Tags ..."
+                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                            isDisabled 
+                                        />   
+                                    </Col>
+                                </Row>
+                                <Row className="mb-4">
                                     <Col md={12} xs={12} style={{position: 'relative'}}>
                                         <textarea rows={7} cols={10} className="form-control" value={this.state.textCopy} disabled/>
                                         <div style={{position: 'absolute', right: 8, top: 0}}>
@@ -1047,21 +1062,6 @@ class TransactionsTable extends Component {
                                         {this.state.copied ? (
                                             <FormText color="success">Text has been copied.</FormText>
                                         ) : null}
-                                    </Col>
-                                </Row>
-                                <Row className="mb-4">
-                                    <Col md={12} xs={12}>
-                                        <Label>Tags của box</Label>
-                                    </Col>
-                                    <Col md={12} xs={12}>
-                                        <Select
-                                            isMulti
-                                            styles={customStyles}
-                                            value={transformTags(this.state.updateTransaction?.boxId.tags || [])}
-                                            placeholder="Tags ..."
-                                            components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
-                                            isDisabled 
-                                        />   
                                     </Col>
                                 </Row>
                             </Col>

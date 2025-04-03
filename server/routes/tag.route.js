@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.get('/', authenticateToken, tagController.getTags);
 
+router.get('/filter', authenticateToken, tagController.filterTags);
+
 router.post('/create', authenticateToken, isAdmin, tagController.createTag);
 
 router.post('/:id/update', authenticateToken, isAdmin, tagController.updateTag);

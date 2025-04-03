@@ -656,22 +656,6 @@ class CreateTransaction extends Component {
                                                         </div>        
                                                     </Row>}
                                                     <Row className="mb-4">
-                                                        <Col sm={12} xs={12} style={{position: 'relative'}}>
-                                                            <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
-                                                            <div style={{position: 'absolute', right: 0, top: 0}}>
-                                                                <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
-                                                                    <Button color="link">
-                                                                        <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg"/>
-                                                                    </Button>
-                                                                </CopyToClipboard>
-                                                            </div>
-                                                        
-                                                            {this.state.copied ? (
-                                                                <FormText color="success">Text has been copied.</FormText>
-                                                            ) : null}
-                                                        </Col>
-                                                    </Row>
-                                                    <Row className="mb-4">
                                                         <Col sm={12} xs={12}>
                                                             <Label className="me-3">Tags của box </Label>
                                                         </Col>
@@ -689,6 +673,22 @@ class CreateTransaction extends Component {
                                                                 placeholder="Tags ..."
                                                                 components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
                                                             />
+                                                        </Col>
+                                                    </Row>
+                                                    <Row className="mb-4">
+                                                        <Col sm={12} xs={12} style={{position: 'relative'}}>
+                                                            <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
+                                                            <div style={{position: 'absolute', right: 0, top: 0}}>
+                                                                <CopyToClipboard onCopy={this.onCopy} text={this.state.textCopy}>
+                                                                    <Button color="link">
+                                                                        <FontAwesomeIcon icon={faCopy} color="#545cd8" size="lg"/>
+                                                                    </Button>
+                                                                </CopyToClipboard>
+                                                            </div>
+                                                        
+                                                            {this.state.copied ? (
+                                                                <FormText color="success">Text has been copied.</FormText>
+                                                            ) : null}
                                                         </Col>
                                                     </Row>
                                                 </>}

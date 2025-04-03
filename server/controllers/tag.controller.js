@@ -14,6 +14,28 @@ const getTags = async (req, res) => {
     }
 };
 
+const filterTags = async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+        } = req.query;
+
+        const tags = await Tag.paginate({}, {
+            page: Number(page),
+            limit: Number(limit),
+        });
+
+        res.status(200).json({
+            message: 'Tags fetched successfully',
+            tags,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 const createTag = async (req, res) => {
     try {
         const { color, slug, name } = req.body;
@@ -75,5 +97,6 @@ module.exports = {
     getTags,
     createTag,
     updateTag,
-    deleteTag
+    deleteTag,
+    filterTags
 }

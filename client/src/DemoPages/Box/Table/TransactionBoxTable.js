@@ -1010,6 +1010,21 @@ class TransactionsTable extends Component {
                                         </div>
                                     </Row>
                                     <Row className="mb-4">
+                                        <Col md={12} xs={12}>
+                                            <Label>Tags của box</Label>
+                                        </Col>
+                                        <Col md={12} xs={12}>
+                                            <Select
+                                                isMulti
+                                                styles={customStyles}
+                                                value={transformTags(this.state.updateTransaction?.boxId.tags || [])}
+                                                placeholder="Tags ..."
+                                                components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
+                                                isDisabled 
+                                            />   
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-4">
                                         <Col md={12} xs={12} style={{position: 'relative'}}>
                                             <textarea rows={7} cols={10}className="form-control" value={this.state.textCopy} disabled/>
                                             <div style={{position: 'absolute', right: 8, top: 0}}>
@@ -1025,7 +1040,6 @@ class TransactionsTable extends Component {
                                             ) : null}
                                         </Col>
                                     </Row>
-                                    
                                 </Col>
                                 <Col md={6} xs={12}>
                                     {!this.state.updateTransaction?.decodeQr && <Row>
