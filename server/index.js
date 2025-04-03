@@ -22,12 +22,12 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
     // seedPermissions();
-    updateCookie()
+    // updateCookie()
 });
 
 const updateCookie = async () =>{
     try {
-        await Tag.collection.drop();
+        
 
     } catch (error) {
         console.error(error);
