@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 
 export const dummyData = [
   {
-    name: "Danh sách câu trả lời nhanh",
+    name: "Danh sách tag",
     content: <TagTable />,
   },
 ];
