@@ -155,7 +155,7 @@ const createBill = async (req, res) => {
                 return res.status(400).json({ message: `${field} is required` });
             }
         }
-        const { boxId, buyer, seller } = req.body;
+        const { boxId, buyer, seller, updateTag } = req.body;
 
         if ( !buyer && !seller ) {
             return res.status(400).json({ message: 'Nhập thiếu thông tin' });
@@ -194,19 +194,6 @@ const createBill = async (req, res) => {
             const { bankCode, stk, content, amount, bonus = 0} = buyer;
 
             const bank = await BankApi.findOne({ bankCode: bankCode});
-            // const customer = await Customer.findOne({
-            //     boxId: { $in: [boxId] },
-            //     type: 'buyer',
-            //     isDeleted: false,
-            // });
-            // const exists = customer.bankAccounts.some(
-            //     (account) => account.bankCode === bankCode && account.stk === stk
-            // );
-
-            // if (!exists) {
-            //     customer.bankAccounts.push({ bankCode, stk });
-            //     await customer.save();
-            // }
 
             buyerBill = {
                 bankCode,
@@ -232,20 +219,6 @@ const createBill = async (req, res) => {
             }
             const { bankCode, stk, content, amount, bonus = 0 } = seller;
             const bank = await BankApi.findOne({ bankCode: bankCode});
-            // const customer = await Customer.findOne({
-            //     boxId: { $in: [boxId] },
-            //     type: 'seller',
-            //     isDeleted: false,
-            // });
-
-            // const exists = customer.bankAccounts.some(
-            //     (account) => account.bankCode === bankCode && account.stk === stk
-            // );
-
-            // if (!exists) {
-            //     customer.bankAccounts.push({ bankCode, stk });
-            //     await customer.save();
-            // }
         
             sellerBill = {
                 bankCode,
@@ -271,7 +244,21 @@ const createBill = async (req, res) => {
             await sellerBill.save();
         }
 
-        const transactions = await Transaction.updateMany({ boxId: boxId, status: { $in: [ 6, 8] }}, {status: 7});
+        await Transaction.updateMany({ boxId: boxId, status: { $in: [ 6, 8] }}, {status: 7});
+        
+        if (updateTag) {
+            const idArray = [...new Set(updateTag.tags.map(item => new mongoose.Types.ObjectId(item.value)))];
+            box.tags = idArray;
+            await box.save();
+            if (box.buyer) {
+                const ids = [...new Set(updateTag.buyerTags.map(item => new mongoose.Types.ObjectId(item.value)))];
+                await Customer.findByIdAndUpdate(box.buyer, {tags: ids})
+            }
+            if (box.seller) {
+                const ids = [...new Set(updateTag.sellerTags.map(item => new mongoose.Types.ObjectId(item.value)))];
+                await Customer.findByIdAndUpdate(box.seller, {tags: ids})
+            }
+        }
         
         const io = getSocket();
 

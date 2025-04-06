@@ -5,7 +5,7 @@ import React, { Component } from "react";
 import { formatDate } from "./data";
 import StatusBadge from "./StatusBadge";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFacebook, faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
+import { faFacebookMessenger } from "@fortawesome/free-brands-svg-icons";
 import { findTransactionsByStatus, getTransactions, getTransactionsNoLoad, searchTransactions, searchTransactionsNoload, setFilters } from "../../../reducers/transactionsSlice";
 import { connect } from "react-redux";
 import TransactionsPagination from "./PaginationTable";
@@ -32,6 +32,8 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import { transformTags } from "../../Box";
+import { fetchTags } from "../../../services/tagService";
+import { findColorByValue } from "../../Tag/Tables";
 
 library.add(
     fab,
@@ -52,6 +54,7 @@ const customStyles = {
     multiValueLabel: (styles) => ({
         ...styles,
         color: "white",
+        zIndex: 13,
     }),
     option: (styles, { data, isFocused, isSelected }) => ({
         ...styles,
@@ -141,6 +144,12 @@ class TransactionsTable extends Component {
                 content: '', 
                 amount: '', 
                 bonus: 0
+            },
+            tags: [],
+            updateTag: {
+                tags: [],
+                sellerTags: [],
+                buyerTags: [],
             }
         };
 
@@ -159,6 +168,7 @@ class TransactionsTable extends Component {
         window.addEventListener("resize", this.updateScreenSize);
         this.getFee();
         this.getBanks();
+        this.getTags();
         document.addEventListener("keydown", this.handleKeyDown);
     }
 
@@ -252,6 +262,17 @@ class TransactionsTable extends Component {
         this.setState({
             fee: data.data
         })
+    }
+
+    getTags = async () => {
+        const res = await fetchTags();
+        this.setState({
+            tags: res.tags.map(item => ({
+                label: item.slug,
+                value: item._id,
+                color: findColorByValue(item.color)
+            }))
+        });
     }
 
     getBanks = async () => {
@@ -480,6 +501,7 @@ class TransactionsTable extends Component {
             this.setState({loading: true});
             let data = {
                 boxId: this.state.boxId,
+                updateTag: this.state.updateTag,
                 buyer: null,
                 seller: null
             };
@@ -698,6 +720,11 @@ class TransactionsTable extends Component {
                                                     seller: {
                                                         ...this.state.seller, 
                                                         content: `Thanh khoan GDTG ${item.boxId._id}`
+                                                    },
+                                                    updateTag: {
+                                                        tags: transformTags(item.boxId.tags),
+                                                        buyerTags: transformTags(item.boxId.buyer?.tags) || [],
+                                                        sellerTags: transformTags(item.boxId.seller?.tags) || []
                                                     }
                                                 });
                                                 this.toggle();
@@ -1234,18 +1261,46 @@ class TransactionsTable extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className="modal-xl" style={{marginTop: '10rem'}}>
                     <ModalHeader toggle={this.toggle}>Tạo bill thanh khoản</ModalHeader>
                     <ModalBody className="p-4" onKeyDown={(e) => e.key === "Enter" && !this.state.loading && this.handleCreateBill(e)}>
-                        <Row>
+                        <Row className="mb-3">
                             <div className="card-border mb-3 card card-body border-primary">
-                                <h5>Số tiền thanh khoản còn lại:&nbsp;
-                                    <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.state.boxAmount)} vnđ</span></span>
-                                    <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.state.boxAmount)}>
-                                        <button type="button" class="btn btn-success ms-1">
-                                            <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
-                                        </button>
-                                    </CopyToClipboard>
-                                </h5>
+                                <Row>
+                                    <Col md={6} xs={12}>
+                                        <h5>Số tiền thanh khoản còn lại:&nbsp;
+                                            <span class="fw-bold text-danger"><span>{new Intl.NumberFormat('en-US').format(this.state.boxAmount)} vnđ</span></span>
+                                            <CopyToClipboard text={new Intl.NumberFormat('en-US').format(this.state.boxAmount)}>
+                                                <button type="button" class="btn btn-success ms-1">
+                                                    <FontAwesomeIcon icon={faCopy}></FontAwesomeIcon>
+                                                </button>
+                                            </CopyToClipboard>
+                                        </h5>    
+                                    </Col>
+                                    <Col md={6} xs={12}>
+                                        <Row>
+                                            <Col md={4} xs={4}>
+                                                <Label>Tags của box</Label>
+                                            </Col>
+                                            <Col md={8} xs={8} style={{zIndex: 12}}>
+                                                <Select
+                                                    isMulti
+                                                    options={this.state.tags}
+                                                    styles={customStyles}
+                                                    value={this.state.updateTag.tags}
+                                                    onChange={(value) => {
+                                                        this.setState((prevState) => ({
+                                                            updateTag: { ...prevState.updateTag, tags: value }
+                                                        }));
+                                                    }}
+                                                    placeholder="Tags ..."
+                                                    components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }} 
+                                                />
+                                            </Col>   
+                                        </Row>
+                                    </Col>
+                                </Row>
+                                
+                                
                             </div>
-                        
+                                      
                         </Row>
                         <Row>
                             <Col lg={6} xs={12} sm={12} className="pe-2">
@@ -1317,11 +1372,17 @@ class TransactionsTable extends Component {
                                     <Col md={8}>
                                         <Select
                                             isMulti
+                                            options={this.state.tags}
                                             styles={customStyles}
-                                            value={transformTags(this.state.buyerSender?.tags || [])}
+                                            value={this.state.updateTag.buyerTags}
+                                            onChange={(value) => {
+                                                this.setState((prevState) => ({
+                                                    updateTag: { ...prevState.updateTag, buyerTags: value }
+                                                }));
+                                            }}
                                             placeholder="Tags ..."
                                             components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
-                                            isDisabled 
+                                             
                                         />   
                                     </Col>
                                 </Row>
@@ -1524,11 +1585,16 @@ class TransactionsTable extends Component {
                                     <Col md={8}>
                                         <Select
                                             isMulti
+                                            options={this.state.tags}
                                             styles={customStyles}
-                                            value={transformTags(this.state.sellerSender?.tags || [])}
+                                            value={this.state.updateTag.sellerTags}
                                             placeholder="Tags ..."
+                                            onChange={(value) => {
+                                                this.setState((prevState) => ({
+                                                    updateTag: { ...prevState.updateTag, sellerTags: value }
+                                                }));
+                                            }}
                                             components={{ DropdownIndicator, ClearIndicator, IndicatorSeparator }}
-                                            isDisabled 
                                         />   
                                     </Col>
                                 </Row>
