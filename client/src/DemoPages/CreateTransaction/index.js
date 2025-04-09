@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import StatusBadge from "../Transactions/Tables/StatusBadge";
 import { setTransaction } from "../../reducers/transactionsSlice";
-import { getFBInfo, getSenderInfo, updateBoxService } from "../../services/boxService";
+import { getFBInfo, getInfoService, getSenderInfo, updateBoxService } from "../../services/boxService";
 import {
     IoIosRefresh,
   } from "react-icons/io";
@@ -75,6 +75,7 @@ class CreateTransaction extends Component {
             copied: false,
             imageCopied: false,
             loading: false,
+            infoLoading: false,
             alert: false,
             errorMsg: '',
             isCreated: false,
@@ -245,11 +246,14 @@ class CreateTransaction extends Component {
                 this.setState({
                     isCreated: true,
                     loading: false,
+                    infoLoading: true,
                     linkQr: `https://img.vietqr.io/image/${bank.binBank}-${bank.bankAccount}-nCr4dtn.png?amount=${this.props.transaction.totalAmount + this.props.transaction.bonus}&addInfo=${this.props.transaction.content}&accountName=${bank.bankAccountName}`,
                     textCopy: `🏦 ${bank.bankAccount} tại ${bank.bankName} - ${bank.bankAccountName}\n💵 Số tiền: ${new Intl.NumberFormat('en-US').format(this.props.transaction.amount)} vnd\n💎 Phí: ${new Intl.NumberFormat('en-US').format(this.props.transaction.fee)} vnd\n📝 Nội dung: ${this.props.transaction.content} ${this.props.transaction.checkCode}\n-----------------------\n🎯 Check tại: https://check.tathanhan.com/${this.props.transaction.checkCode}`
                 });
-                const box = res.box;
                 
+                const boxData = await getInfoService(res.box._id);
+                const box = boxData.data;
+
                 const data = await getSenderInfo(box._id);
                 this.setState({senders: data.senders});
                 this.setState({
@@ -279,8 +283,7 @@ class CreateTransaction extends Component {
                         }
                     })
                 }
-
-                this.setState({loading: false});
+                this.setState({infoLoading: false});
             } else {
                 await this.props.setTransaction({
                     _id: '',
@@ -337,7 +340,7 @@ class CreateTransaction extends Component {
                 alert: true,
                 errorMsg: error
             })
-            this.setState({loading: false})
+            this.setState({loading: false, infoLoading: false});
         }
     };
 
@@ -775,8 +778,9 @@ class CreateTransaction extends Component {
                                                                         autoComplete="off"
                                                                     />
                                                                     <div className="input-group-text">
-                                                                        <div role="button" disabled={this.state.loading} onClick={()=>{this.state.buyerSender && !this.state.loading && this.getFB(this.state.buyerSender.facebookId)}}>
-                                                                            {this.state.loading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                                        <div role="button" disabled={(this.state.loading || this.state.infoLoading)} onClick={()=>{this.state.buyerSender && !this.state.loading && !this.state.infoLoading && this.getFB(this.state.buyerSender.facebookId)}}>
+                                                                            
+                                                                            {(this.state.loading || this.state.infoLoading) ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
                                                                             : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
                                                                         </div>
                                                                     </div>
@@ -870,8 +874,8 @@ class CreateTransaction extends Component {
                                                                         autoComplete="off"
                                                                     />
                                                                     <div className="input-group-text">
-                                                                        <div role="button" disabled={this.state.loading} onClick={()=>{this.state.sellerSender && !this.state.loading && this.getFB(this.state.sellerSender.facebookId)}}>
-                                                                            {this.state.loading ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
+                                                                        <div role="button" disabled={(this.state.loading || this.state.infoLoading)} onClick={()=>{this.state.sellerSender && !this.state.loading && !this.state.infoLoading && this.getFB(this.state.sellerSender.facebookId)}}>
+                                                                            {(this.state.loading || this.state.infoLoading) ? <FontAwesomeIcon icon={["fas", "spinner"]} pulse fixedWidth color="#545cd8" size="lg" />
                                                                             : <IoIosRefresh fontSize="18.7px" color="#545cd8"/>}
                                                                         </div>
                                                                     </div>

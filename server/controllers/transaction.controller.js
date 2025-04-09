@@ -266,8 +266,8 @@ const createTransaction = async (req, res) => {
         }
 
         if (!box) {
-            let senders = []
-                senders = (await getMessInfo(messengerId)).data;
+            let senders = [];
+            // senders = (await getMessInfo(messengerId)).data;
             
             box = await BoxTransaction.create({
                 name: '',

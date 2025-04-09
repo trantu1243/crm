@@ -723,7 +723,22 @@ const regetMessInfo = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: 'ID is required' });
         }
-        const box = await BoxTransaction.findById(id);
+        const box = await BoxTransaction.findById(id).populate(
+            [
+                { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
+                { 
+                    path: 'buyer', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { 
+                    path: 'seller', 
+                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    populate: [{ path: 'tags', select: 'slug name color' }]
+                },
+                { path: 'tags', select: 'slug name color' }
+            ]
+        );
         if (!box) {
             return res.status(404).json({ message: 'Box not found' });
         }
@@ -740,7 +755,6 @@ const regetMessInfo = async (req, res) => {
             return res.status(400).json({ message: 'Nhóm chat bị mã hóa hoặc tài khoản facebook không có trong nhóm chat' });
         }
         
-
         res.status(200).json({
             message: 'Get box info successfully',
             data: box,

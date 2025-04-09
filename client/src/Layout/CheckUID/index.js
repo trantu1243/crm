@@ -92,14 +92,14 @@ class QuickAnswerPopup extends Component {
                 <UncontrolledTooltip placement="left" target={'TooltipDemo'}>
                     Check UID facebook
                 </UncontrolledTooltip>
-                {this.state.transactions.length > 0 && <>
+                {/* {this.state.transactions.length > 0 && <>
                     <Button className="btn-open-options" id="TooltipDemo2" color="warning" style={{left: -110, top: 100}} onClick={() => this.setState({showing: !showing})}>
                         <FontAwesomeIcon icon={faBell} color="#fff" fixedWidth={false} size="2x" style={{paddingLeft: 2}}/>
                     </Button>
                     <UncontrolledTooltip placement="left" target={'TooltipDemo2'}>
                         Có ghi chú chưa hoàn thành
                     </UncontrolledTooltip>
-                </>}
+                </>} */}
                 <div className="theme-settings__inner">
                     <PerfectScrollbar>
                         <div className="theme-settings__options-wrapper">
