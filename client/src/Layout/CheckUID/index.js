@@ -14,6 +14,7 @@ import {
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import PerfectScrollbar from 'react-perfect-scrollbar';
+import { Tooltip as ReactTooltip } from "react-tooltip";
 
 import {
     faBell,
@@ -28,6 +29,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { fetchTransactions } from '../../services/transactionService';
 import StatusBadge from '../../DemoPages/Transactions/Tables/StatusBadge';
 import { formatDate } from '../../DemoPages/Transactions/Tables/data';
+import { getNoteTransactions } from '../../reducers/transactionsSlice';
 
 class QuickAnswerPopup extends Component {
 
@@ -46,13 +48,12 @@ class QuickAnswerPopup extends Component {
     }
 
     componentDidMount() {
-        this.getTransactions()
+        this.props.getNoteTransactions({});
     }
 
     async getTransactions() {
         try {
-            const res = await fetchTransactions({page: 1, limit: 10, hasNotes: true})
-            this.setState({transactions: res.data.docs})
+            await this.props.getNoteTransactions({});
         } catch (e) {
 
         }
@@ -83,8 +84,61 @@ class QuickAnswerPopup extends Component {
     }
 
     render() {
-        const {showing} = this.state;
-        return (
+        const { showing } = this.state;
+        const { transactions } = this.props;
+        return (<>
+            {transactions.length > 0 && <>
+                <div style={{
+                    position: 'fixed',
+                    left: '0.75rem',
+                    bottom: '1.5rem',
+                    zIndex: 10
+                }}>
+                    <Button
+                        id="TooltipDemo2"
+                        color="warning"
+                        style={{
+                            width: 60,
+                            height: 60,
+                            borderRadius: '50%',
+                            padding: 0,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            position: 'relative',
+                        }}
+                        onClick={() => this.setState({showing: !showing})}
+                    >
+                        <FontAwesomeIcon
+                            icon={faBell}
+                            color="#fff"
+                            className="shake-infinite"
+                            size="lg" 
+                            style={{ width: 22.4, height: 25.59 }}
+                        />
+                        {transactions.length > 0 && (
+                        <span style={{
+                            position: 'absolute',
+                            top: 7,
+                            right: 7,
+                            background: 'red',
+                            color: 'white',
+                            borderRadius: '50%',
+                            padding: '2px 6px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            minWidth: '20px',
+                            textAlign: 'center'
+                        }}>
+                            {transactions.length}
+                        </span>
+                        )}
+                    </Button>
+                </div>
+                <UncontrolledTooltip placement="left" target={'TooltipDemo2'}>
+                    Có ghi chú chưa hoàn thành
+                </UncontrolledTooltip>
+            </>}
             <div className={"ui-theme-settings "  + (showing ? 'settings-open' : '')}>
                 <Button className="btn-open-options" id="TooltipDemo" color="info" onClick={this.toggle}>
                     <FontAwesomeIcon icon={faSearch} color="#fff" fixedWidth={false} size="2x"/>
@@ -92,17 +146,19 @@ class QuickAnswerPopup extends Component {
                 <UncontrolledTooltip placement="left" target={'TooltipDemo'}>
                     Check UID facebook
                 </UncontrolledTooltip>
-                {/* {this.state.transactions.length > 0 && <>
-                    <Button className="btn-open-options" id="TooltipDemo2" color="warning" style={{left: -110, top: 100}} onClick={() => this.setState({showing: !showing})}>
-                        <FontAwesomeIcon icon={faBell} color="#fff" fixedWidth={false} size="2x" style={{paddingLeft: 2}}/>
-                    </Button>
-                    <UncontrolledTooltip placement="left" target={'TooltipDemo2'}>
-                        Có ghi chú chưa hoàn thành
-                    </UncontrolledTooltip>
-                </>} */}
                 <div className="theme-settings__inner">
                     <PerfectScrollbar>
                         <div className="theme-settings__options-wrapper">
+                            <button 
+                                type='button' 
+                                className='btn-close'
+                                style={{
+                                    position: 'fixed',
+                                    top: '0.75rem',
+                                    right: '0.75rem'
+                                }}
+                                onClick={() => this.setState({showing: false})}
+                            ></button>
                             <h3 className="themeoptions-heading">Các GDTG có ghi chú chưa hoàn thành</h3>
                             <div className='p-2'>
                                 <Table responsive hover striped bordered className="align-middle mb-0">
@@ -114,12 +170,11 @@ class QuickAnswerPopup extends Component {
                                             <th className="text-center">Tổng tiền</th>
                                             <th className="text-center">Trạng thái</th>
                                             <th className="text-center">#</th>
-
                                         </tr>
                                     </thead>
                                     <tbody>
                                     
-                                        {this.state.transactions.map((item) => {
+                                        {transactions.map((item) => {
                                             let rowClass = "";
                                             switch (item.status) {
                                                 case 1:
@@ -137,7 +192,7 @@ class QuickAnswerPopup extends Component {
                                                 default:
                                                 rowClass = "";
                                             }
-                                            return <tr className={rowClass}>
+                                            return <tr className={rowClass} data-tooltip-id="myTooltip" data-tooltip-content={item.boxId.notes.join('; ')}>
                                                 <td className="text-center">{formatDate(item.createdAt)}</td>
                                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
                                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
@@ -146,10 +201,10 @@ class QuickAnswerPopup extends Component {
                                                 <td className="text-center "> 
                                                     <StatusBadge status={item.status} />
                                                     {item.boxId.notes?.length > 0 && <>&nbsp;
-                                                    <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Có ghi chú chưa hoàn thành" icon={faExclamationTriangle}>
+                                                    <FontAwesomeIcon color="#d92550" icon={faExclamationTriangle}>
                                                     </FontAwesomeIcon></>}
                                                     {item.boxId.status === 'lock' && <>&nbsp;
-                                                    <FontAwesomeIcon color="#d92550" data-tooltip-id="my-tooltip" data-tooltip-content="Box bị khóa" icon={faLock}>
+                                                    <FontAwesomeIcon color="#d92550" icon={faLock}>
                                                     </FontAwesomeIcon></>}
                                                 </td>
                                                 <td>
@@ -201,16 +256,27 @@ class QuickAnswerPopup extends Component {
                         </Button>{" "}
                     </ModalFooter>
                 </Modal>
+                <ReactTooltip
+                    id="myTooltip"
+                    place="left"
+                    style={{
+                        fontSize: '16px'
+                    }}
+                />
             </div>
+           
+        </>
+            
         );
     }
 }
 
 const mapStateToProps = state => ({
-
+    transactions: state.transactions.noteTransactions,
 });
 
-const mapDispatchToProps = dispatch => ({
-});
+const mapDispatchToProps = {
+    getNoteTransactions
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuickAnswerPopup);

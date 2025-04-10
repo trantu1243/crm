@@ -315,7 +315,9 @@
 @include media-breakpoint-down(sm) {
   
   .ui-theme-settings {
-    display: none;
+    .theme-settings__inner {
+      width: 400px;
+    }
   }
 }
 

@@ -77,6 +77,21 @@ export const getTransactionsNoLoad = createAsyncThunk(
     }
 );
 
+export const getNoteTransactions = createAsyncThunk(
+    "transactions/getNoteTransactions",
+    async ({ page = 1, limit = 30 }, { rejectWithValue }) => {
+        try {
+            const response = await fetchTransactions({page, limit, hasNotes: true});
+            return response.data;
+        } catch (error) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                window.location.href = "/login"; 
+            }
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const getTransactionById = createAsyncThunk(
     "transactions/getTransactionById",
     async (id, { rejectWithValue }) => {
@@ -92,6 +107,7 @@ const initialState = {
     transactions: {
         docs: []
     },
+    noteTransactions: [],
     transaction: {
         _id: '',
         amount: 0,
@@ -192,6 +208,15 @@ const transactionsSlice = createSlice({
                 state.transactions = action.payload;
             })
             .addCase(getTransactionsNoLoad.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            .addCase(getNoteTransactions.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getNoteTransactions.fulfilled, (state, action) => {
+                state.noteTransactions = action.payload.docs;
+            })
+            .addCase(getNoteTransactions.rejected, (state, action) => {
                 state.error = action.payload;
             })
             .addCase(findTransactionsByStatus.pending, (state) => {
