@@ -11,6 +11,8 @@ router.get('/:id/transaction', authenticateToken, boxTransactionController.getTr
 
 router.get('/:id/bill', authenticateToken, boxTransactionController.getBillsByBoxId);
 
+router.get('/', authenticateToken, boxTransactionController.getNoteBox);
+
 router.post('/:id/undo', authenticateToken, boxTransactionController.undoBox);
 
 router.post('/:id/update', authenticateToken, boxTransactionController.updateBox);

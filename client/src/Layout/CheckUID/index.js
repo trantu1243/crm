@@ -19,17 +19,13 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import {
     faBell,
     faCopy,
-    faExclamationTriangle,
     faInfoCircle,
-    faLock,
     faSearch
 } from '@fortawesome/free-solid-svg-icons'
 import { checkUID } from '../../services/getInfoService';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { fetchTransactions } from '../../services/transactionService';
-import StatusBadge from '../../DemoPages/Transactions/Tables/StatusBadge';
 import { formatDate } from '../../DemoPages/Transactions/Tables/data';
-import { getNoteTransactions } from '../../reducers/transactionsSlice';
+import { getNoteBoxTransactions } from '../../reducers/boxSlice';
 
 class QuickAnswerPopup extends Component {
 
@@ -48,12 +44,12 @@ class QuickAnswerPopup extends Component {
     }
 
     componentDidMount() {
-        this.props.getNoteTransactions({});
+        this.props.getNoteBoxTransactions({});
     }
 
     async getTransactions() {
         try {
-            await this.props.getNoteTransactions({});
+            await this.props.getNoteBoxTransactions({});
         } catch (e) {
 
         }
@@ -85,9 +81,9 @@ class QuickAnswerPopup extends Component {
 
     render() {
         const { showing } = this.state;
-        const { transactions } = this.props;
+        const { boxes } = this.props;
         return (<>
-            {transactions.length > 0 && <>
+            {boxes.length > 0 && <>
                 <div style={{
                     position: 'fixed',
                     left: '0.75rem',
@@ -116,7 +112,7 @@ class QuickAnswerPopup extends Component {
                             size="lg" 
                             style={{ width: 22.4, height: 25.59 }}
                         />
-                        {transactions.length > 0 && (
+                        {boxes.length > 0 && (
                         <span style={{
                             position: 'absolute',
                             top: 7,
@@ -130,7 +126,7 @@ class QuickAnswerPopup extends Component {
                             minWidth: '20px',
                             textAlign: 'center'
                         }}>
-                            {transactions.length}
+                            {boxes.length}
                         </span>
                         )}
                     </Button>
@@ -159,56 +155,47 @@ class QuickAnswerPopup extends Component {
                                 }}
                                 onClick={() => this.setState({showing: false})}
                             ></button>
-                            <h3 className="themeoptions-heading">Các GDTG có ghi chú chưa hoàn thành</h3>
+                            <h3 className="themeoptions-heading">Các box có ghi chú chưa hoàn thành</h3>
                             <div className='p-2'>
                                 <Table responsive hover striped bordered className="align-middle mb-0">
                                     <thead>
                                         <tr>
                                             <th className="text-center">Thời gian</th>
-                                            <th className="text-center">Số tiền</th>
-                                            <th className="text-center">Phí</th>
-                                            <th className="text-center">Tổng tiền</th>
+                                            <th className="text-center">Tiền trong box</th>
                                             <th className="text-center">Trạng thái</th>
                                             <th className="text-center">#</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     
-                                        {transactions.map((item) => {
+                                        {boxes.map((item) => {
                                             let rowClass = "";
                                             switch (item.status) {
                                                 case 1:
-                                                rowClass = "fst-italic"; // in nghiêng
+                                                rowClass = "fst-italic"; 
                                                 break;
                                                 case 2:
-                                                rowClass = "text-success"; // chữ màu xanh lá
+                                                rowClass = "text-success"; 
                                                 break;
                                                 case 3:
-                                                rowClass = "al-text-decoration-line-through"; // gạch ngang
+                                                rowClass = "al-text-decoration-line-through"; 
                                                 break;
                                                 case 6:
-                                                rowClass = "fw-bold"; // in đậm
+                                                rowClass = "fw-bold"; 
                                                 break;
                                                 default:
                                                 rowClass = "";
                                             }
-                                            return <tr className={rowClass} data-tooltip-id="myTooltip" data-tooltip-content={item.boxId.notes.join('; ')}>
+                                            return <tr className={rowClass} data-tooltip-id="myTooltip" data-tooltip-content={item.notes.join('; ')}>
                                                 <td className="text-center">{formatDate(item.createdAt)}</td>
                                                 <td className="text-center">{new Intl.NumberFormat('en-US').format(item.amount)}</td>
-                                                <td className="text-center">{new Intl.NumberFormat('en-US').format(item.fee)}</td>
-                                                <td className="text-center">{new Intl.NumberFormat('en-US').format(item.totalAmount)}</td>
-                                              
                                                 <td className="text-center "> 
-                                                    <StatusBadge status={item.status} />
-                                                    {item.boxId.notes?.length > 0 && <>&nbsp;
-                                                    <FontAwesomeIcon color="#d92550" icon={faExclamationTriangle}>
-                                                    </FontAwesomeIcon></>}
-                                                    {item.boxId.status === 'lock' && <>&nbsp;
-                                                    <FontAwesomeIcon color="#d92550" icon={faLock}>
-                                                    </FontAwesomeIcon></>}
+                                                    {item.status === "active" && <span className={`badge bg-primary`}>đang hoạt động</span>}
+                                                    {item.status === "complete" && <span className={`badge bg-success`}>hoàn thành</span>}
+                                                    {item.status === "lock" && <span className={`badge bg-danger`}>bị khóa</span>}
                                                 </td>
                                                 <td>
-                                                    <a href={`/box/${item.boxId._id}`} className="btn btn-sm btn-light me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xem chi tiết box">
+                                                    <a href={`/box/${item._id}`} className="btn btn-sm btn-light me-1 mb-1" data-tooltip-id="my-tooltip" data-tooltip-content="Xem chi tiết box">
                                                         <FontAwesomeIcon icon={faInfoCircle} color="#000" size="3xs"/>
                                                     </a>
                                                 </td>
@@ -272,11 +259,11 @@ class QuickAnswerPopup extends Component {
 }
 
 const mapStateToProps = state => ({
-    transactions: state.transactions.noteTransactions,
+    boxes: state.box.noteBoxes,
 });
 
 const mapDispatchToProps = {
-    getNoteTransactions
+    getNoteBoxTransactions
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuickAnswerPopup);

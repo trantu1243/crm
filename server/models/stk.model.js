@@ -3,7 +3,7 @@ const mongoosePaginate = require('mongoose-paginate-v2');
 
 const stkSchema = new mongoose.Schema({
     bankId: { type: mongoose.Types.ObjectId, ref: 'BankApi' },
-    stk: { type: String, unique: true },
+    stk: { type: String },
 }, {
     timestamps: true,
 });

@@ -16,8 +16,8 @@ import Permissions from "../../DemoPages/Permissions";
 import Roles from "../../DemoPages/Roles";
 import Staffs from "../../DemoPages/Staffs";
 import { closeSocket, getSocket } from "../../services/socketService";
-import { getNoteTransactions, getTransactionsNoLoad } from "../../reducers/transactionsSlice";
-import { getBoxByIdNoLoad } from "../../reducers/boxSlice";
+import { getTransactionsNoLoad } from "../../reducers/transactionsSlice";
+import { getBoxByIdNoLoad, getNoteBoxTransactions } from "../../reducers/boxSlice";
 import { getBillByIdNoLoad, getBillsNoLoad } from "../../reducers/billsSlice";
 import ChangePassword from "../../DemoPages/ChangePassword";
 import FeeConfig from "../../DemoPages/FeeConfig";
@@ -130,13 +130,13 @@ const AppMain = () => {
                     if (data.box?._id === box.box._id) {
                         dispatch(getBoxByIdNoLoad(box.box._id));
                     }
-                    dispatch(getNoteTransactions({}));
+                    dispatch(getNoteBoxTransactions({}));
                 })
                 socket.on('delete_note', (data) => {
                     if (data.box?._id === box.box._id) {
                         dispatch(getBoxByIdNoLoad(box.box._id));
                     }
-                    dispatch(getNoteTransactions({}));
+                    dispatch(getNoteBoxTransactions({}));
                 })
                 socket.on('update_box', (data) => {
                     if (data.box?._id === box.box._id) {

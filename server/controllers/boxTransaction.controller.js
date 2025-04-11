@@ -33,6 +33,23 @@ const getTransactionsByBoxId = async (req, res) => {
     }
 };
 
+const getNoteBox = async (req, res) =>{
+    try {
+        const boxWithNotes = await BoxTransaction.find({
+            notes: {
+              $exists: true,
+              $type: 'array',
+            },
+            $expr: { $gt: [{ $size: "$notes" }, 0] }
+        }).sort({ createdAt: -1 });
+
+        return res.status(200).json({ success: true, data: boxWithNotes });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+} 
+
 const getSenderInfo = async (req, res) => {
     try {
         const { id } = req.params;
@@ -814,5 +831,6 @@ module.exports = {
     deleteNote,
     regetMessInfo, 
     getSenderInfo,
-    regetFBInfo
+    regetFBInfo,
+    getNoteBox
 }

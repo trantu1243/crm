@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchBoxTransactionById, undoBoxService, updateBoxService } from "../services/boxService";
+import { fetchBoxTransactionById, fetchNoteBoxTransaction, undoBoxService, updateBoxService } from "../services/boxService";
 
 export const getBoxById = createAsyncThunk(
     "boxs/getBoxById",
@@ -18,6 +18,21 @@ export const getBoxByIdNoLoad = createAsyncThunk(
         try {
             return await fetchBoxTransactionById(id);
         } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const getNoteBoxTransactions = createAsyncThunk(
+    "boxs/getNoteBoxTransactions",
+    async (payload, { rejectWithValue }) => {
+        try {
+            const response = await fetchNoteBoxTransaction(payload);
+            return response.data;
+        } catch (error) {
+            if (error.response?.status === 401 || error.response?.status === 403) {
+                window.location.href = "/login"; 
+            }
             return rejectWithValue(error.message);
         }
     }
@@ -60,6 +75,7 @@ const initialState = {
         transactions: [],
         bills: []
     },
+    noteBoxes: [],
     sender: [],
     loading: false,
     error: null,
@@ -102,6 +118,15 @@ const boxSlice = createSlice({
                 state.box = action.payload.data;
             })
             .addCase(getBoxByIdNoLoad.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            .addCase(getNoteBoxTransactions.pending, (state) => {
+                state.error = null;
+            })
+            .addCase(getNoteBoxTransactions.fulfilled, (state, action) => {
+                state.noteBoxes = action.payload;
+            })
+            .addCase(getNoteBoxTransactions.rejected, (state, action) => {
                 state.error = action.payload;
             })
             .addCase(undoBox.pending, (state) => {
