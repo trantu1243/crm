@@ -1,4 +1,4 @@
-const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction, BankAccount } = require("../models");
+const { Bill, BankApi, BoxTransaction, Customer, Staff, Transaction, BankAccount, Stk } = require("../models");
 const { getPermissions } = require("../services/permission.service");
 const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
@@ -401,8 +401,32 @@ const confirmBill = async (req, res) => {
         const staff = await Staff.findById(req.user.id);
         await saveUserLogToQueue(staff._id, bill._id, "CONFIRM_BILL", "Xác nhận thanh khoản", req);
 
-        const io = getSocket();
+        let customer = null;
+        if (bill.typeTransfer === "buyer") {
+            customer = await Customer.findById(box.buyer);
+        } else if (bill.typeTransfer === "seller") {
+            customer = await Customer.findById(box.seller);
+        }
 
+        if (customer) {
+            const bank = await BankApi.findOne({ bankCode: bill.bankCode });
+            const stk = await Stk.findOne({ stk: bill.stk, bankId: bank._id });
+            if (stk) {
+                const exists = customer.bankAccounts.some(
+                    (stkId) => stkId.equals(stk._id)
+                );
+                if (!exists) {
+                    customer.bankAccounts.push(stk._id);
+                    await customer.save();
+                }
+            } else {
+                const newStk = await Stk.create({ bankId: bank._id, stk: bill.stk });
+                customer.bankAccounts.push(newStk._id);
+                await customer.save();
+            }
+        }
+
+        const io = getSocket();
         io.emit('confirm_bill', {
             bill,
             box
@@ -410,7 +434,7 @@ const confirmBill = async (req, res) => {
 
         return res.status(200).json({ status: true, message: "Bill confirmed successfully" });
     } catch (error) {
-        await session.abortTransaction(); // ❌ Hoàn tác nếu có lỗi
+        await session.abortTransaction();
         session.endSession();
         console.error(error);
         return res.status(500).json({ message: "Internal server error" });

@@ -14,3 +14,4 @@ module.exports.userLogController = require('./userLog.controller');
 module.exports.getInfoController = require('./getInfo.controller');
 module.exports.quickAnswerController = require('./quickAnswer.controller');
 module.exports.tagController = require('./tag.controller');
+module.exports.customerController = require('./customer.controller');

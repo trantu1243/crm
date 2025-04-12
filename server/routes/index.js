@@ -15,6 +15,7 @@ const userLogRoutes = require('./userLog.route');
 const getInfoRoutes = require('./getInfo.route');
 const quickAnswerRoutes = require('./quickAnswer.route');
 const tagRoutes = require('./tag.route');
+const customerRoute = require('./customer.route');
 
 const router = express.Router();
 
@@ -83,6 +84,10 @@ const defaultRoutes = [
         path: '/tag',
         route: tagRoutes
     },
+    {
+        path: '/customer',
+        route: customerRoute
+    }
 ];
 
 defaultRoutes.forEach((route) => {
