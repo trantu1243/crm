@@ -412,17 +412,10 @@ const confirmBill = async (req, res) => {
             const bank = await BankApi.findOne({ bankCode: bill.bankCode });
             const stk = await Stk.findOne({ stk: bill.stk, bankId: bank._id });
             if (stk) {
-                const exists = customer.bankAccounts.some(
-                    (stkId) => stkId.equals(stk._id)
-                );
-                if (!exists) {
-                    customer.bankAccounts.push(stk._id);
-                    await customer.save();
-                }
+                await customer.updateOne({$addToSet: {bankAccounts: stk._id}});
             } else {
                 const newStk = await Stk.create({ bankId: bank._id, stk: bill.stk });
-                customer.bankAccounts.push(newStk._id);
-                await customer.save();
+                await customer.updateOne({$addToSet: {bankAccounts: newStk._id}});
             }
         }
 
