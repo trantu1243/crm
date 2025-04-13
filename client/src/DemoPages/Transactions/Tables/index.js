@@ -268,7 +268,7 @@ class TransactionsTable extends Component {
         const res = await fetchTags();
         this.setState({
             tags: res.tags.map(item => ({
-                label: item.slug,
+                label: item.name,
                 value: item._id,
                 color: findColorByValue(item.color)
             }))

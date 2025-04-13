@@ -20,7 +20,7 @@ const Monthly = ({ monthlyStats }) => {
         return month < 10 ? `0${month}` : `${month}`;
     });
 
-    const [options] = useState({
+    const [options, setOptions] = useState({
         chart: {
             height: 350,
             type: "line",
@@ -57,12 +57,18 @@ const Monthly = ({ monthlyStats }) => {
         },
         tooltip: {
             y: {
-                formatter: (val, { seriesIndex }) => {
+                formatter: (val, { seriesIndex, dataPointIndex }) => {
+                    const item = monthlyStats.find((item) => item.month === dataPointIndex + 1);
                     if (seriesIndex === 2) {
                         return new Intl.NumberFormat("en-US").format(val / 100);
-                    } else {
-                        return new Intl.NumberFormat("en-US").format(val);
+                    } else if (seriesIndex === 1) {
+                        const str = item ? ` (${item.totalBill})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
+                    } else if (seriesIndex === 0) {
+                        const str = item ? ` (${item.totalTransactions})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
                     }
+                    return new Intl.NumberFormat("en-US").format(val);
                 },
             },
         },
@@ -101,7 +107,6 @@ const Monthly = ({ monthlyStats }) => {
                 feeArray[index] = item.totalFee * 100;
             }
         });
-
         setSeries([
             {
                 name: "Tiền GD",
@@ -119,6 +124,27 @@ const Monthly = ({ monthlyStats }) => {
                 data: feeArray,
             },
         ]);
+        setOptions((prevOptions) => ({
+            ...prevOptions,
+            tooltip: {
+                ...prevOptions.tooltip,
+                y: {
+                    formatter: (val, { seriesIndex, dataPointIndex }) => {
+                        const item = monthlyStats.find((item) => item.month === dataPointIndex + 1);
+                        if (seriesIndex === 2) {
+                            return new Intl.NumberFormat("en-US").format(val / 100);
+                        } else if (seriesIndex === 1) {
+                            const str = item ? ` (${item.totalBill})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        } else if (seriesIndex === 0) {
+                            const str = item ? ` (${item.totalTransactions})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        }
+                        return new Intl.NumberFormat("en-US").format(val);
+                    },
+                },
+            },
+        }));
     }, [monthlyStats, maxMonths]);
 
     return (

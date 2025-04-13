@@ -20,7 +20,7 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
         return day < 10 ? `0${day}` : `${day}`;
     });
 
-    const [options] = useState({
+    const [options, setOptions] = useState({
         chart: {
             height: 350,
             type: "line",
@@ -57,12 +57,18 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
         },
         tooltip: {
             y: {
-                formatter: (val, { seriesIndex }) => {
+                formatter: (val, { seriesIndex, dataPointIndex }) => {
+                    const item = dailyStats.find((item) => item.day === dataPointIndex + 1);
                     if (seriesIndex === 2) {
                         return new Intl.NumberFormat("en-US").format(val / 100);
-                    } else {
-                        return new Intl.NumberFormat("en-US").format(val);
+                    } else if (seriesIndex === 1) {
+                        const str = item ? ` (${item.totalBill})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
+                    } else if (seriesIndex === 0) {
+                        const str = item ? ` (${item.totalTransactions})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
                     }
+                    return new Intl.NumberFormat("en-US").format(val);
                 },
             },
         },
@@ -101,7 +107,6 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 feeArray[index] = item.totalFee * 100;
             }
         });
-
         setSeries([
             {
                 name: "Tiền GD",
@@ -119,6 +124,26 @@ const MixedSingleMonth = ({ dailyStats, daysThisMonth = 31 }) => {
                 data: feeArray,
             },
         ]);
+        setOptions((prevOptions) => ({
+            ...prevOptions,
+            tooltip: {
+                y: {
+                    formatter: (val, { seriesIndex, dataPointIndex }) => {
+                        const item = dailyStats.find((item) => item.day === dataPointIndex + 1);
+                        if (seriesIndex === 2) {
+                            return new Intl.NumberFormat("en-US").format(val / 100);
+                        } else if (seriesIndex === 1) {
+                            const str = item ? ` (${item.totalBill})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        } else if (seriesIndex === 0) {
+                            const str = item ? ` (${item.totalTransactions})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        }
+                        return new Intl.NumberFormat("en-US").format(val);
+                    },
+                },
+            },
+        }));
     }, [dailyStats, maxDays]);
 
     return (

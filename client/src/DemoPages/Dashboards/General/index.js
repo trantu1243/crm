@@ -20,7 +20,6 @@ import Donut from "./Examples/Donut";
 import { getBalanceService, getDailyStats, getDailyStatsService, getHourlyStats, getMonthlyStats, getMonthlyStatsService, getTotalBillServiceByDaily, getTotalTransactionService, getYearlyStats } from "../../../services/statisticService";
 import Loader from "react-loaders";
 import MixedSingleMonth from "./Examples/Mixed";
-import DonutFeeChart from "./Examples/DonutFee";
 import { DatePicker } from "react-widgets/cjs";
 import DonutTransactionsChart from "../StaffStatistic/Component/DonutTranction";
 import { NavLink } from "react-router-dom";
@@ -77,16 +76,16 @@ export default class General extends Component {
                             },
                         },
                         track: {
-                        background: "#fff",
-                        strokeWidth: "67%",
-                        margin: 0, // margin is in pixels
-                        dropShadow: {
-                            enabled: true,
-                            top: -3,
-                            left: 0,
-                            blur: 4,
-                            opacity: 0.35,
-                        },
+                            background: "#fff",
+                            strokeWidth: "67%",
+                            margin: 0,
+                            dropShadow: {
+                                enabled: true,
+                                top: -3,
+                                left: 0,
+                                blur: 4,
+                                opacity: 0.35,
+                            },
                         },
 
                         dataLabels: {
@@ -203,8 +202,6 @@ export default class General extends Component {
             const month = today.getMonth() + 1;
             const year = today.getFullYear();
 
-            console.log(this.state.chartType);
-
             if (this.state.chartType === 'hourly') {
                 const res = await getHourlyStats({ day, month, year });
                 this.setState({chartStats: res.mergedStats});
@@ -213,7 +210,6 @@ export default class General extends Component {
                 this.setState({chartStats: res.mergedStats});
             } else if (this.state.chartType === 'monthly') {
                 const res = await getMonthlyStats({ year });
-                console.log(res)
                 this.setState({chartStats: res.mergedStats});
             } else if (this.state.chartType === 'yearly') {
                 const res = await getYearlyStats({ year });
@@ -243,7 +239,6 @@ export default class General extends Component {
         const currentYear = today.getFullYear();
 
         const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
-        console.log(daysInCurrentMonth)
         switch (this.state.chartType) {
             case "hourly":
                 return <Hourly hourlyStats={this.state.chartStats} />;

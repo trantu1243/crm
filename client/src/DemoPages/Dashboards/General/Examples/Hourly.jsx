@@ -20,7 +20,7 @@ const Hourly = ({ hourlyStats }) => {
         return hour < 10 ? `0${hour}` : `${hour}`;
     });
 
-    const [options] = useState({
+    const [options, setOptions] = useState({
         chart: {
             height: 350,
             type: "line",
@@ -57,12 +57,18 @@ const Hourly = ({ hourlyStats }) => {
         },
         tooltip: {
             y: {
-                formatter: (val, { seriesIndex }) => {
+                formatter: (val, { seriesIndex, dataPointIndex }) => {
+                    const item = hourlyStats.find((item) => item.hour === dataPointIndex);
                     if (seriesIndex === 2) {
                         return new Intl.NumberFormat("en-US").format(val / 100);
-                    } else {
-                        return new Intl.NumberFormat("en-US").format(val);
+                    } else if (seriesIndex === 1) {
+                        const str = item ? ` (${item.totalBill})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
+                    } else if (seriesIndex === 0) {
+                        const str = item ? ` (${item.totalTransactions})` : " (0)";
+                        return new Intl.NumberFormat("en-US").format(val) + str;
                     }
+                    return new Intl.NumberFormat("en-US").format(val);
                 },
             },
         },
@@ -101,9 +107,7 @@ const Hourly = ({ hourlyStats }) => {
                 feeArray[index] = item.totalFee * 100;
             }
         });
-
-        console.log(hourlyStats)
-
+        
         setSeries([
             {
                 name: "Tiền GD",
@@ -121,6 +125,27 @@ const Hourly = ({ hourlyStats }) => {
                 data: feeArray,
             },
         ]);
+        setOptions((prevOptions) => ({ 
+            ...prevOptions,
+            tooltip: {
+                ...prevOptions.tooltip,
+                y: {
+                    formatter: (val, { seriesIndex, dataPointIndex }) => {
+                        const item = hourlyStats.find((item) => item.hour === dataPointIndex);
+                        if (seriesIndex === 2) {
+                            return new Intl.NumberFormat("en-US").format(val / 100);
+                        } else if (seriesIndex === 1) {
+                            const str = item ? ` (${item.totalBill})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        } else if (seriesIndex === 0) {
+                            const str = item ? ` (${item.totalTransactions})` : " (0)";
+                            return new Intl.NumberFormat("en-US").format(val) + str;
+                        }
+                        return new Intl.NumberFormat("en-US").format(val);
+                    },
+                },
+            },
+        }));
     }, [hourlyStats, maxHours]);
 
     return (

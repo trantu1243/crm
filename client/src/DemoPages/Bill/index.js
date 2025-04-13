@@ -62,7 +62,7 @@ const transformTags = (tags) => {
     return tags.map(tag => {
         const matchedColor = colorOptions.find(option => option.value === tag.color)?.color || "#000000"; // Mặc định màu đen nếu không tìm thấy
         return {
-            label: tag.slug,
+            label: tag.name,
             value: tag._id,
             color: matchedColor
         };
@@ -231,7 +231,7 @@ class Box extends Component {
         const res = await fetchTags();
         this.setState({
             tags: res.tags.map(item => ({
-                label: item.slug,
+                label: item.name,
                 value: item._id,
                 color: findColorByValue(item.color)
             }))
