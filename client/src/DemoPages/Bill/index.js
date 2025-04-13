@@ -1285,7 +1285,7 @@ class Box extends Component {
                                             <div className={cx("switch-animate", {
                                                 "switch-on": true,
                                                 "switch-off": false,
-                                                })}>
+                                            })}>
                                                 <input type="checkbox" />
                                                 <span className="switch-left bg-info">ON</span>
                                                 <label>&nbsp;</label>

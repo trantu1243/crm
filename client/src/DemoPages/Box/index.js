@@ -21,7 +21,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import SweetAlert from 'react-bootstrap-sweetalert';
 import {
     IoIosRefresh,
-  } from "react-icons/io";
+} from "react-icons/io";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
