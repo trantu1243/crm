@@ -23,14 +23,19 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
     // seedPermissions();
-    // updateCookie()
+    updateCookie()
     // updateCustomerBankAccounts();
-    updateCustomers();
+    // updateCustomers();
 });
 
 const updateCookie = async () =>{
     try {
-        
+        await Customer.findByIdAndDelete('67bff00f0866df4cb7a3c001')
+        await Customer.findByIdAndDelete('67c04a719898c1ea687f23f8')
+        await Customer.findByIdAndDelete('67c04a9f9898c1ea687f2460')
+
+        await Customer.findByIdAndDelete('67c04ab39898c1ea687f2482')
+        await Customer.findByIdAndDelete('67c04fc0c13762df11aee5d5')
 
     } catch (error) {
         console.error(error);
