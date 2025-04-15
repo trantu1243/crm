@@ -368,7 +368,7 @@ const updateTransaction = async (req, res) => {
             return res.status(400).json({ message: `Không đủ quyền` });
         }
 
-        const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'fee', 'bonus'];
+        const requiredFields = ['bankId', 'amount', 'typeBox', 'content', 'messengerId', 'typeFee', 'bonus'];
         for (const field of requiredFields) {
             if (!req.body[field]) {
                 await session.abortTransaction();
@@ -384,7 +384,7 @@ const updateTransaction = async (req, res) => {
             content,
             messengerId,
             typeFee,
-            fee,
+            fee = 0,
             bonus
         } = req.body;
         const { id } = req.params;
@@ -438,7 +438,7 @@ const updateTransaction = async (req, res) => {
         if (!box) {
             const setting = await Setting.findOne({uniqueId: 1});
             let senders = []
-            senders = (await getMessInfo(messengerId)).data;
+            // senders = (await getMessInfo(messengerId)).data;
             
             box = await BoxTransaction.create([{
                 name: '',
@@ -465,15 +465,22 @@ const updateTransaction = async (req, res) => {
             } else {
                 box.status = 'active';
                 box.flag += 1;
-                await box.save();
+                await box.save({ session });
             }
         }
 
-        if (tran.status === 6 && tran.amount !== oriAmount) {
-            if (box.amount > 0) {
-                box.amount -= tran.amount;
-            }
-            box.amount += oriAmount;
+        if (tran.status === 6) {
+            await BoxTransaction.updateOne(
+                { _id: tran.boxId },
+                { $inc: { amount: -tran.amount } },
+                { session }
+            );
+            
+            await BoxTransaction.updateOne(
+                { _id: box._id },
+                { $inc: { amount: oriAmount } },
+                { session }
+            );
             await box.save({ session });
         }
 

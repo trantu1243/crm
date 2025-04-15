@@ -384,7 +384,7 @@ async function getMessInfo(messengerId) {
             }
         }
 
-        const result = await getMess(cookie, messengerId);
+        let result = await getMess(cookie, messengerId);
         
         if (!result.status) {
             if (result.code === 190) {
