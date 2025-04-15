@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.get('/', customerController.getCustomers);
 
-router.post('/toggle-white-list/:id', authenticateToken, customerController.toggleWhiteListCustomer);
+// router.post('/toggle-white-list/:id', authenticateToken, customerController.toggleWhiteListCustomer);
 
-router.post('/toggle-black-list/:id', authenticateToken, customerController.toggleBlackListCustomer);
+// router.post('/toggle-black-list/:id', authenticateToken, customerController.toggleBlackListCustomer);
 
-router.post('/update-tag', authenticateToken, customerController.updateTag);
+// router.post('/update-tag', authenticateToken, customerController.updateTag);
 
 module.exports = router;
