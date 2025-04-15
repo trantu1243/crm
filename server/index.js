@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // seedPermissions();
     // updateCookie()
     // updateCustomerBankAccounts();
-    // updateCustomers();
+    updateCustomers();
 });
 
 const updateCookie = async () =>{
