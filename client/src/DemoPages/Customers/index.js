@@ -139,7 +139,7 @@ class Customers extends Component {
                                         }}}
                                     >
                                         <Row>
-                                            <Col md={3} sm={6} xs={12} className="pe-2 mb-2" style={{zIndex: 3}}>
+                                            <Col md={3} sm={6} xs={12} className="pe-2 mb-2" style={{zIndex: 4}}>
                                                 <Label>Tags</Label>
                                                 <Select
                                                     isMulti
