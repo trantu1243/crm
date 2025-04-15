@@ -19,7 +19,7 @@ class Nav extends Component {
         const { user } = this.props;
 
         let filteredNav = MainNav.filter(item => {
-            if (item.label === "Phân quyền hệ thống") {
+            if (item.label === "Phân quyền hệ thống" || item.label === "Khác") {
                 return user?.is_admin === 1;
             }
             return true;
