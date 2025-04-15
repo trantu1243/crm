@@ -36,9 +36,9 @@ export const MainNav = [
         ],
     },
     {
-      icon: "pe-7s-users",
-      label: "Phân quyền hệ thống",
-      content: [
+        icon: "pe-7s-users",
+        label: "Phân quyền hệ thống",
+        content: [
             {
                 label: "Quản lý nhóm quyền",
                 to: "/role",
@@ -54,9 +54,9 @@ export const MainNav = [
         ],
     },
     {
-      icon: "pe-7s-settings",
-      label: "Cấu hình hệ thống",
-      content: [
+        icon: "pe-7s-settings",
+        label: "Cấu hình hệ thống",
+        content: [
             {
                 label: "Cấu hình ngân hàng",
                 to: "/config/bank-account",
@@ -76,6 +76,16 @@ export const MainNav = [
             {
                 label: "Settings",
                 to: "/config/setting",
+            },
+        ],
+    },
+    {
+        icon: "pe-7s-user",
+        label: "Khác",
+        content: [
+            {
+                label: "Quản lý user",
+                to: "/customers",
             },
         ],
     },

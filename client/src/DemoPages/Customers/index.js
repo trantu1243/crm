@@ -31,7 +31,7 @@ const customStyles = {
         ...styles,
         backgroundColor: data.color, 
         color: "white",
-        borderRadius: '5px'
+        borderRadius: '5px',
     }),
     multiValueLabel: (styles) => ({
         ...styles,
@@ -139,7 +139,7 @@ class Customers extends Component {
                                         }}}
                                     >
                                         <Row>
-                                            <Col md={3} sm={6} xs={12} className="pe-2 mb-2">
+                                            <Col md={3} sm={6} xs={12} className="pe-2 mb-2" style={{zIndex: 3}}>
                                                 <Label>Tags</Label>
                                                 <Select
                                                     isMulti
