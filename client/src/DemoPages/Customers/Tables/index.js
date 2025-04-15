@@ -152,6 +152,10 @@ class CustomerTable extends Component {
                         <tr>
                             <th className="text-center">Facebook ID</th>
                             <th className="text-center">Tên</th>
+                            <th className="text-center">Số GD bên mua thành công</th>
+                            <th className="text-center">Số GD bên mua hủy</th>
+                            <th className="text-center">Số GD bên bán thành công</th>
+                            <th className="text-center">Số GD bên bán hủy</th>
                             <th className="text-center">Tags</th>
                             <th className="text-center">#</th>
                         </tr>
@@ -160,6 +164,10 @@ class CustomerTable extends Component {
                         {this.state.customers.map((item) => <tr>
                             <td className="text-center text-muted">{item.facebookId}</td>
                             <td className="text-center text-muted">{item.nameCustomer}</td>
+                            <td className="text-center text-muted">{item.buyerCount.success}</td>
+                            <td className="text-center text-muted">{item.buyerCount.cancel}</td>
+                            <td className="text-center text-muted">{item.sellerCount.success}</td>
+                            <td className="text-center text-muted">{item.sellerCount.cancel}</td>
                             <td className="text-center text-muted">
                                 {item.tags.map((tag) => <>
                                     <span 
