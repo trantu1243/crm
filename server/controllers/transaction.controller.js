@@ -5,6 +5,7 @@ const { getSocket } = require("../socket/socketHandler");
 const { saveUserLogToQueue } = require("../services/log.service");
 const { getMessGroupInfo, getMessInfo } = require("../services/facebookService");
 const { makeVietQRContent } = require("../services/encodeQr.service");
+const { updateCustomerToQueue } = require("../services/customer.service");
 
 const generateUUID = async () => {
     const { customAlphabet } = await import('nanoid');
@@ -640,6 +641,7 @@ const cancelTransaction = async (req, res) => {
 
         const user = await Staff.findById(req.user.id);
         await saveUserLogToQueue(user._id, transaction._id, "CANCEL_TRANSACTION", "Hủy GDTG", req);
+        await updateCustomerToQueue(transaction.boxId);
 
         const io = getSocket();
         

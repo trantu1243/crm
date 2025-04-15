@@ -26,6 +26,7 @@ import Setting from "../../DemoPages/Setting";
 import QuickAnswer from "../../DemoPages/QuickAnswer";
 import QuickReply from "../../DemoPages/QuickReply";
 import Tag from "../../DemoPages/Tag";
+import Customers from "../../DemoPages/Customers";
 
 const UserPages = lazy(() => import("../../DemoPages/UserPages"));
 const Dashboards = lazy(() => import("../../DemoPages/Dashboards"));
@@ -60,9 +61,9 @@ const AppMain = () => {
                 dispatch(authSuccess(userData));
                 setIsAuth(true);
             } catch (error) {
-                localStorage.removeItem("token");
-                dispatch(logout());
-                setIsAuth(false);
+                // localStorage.removeItem("token");
+                // dispatch(logout());
+                // setIsAuth(false);
             }
         };
 
@@ -517,6 +518,22 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/quick-reply" render={() => isAuth ? <QuickReply /> : <Redirect to="/login" />
+                }  />
+            </Suspense>
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <div className="text-center">
+                            <Loader type="ball-grid-cy"/>
+                        </div>
+                        <h6 className="mt-3">
+                            Please wait a minute ...
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/customers" render={() => isAdmin ? <Customers /> : <Redirect to="/login" />
                 }  />
             </Suspense>
 

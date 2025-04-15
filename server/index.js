@@ -17,7 +17,7 @@ const { Transaction, BoxTransaction, Bill, Setting, Staff, BankApi, Customer, Ba
 const { lockInactiveBoxes } = require('./services/boxTransaction.service');
 const axios = require('axios');
 const fs = require('fs');
-const { updateCustomerBankAccounts } = require('./services/customer.service');
+const { updateCustomerBankAccounts, updateCustomers } = require('./services/customer.service');
 
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
     // seedPermissions();
     // updateCookie()
     // updateCustomerBankAccounts();
+    // updateCustomers();
 });
 
 const updateCookie = async () =>{

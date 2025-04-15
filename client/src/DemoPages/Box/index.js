@@ -70,7 +70,7 @@ const customStyles = {
 
 export const transformTags = (tags) => {
     return tags.map(tag => {
-        const matchedColor = colorOptions.find(option => option.value === tag.color)?.color || "#000000"; // Mặc định màu đen nếu không tìm thấy
+        const matchedColor = colorOptions.find(option => option.value === tag.color)?.color || "#000000";
         return {
             label: tag.name,
             value: tag._id,

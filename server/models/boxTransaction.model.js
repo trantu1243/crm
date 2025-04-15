@@ -14,8 +14,8 @@ const boxTransactionSchema = new mongoose.Schema({
     staffId: { type: mongoose.Types.ObjectId, ref: 'Staff', index: true },
     typeBox: { type: String, default: 'facebook'},
     amount: { type: Number, default: 0 },
-    buyer: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null },
-    seller: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null },
+    buyer: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null, index: true },
+    seller: { type: mongoose.Types.ObjectId, ref: 'Customer', default: null, index: true },
     notes: {
         type: [{ type: String }],
         default: []

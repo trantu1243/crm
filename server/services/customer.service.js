@@ -1,8 +1,5 @@
-const Customer = require('../models/customer.model');
-const BoxTransaction = require('../models/boxTransaction.model');
-const Stk = require('../models/stk.model');
-const Bill = require('../models/bill.model');
-const { BankApi } = require('../models');
+const { BankApi, Transaction, Customer, BoxTransaction, Bill, Stk } = require('../models');
+const customerQueue = require('../queues/customer.queue');
 
 async function updateCustomerBankAccounts() {
     try {
@@ -17,7 +14,7 @@ async function updateCustomerBankAccounts() {
 
                 for (const bill of bills) {
                     const typeTransfer = bill.typeTransfer;
-                  
+
                     if (typeTransfer === 'buyer') {
                         const bank = await BankApi.findOne({ bankCode: bill.bankCode });
                         const stk = await findOrCreateStk({stk: bill.stk, bankId: bank._id});
@@ -49,7 +46,7 @@ async function updateCustomerBankAccounts() {
             }
             i++;
         }
-      
+
         console.log('Customer bank accounts updated successfully.');
     } catch (error) {
         console.error('Error updating customer bank accounts:', error);
@@ -67,6 +64,44 @@ async function findOrCreateStk(stkData) {
     return stk;
 }
 
+async function updateCustomerToQueue(id) {
+    await customerQueue.add({ id });
+}
+
+async function updateCustomers() {
+    try {
+        const customers = await Customer.find().sort({ createdAt: -1 });
+        let i = 0;
+        for (const customer of customers) {
+            let boxTransactions = await BoxTransaction.find({ buyer: customer._id });
+            let successTransactions = await Transaction.find({ boxId: { $in: boxTransactions.map(box => box._id) }, status: 2 });
+            let cancelTransactions = await Transaction.find({ boxId: { $in: boxTransactions.map(box => box._id) }, status: 3 });
+
+            customer.buyerCount.success = successTransactions.length;
+            customer.buyerCount.cancel = cancelTransactions.length;
+
+            boxTransactions = await BoxTransaction.find({ seller: customer._id });
+            successTransactions = await Transaction.find({ boxId: { $in: boxTransactions.map(box => box._id) }, status: 2 });
+            cancelTransactions = await Transaction.find({ boxId: { $in: boxTransactions.map(box => box._id) }, status: 3 });
+
+            customer.sellerCount.success = successTransactions.length;
+            customer.sellerCount.cancel = cancelTransactions.length;
+
+            await customer.save();
+
+            console.log('Processed customers:', i, ' ', customer._id);
+
+            i++;
+        }
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating customer:', error);
+        return { success: false, message: 'Server error' };
+    }
+}
+
 module.exports = {
-    updateCustomerBankAccounts
+    updateCustomerBankAccounts,
+    updateCustomerToQueue,
+    updateCustomers,
 };

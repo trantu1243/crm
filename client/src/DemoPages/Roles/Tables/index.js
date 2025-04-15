@@ -91,7 +91,7 @@ class RoleTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await createRole(this.state.input);
+            await createRole(this.state.input);
             this.setState({createLoading: false});
             this.toggleCreate();
             this.setState({input: {
@@ -113,7 +113,7 @@ class RoleTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await updateRole(this.state.roleId, this.state.update);
+            await updateRole(this.state.roleId, this.state.update);
             this.setState({createLoading: false});
             this.toggleUpdate();
             this.getRoles();
@@ -130,7 +130,7 @@ class RoleTable extends Component {
         try{
             e.preventDefault();
             this.setState({createLoading: true});
-            const res = await deleteRole(this.state.roleId);
+            await deleteRole(this.state.roleId);
             this.setState({createLoading: false});
             this.toggleDelete();
             this.getRoles();

@@ -4,6 +4,7 @@ const { getMessInfo, getUserInfo } = require("../services/facebookService");
 const { saveUserLogToQueue } = require("../services/log.service");
 const { getPermissions } = require("../services/permission.service");
 const { getSocket } = require("../socket/socketHandler");
+const { updateCustomerToQueue } = require("../services/customer.service");
 
 const getBillsByBoxId = async (req, res) => {
     try {
@@ -110,12 +111,12 @@ const getById = async (req, res) => {
                 { path: 'staffId', select: 'name_staff email uid_facebook avatar' },
                 { 
                     path: 'buyer', 
-                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    select: 'facebookId nameCustomer avatar bankAccounts tags buyerCount sellerCount',
                     populate: [{ path: 'tags', select: 'slug name color' }]
                 },
                 { 
                     path: 'seller', 
-                    select: 'facebookId nameCustomer avatar bankAccounts tags',
+                    select: 'facebookId nameCustomer avatar bankAccounts tags buyerCount sellerCount',
                     populate: [{ path: 'tags', select: 'slug name color' }]
                 },
                 { path: 'tags', select: 'slug name color' }
@@ -437,7 +438,7 @@ const undoBox = async (req, res) => {
         });
         
         await saveUserLogToQueue(user._id, box._id, "UNDO_BOX", "Hoàn tác box", req);
-
+        await updateCustomerToQueue(box._id);
         return res.json({ 
             status: true,
             message: 'Undo box success',

@@ -4,6 +4,7 @@ const { generateQrCode } = require("../services/qr.service");
 const mongoose = require('mongoose');
 const { getSocket } = require("../socket/socketHandler");
 const { saveUserLogToQueue } = require("../services/log.service");
+const { updateCustomerToQueue } = require("../services/customer.service");
 
 const getBills = async (req, res) => {
     try {
@@ -373,6 +374,7 @@ const confirmBill = async (req, res) => {
             // ✅ Cập nhật toàn bộ transaction có status = 7 -> 2 (đã thanh toán)
             await Transaction.updateMany({ boxId: box._id, status: 7 }, { status: 2 }, { session });
             await BoxTransaction.updateOne({ _id: box._id }, { status: "complete" }, { session });
+            await updateCustomerToQueue(box._id);
         } else if (paidAmount > 0) {
             // ✅ Dùng bulkWrite để tối ưu cập nhật trạng thái giao dịch
             const bulkOps = [];
