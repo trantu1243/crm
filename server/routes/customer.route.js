@@ -12,4 +12,6 @@ router.post('/toggle-black-list/:id', authenticateToken, customerController.togg
 
 router.post('/update-tag', authenticateToken, customerController.updateTag);
 
+router.post('update-note', authenticateToken, customerController.updateNote);
+
 module.exports = router;
