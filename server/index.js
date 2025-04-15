@@ -19,14 +19,14 @@ const { updateCustomerBankAccounts, updateCustomers } = require('./services/cust
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
-    updateCookie()
+    // updateCookie()
     // updateCustomerBankAccounts();
     // updateCustomers();
 });
 
 const updateCookie = async () =>{
     try {
-        await BoxTransaction.findOneAndUpdate({ messengerId: '28983941167921334' }, { amount: 12915000 });
+
     } catch (error) {
         console.error(error);
     }
