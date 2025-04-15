@@ -139,6 +139,7 @@ class CreateTransaction extends Component {
             fee: data.data
         })
     }
+    
     getTags = async () => {
         const res = await fetchTags();
         this.setState({

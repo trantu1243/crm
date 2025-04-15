@@ -7,20 +7,34 @@ const getCustomers = async (req, res) => {
             page = 1,
             limit = 10,
             sortField = 'createdAt', 
-            facebookId
+            search,
+            list
         } = req.query;
 
         let tagArray = [];
         if (tags) tagArray = Array.isArray(tags) ? tags : [tags];
 
-        const query = tagArray.length > 0
-            ? {
-                tags: { $in: tagArray }
+        const query = {};
+
+        if (tagArray.length > 0) {
+            query.tags = { $in: tagArray };
+        }
+
+        if (list) {
+            if (list === 'whitelist') {
+                query.whiteList = true;
             }
-            : {};
+            
+            if (list === 'blacklist') {
+                query.blackList = true;
+            }
+        }
         
-        if (facebookId) {
-            query = { facebookId };
+        if (search) {
+            query.$or = [
+                { facebookId: { $regex: search, $options: 'i' } },
+                { nameCustomer: { $regex: search, $options: 'i' } }
+            ];
         }
 
         const allowedSortFields = [

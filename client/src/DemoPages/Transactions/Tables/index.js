@@ -818,12 +818,12 @@ class TransactionsTable extends Component {
                                 defaultValue={[10]} 
                                 value={filters.limit} 
                                 onChange={(value) => {
-                                        this.props.setFilters({
-                                            ...filters,
-                                            limit: value,
-                                        });
-                                    }
-                                }/>
+                                    this.props.setFilters({
+                                        ...filters,
+                                        limit: value,
+                                    });
+                                }
+                            }/>
                         </Col>
                     </Row>
                     

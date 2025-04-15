@@ -3,9 +3,23 @@ import { SERVER_URL } from "./url";
 
 const API_URL = `${SERVER_URL}/v1/customer`;
 
-export const fetchCustomer = async () => {
+export const fetchCustomers = async (data) => {
     try {
-        const response = await axios.get(API_URL, {
+        let filters = { ...data };
+        if (filters?.tags) {
+            filters.tags = filters.tags.map(tag => tag.value);
+        }
+        const formattedFilters = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+                value.forEach(item => formattedFilters.append(`${key}[]`, item));
+            } else if (value) {
+                formattedFilters.append(key, value);
+            }
+        });
+
+        const response = await axios.get(`${API_URL}?${formattedFilters.toString()}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${localStorage.getItem("token")}`

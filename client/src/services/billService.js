@@ -14,6 +14,7 @@ export const fetchBills = async (filters) => {
                 formattedFilters.append(key, value);
             }
         });
+
         const response = await axios.get(`${API_URL}?${formattedFilters.toString()}`, {
             headers: {
                 "Content-Type": "application/json",
