@@ -19,68 +19,12 @@ const { updateCustomerBankAccounts, updateCustomers } = require('./services/cust
 mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connect to mongodb successfully");
 
-    updateCookie()
-    // updateCustomerBankAccounts();
-    // updateCustomers();
+    // updateCookie()
+
 });
 
 const updateCookie = async () =>{
     try {
-        // 67c04fd2c13762df11aee5f7
-        // 67c04fd2c13762df11aee5f5
-        // 67c04fc0c13762df11aee5d3
-        // 67c04f99c13762df11aee595
-        // 67c04f99c13762df11aee593
-
-        // 67c04b2a9898c1ea687f2553
-        // 67c04b2a9898c1ea687f2551
-        // 67c04b199898c1ea687f2531
-        // 67c04b199898c1ea687f252f
-        // 67c04b089898c1ea687f250f
-        // 67c04b089898c1ea687f250d
-        // 67c04af79898c1ea687f24ed
-        // 67c04af79898c1ea687f24eb
-        // 67c04ae09898c1ea687f24cb
-        // 67c04ae09898c1ea687f24c9
-
-        // 67c04ac29898c1ea687f24a4
-        // 67c04ac19898c1ea687f24a2
-        // 67c04ab39898c1ea687f2480
-        // 67c04a9f9898c1ea687f245e
-        // 67c04a8f9898c1ea687f243e
-        // 67c04a8f9898c1ea687f243c
-        // 67c04a809898c1ea687f241c
-        // 67c04a809898c1ea687f241a
-        // 67c04a719898c1ea687f23fa
-        // 67bff00f0866df4cb7a3bffd
-
-        await Customer.findByIdAndDelete('67c04fd2c13762df11aee5f7');
-        await Customer.findByIdAndDelete('67c04fd2c13762df11aee5f5');
-        await Customer.findByIdAndDelete('67c04fc0c13762df11aee5d3');
-        await Customer.findByIdAndDelete('67c04f99c13762df11aee595');
-        await Customer.findByIdAndDelete('67c04f99c13762df11aee593');
-
-        await Customer.findByIdAndDelete('67c04b2a9898c1ea687f2553');
-        await Customer.findByIdAndDelete('67c04b2a9898c1ea687f2551');
-        await Customer.findByIdAndDelete('67c04b199898c1ea687f2531');
-        await Customer.findByIdAndDelete('67c04b199898c1ea687f252f');
-        await Customer.findByIdAndDelete('67c04b089898c1ea687f250f');
-        await Customer.findByIdAndDelete('67c04b089898c1ea687f250d');
-        await Customer.findByIdAndDelete('67c04af79898c1ea687f24ed');
-        await Customer.findByIdAndDelete('67c04af79898c1ea687f24eb');
-        await Customer.findByIdAndDelete('67c04ae09898c1ea687f24cb');
-        await Customer.findByIdAndDelete('67c04ae09898c1ea687f24c9');
-
-        await Customer.findByIdAndDelete('67c04ac29898c1ea687f24a4');
-        await Customer.findByIdAndDelete('67c04ac19898c1ea687f24a2');
-        await Customer.findByIdAndDelete('67c04ab39898c1ea687f2480');
-        await Customer.findByIdAndDelete('67c04a9f9898c1ea687f245e');
-        await Customer.findByIdAndDelete('67c04a8f9898c1ea687f243e');
-        await Customer.findByIdAndDelete('67c04a8f9898c1ea687f243c');
-        await Customer.findByIdAndDelete('67c04a809898c1ea687f241c');
-        await Customer.findByIdAndDelete('67c04a809898c1ea687f241a');
-        await Customer.findByIdAndDelete('67c04a719898c1ea687f23fa');
-        await Customer.findByIdAndDelete('67bff00f0866df4cb7a3bffd');
     } catch (error) {
         console.error(error);
     }
