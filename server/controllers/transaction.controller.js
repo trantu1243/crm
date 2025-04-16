@@ -329,7 +329,8 @@ const createTransaction = async (req, res) => {
             bonus: Number(bonus),
             flag: box.flag ? box.flag : 1,
             checkCode,
-            decodeQr
+            decodeQr,
+            created_at: new Date()
         });
 
         await saveUserLogToQueue(user._id, newTransaction._id, "CREATE_TRANSACTION", "Tạo GDTG", req);

@@ -345,7 +345,7 @@ const undoBox = async (req, res) => {
         
         else if (latestTransaction.status === 3) {
             latestTransaction.status = 1;
-            latestTransaction.createdAt =  new Date().toISOString();
+            latestTransaction.created_at =  new Date().toISOString();
             await latestTransaction.save();
         }
         // Nếu transaction mới nhất có status = 1, tìm transaction tiếp theo có status = 6 để cập nhật

@@ -30,6 +30,9 @@ const transactionSchema = new mongoose.Schema({
     bonus: { type: Number, default: 0 },
     flag: { type: Number, default: 1 },
     decodeQr: { type: String },
+    created_at: {
+        type: Date,
+    }
 }, {
     timestamps: true,
 });

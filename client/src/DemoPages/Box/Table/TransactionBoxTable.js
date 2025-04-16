@@ -690,7 +690,7 @@ class TransactionsTable extends Component {
                                 }
                                 return <tr className={rowClass}>
                                     <td className="text-center ">{item._id.slice(-8)}</td>
-                                    <td className="text-center ">{formatDate(item.createdAt)}</td>
+                                    <td className="text-center ">{item.created_at ? formatDate(item.created_at) : formatDate(item.createdAt)}</td>
                                     <td
                                         className="text-center"
                                         onClick={() => {

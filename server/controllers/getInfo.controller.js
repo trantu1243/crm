@@ -24,7 +24,7 @@ const checkTransaction = async (req, res) => {
         const { code } = req.params;
         
         const transaction = await Transaction.findOne({ checkCode: code })
-            .select("amount content fee totalAmount status boxId bankId checkCode createdAt")
+            .select("amount content fee totalAmount status boxId bankId checkCode createdAt created_at")
             .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
@@ -72,7 +72,6 @@ const checkTransaction = async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-
 
 const getGDAccount = async (req, res) => {
     try {
@@ -139,12 +138,12 @@ const getTransactions = async (req, res) => {
         const transactions = await Transaction.find({
             boxId: boxTransaction._id,
             status: { $nin: [3] }
-        }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId checkCode createdAt").populate([
+        }).sort({ createdAt: -1 }).select("amount content fee totalAmount status boxId bankId checkCode createdAt created_at").populate([
             { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' }
         ]).lean(); ;
 
         const transaction = await Transaction.findOne({ boxId: boxTransaction._id }).sort({ createdAt: -1 })
-            .select("amount content fee totalAmount status boxId bankId checkCode createdAt")
+            .select("amount content fee totalAmount status boxId bankId checkCode createdAt created_at")
             .populate([
                 { path: 'bankId', select: 'bankName bankCode bankAccount bankAccountName binBank name' },
                 {
