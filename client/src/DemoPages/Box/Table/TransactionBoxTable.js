@@ -429,6 +429,27 @@ class TransactionsTable extends Component {
     removeVietnameseAccents = (str) => {
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     };
+
+    handleSwitch = async () => {
+        this.setState({loading: true});
+        await this.setState((prevState) => ({
+            buyer: {
+                ...prevState.buyer,
+                bankCode: prevState.seller.bankCode,
+                amount: prevState.seller.amount,
+                bonus: prevState.seller.bonus,
+                stk: prevState.seller.stk,
+            },
+            seller: {
+                ...prevState.seller,
+                bankCode: prevState.buyer.bankCode,
+                amount: prevState.buyer.amount,
+                bonus: prevState.buyer.bonus,
+                stk: prevState.buyer.stk,
+            },
+        }));
+        this.setState({loading: false});
+    }
     
     render() { 
         const { transactions } = this.props;
@@ -1590,6 +1611,9 @@ class TransactionsTable extends Component {
                         <ModalFooter>
                             <Button color="link" onClick={this.toggle}>
                                 Hủy
+                            </Button>
+                            <Button color="secondary" onClick={this.handleSwitch} disabled={this.state.loading}>
+                                Đảo
                             </Button>
                             <Button color="primary" onClick={this.handleCreateBill} disabled={this.state.loading}>
                                 {this.state.loading ? "Đang tạo..." : "Tạo"}

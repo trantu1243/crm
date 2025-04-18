@@ -548,6 +548,27 @@ class TransactionsTable extends Component {
         }
     }
 
+    handleSwitch = async () => {
+        this.setState({loading: true});
+        await this.setState((prevState) => ({
+            buyer: {
+                ...prevState.buyer,
+                bankCode: prevState.seller.bankCode,
+                amount: prevState.seller.amount,
+                bonus: prevState.seller.bonus,
+                stk: prevState.seller.stk,
+            },
+            seller: {
+                ...prevState.seller,
+                bankCode: prevState.buyer.bankCode,
+                amount: prevState.buyer.amount,
+                bonus: prevState.buyer.bonus,
+                stk: prevState.buyer.stk,
+            },
+        }));
+        this.setState({loading: false});
+    }
+
     render() { 
         let filters = this.props.filters || {
             staffId: [],
@@ -1733,6 +1754,9 @@ class TransactionsTable extends Component {
                     <ModalFooter>
                         <Button color="link" onClick={this.toggle}>
                             Hủy
+                        </Button>
+                        <Button color="secondary" onClick={this.handleSwitch} disabled={this.state.loading}>
+                            Đảo
                         </Button>
                         <Button color="primary" onClick={this.handleCreateBill} disabled={this.state.loading}>
                             {this.state.loading ? "Đang tạo..." : "Tạo"}
